@@ -1,0 +1,123 @@
+import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// Category management: a grid of cards, each with its subcategory chips
+/// and Edit/Reorder actions (decorative — the source design never wires
+/// them to anything).
+class AdminCategoriesView extends StatelessWidget {
+  const AdminCategoriesView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
+
+    if (categories.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return SingleChildScrollView(
+      child: LayoutBuilder(builder: (context, constraints) {
+        final cols = constraints.maxWidth < 640 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
+        return GridView.count(
+          crossAxisCount: cols,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
+          childAspectRatio: 1.15,
+          children: [for (final c in categories) _CategoryCard(category: c)],
+        );
+      }),
+    );
+  }
+}
+
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({required this.category});
+  final ApiCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: adminGlassCard(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(width: 52, height: 52, child: ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(category.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 4),
+                    Text('${category.productCount} SKUs · ${category.subs.length} subcategories',
+                        overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+                  ],
+                ),
+              ),
+              const AdminChipBadge('Live'),
+            ],
+          ),
+          const SizedBox(height: 13),
+          Expanded(
+            child: Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                for (final s in category.subs)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                    decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
+                    child: Text(s, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
+                  ),
+                if (category.subs.isEmpty)
+                  Text('No subcategories yet', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: null,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AdminColors.ink, width: 1.3),
+                    disabledForegroundColor: AdminColors.ink,
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: null,
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
+                    disabledForegroundColor: AdminColors.muted,
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('Reorder', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
