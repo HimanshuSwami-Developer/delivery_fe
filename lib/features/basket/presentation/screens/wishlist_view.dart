@@ -3,7 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,11 +45,11 @@ class WishlistView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Wishlist', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Wishlist', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     '${items.length} saved items',
-                    style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                    style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                   ),
                 ],
               ),
@@ -64,12 +64,12 @@ class WishlistView extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Nothing saved yet', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
+                        Text('Nothing saved yet', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 8),
                         Text(
                           'Tap the heart on any product to keep it here.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.manrope(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                          style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                         ),
                       ],
                     ),
@@ -106,21 +106,18 @@ class _WishRow extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () => cubit.openProduct(product.id),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(11),
-              child: const SizedBox(width: 58, height: 58, child: ImageSlot(mini: true)),
-            ),
+            child: const ProductImageMini(size: 58),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 3),
-                Text(product.pack, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                Text(product.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                 const SizedBox(height: 4),
-                Text(moneyLabel(product.price), style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -129,7 +126,7 @@ class _WishRow extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => cubit.removeFromWishlist(product.id),
-                child: Text('✕', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                child: Text('✕', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
               ),
               const SizedBox(height: 6),
               OutlinedButton(
@@ -141,7 +138,7 @@ class _WishRow extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onPressed: () => cubit.addToCart(product.id),
-                child: Text('ADD', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w800)),
+                child: Text('ADD', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w800)),
               ),
             ],
           ),

@@ -3,10 +3,11 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/map_grid_painter.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/osm_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Fraction across the map width for the rider marker at each of the 4
 /// tracking stages, proportioned from the source design's fixed pixel
@@ -14,6 +15,13 @@ import 'package:google_fonts/google_fonts.dart';
 /// screen width.
 const _riderFractions = [104 / 390, 142 / 390, 182 / 390, 214 / 390];
 const _homeFraction = 262 / 390;
+
+/// The backend has no live rider GPS (`Order`/`DeliveryPartner` carry no
+/// lat/lng), so the rider marker's position is still simulated from
+/// [trackingStage] like before — this is just a real basemap under it
+/// instead of the painted grid placeholder. Non-interactive: it's a
+/// backdrop, not something the user pans/zooms.
+const _mapCenter = LatLng(12.9352, 77.6146);
 
 class OrderTrackingView extends StatelessWidget {
   const OrderTrackingView({super.key});
@@ -37,7 +45,7 @@ class OrderTrackingView extends StatelessWidget {
               final width = constraints.maxWidth;
               return Stack(
                 children: [
-                  Positioned.fill(child: CustomPaint(painter: MapGridPainter())),
+                  const Positioned.fill(child: OsmMap(center: _mapCenter, zoom: 15, interactive: false)),
                   Positioned(
                     left: 0,
                     right: 0,
@@ -54,7 +62,7 @@ class OrderTrackingView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                             decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(8)),
-                            child: Text('Rider', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('Rider', style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                           ),
                           const SizedBox(height: 4),
                           Container(
@@ -84,7 +92,7 @@ class OrderTrackingView extends StatelessWidget {
                               border: Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('You', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w700)),
+                            child: Text('You', style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700)),
                           ),
                           const SizedBox(height: 4),
                           Container(
@@ -143,11 +151,11 @@ class OrderTrackingView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(headline, style: GoogleFonts.manrope(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                            Text(headline, style: GoogleFonts.poppins(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                             const SizedBox(height: 5),
                             Text(
                               '${order?.orderNumber ?? '—'} · ${order?.itemCount ?? 0} ${order?.itemCount == 1 ? 'item' : 'items'}',
-                              style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                              style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
                             ),
                           ],
                         ),
@@ -155,9 +163,9 @@ class OrderTrackingView extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('$etaLeft min', style: GoogleFonts.manrope(fontSize: 19, fontWeight: FontWeight.w800)),
+                          Text('$etaLeft min', style: GoogleFonts.poppins(fontSize: 19, fontWeight: FontWeight.w800)),
                           const SizedBox(height: 4),
-                          Text('remaining', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                          Text('remaining', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                         ],
                       ),
                     ],
@@ -177,9 +185,9 @@ class OrderTrackingView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(riderName, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                              Text(riderName, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
                               const SizedBox(height: 3),
-                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
+                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
                             ],
                           ),
                         ),
@@ -222,20 +230,20 @@ class OrderTrackingView extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.refreshTracking,
-                          child: Text('Refresh status', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                          child: Text('Refresh status', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                         ),
                       ),
                       const SizedBox(width: 9),
                       Expanded(
                         child: FilledButton(
                           style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.ink,
+                            backgroundColor: BasketColors.primary,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.goToSupport,
-                          child: Text('Get help', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Get help', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -298,9 +306,9 @@ class _TimelineStep extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text(title, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  Text(sub, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(sub, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                 ],
               ),
             ),

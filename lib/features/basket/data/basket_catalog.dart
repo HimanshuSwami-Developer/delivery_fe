@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
+import 'package:flutter/material.dart';
 
 /// Catalog data ported from `Basket App - Parts 1-2.dc.html`'s `<script>`
 /// block (`CATS`, `P`, `COUPONS`, `OB`, `ACCT`, `ADDRS`, `DAYS`, `SLOTS`,
@@ -101,16 +102,19 @@ class BasketCatalog {
       title: 'Fresh picks,\nevery morning.',
       body: 'Farm-sourced fruit and veg graded at 5am and packed the moment you order.',
       slotLabel: 'Onboarding illustration 1',
+      icon: Icons.eco_rounded,
     ),
     OnboardSlide(
       title: 'Delivered before\nthe kettle boils.',
       body: 'Dark stores across your city mean groceries land at your door in minutes.',
       slotLabel: 'Onboarding illustration 2',
+      icon: Icons.bolt_rounded,
     ),
     OnboardSlide(
       title: 'Prices you can\ncheck twice.',
       body: 'MRP on every pack, coupons applied up front, no surprise fees at checkout.',
       slotLabel: 'Onboarding illustration 3',
+      icon: Icons.price_check_rounded,
     ),
   ];
 

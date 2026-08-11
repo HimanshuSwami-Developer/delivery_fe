@@ -1,6 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,84 +40,119 @@ class _SetupViewState extends State<SetupView> {
             children: [
               Text(
                 'Tell us about you',
-                style: GoogleFonts.manrope(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8),
+                style: GoogleFonts.poppins(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8, color: BasketColors.ink),
               ),
               const SizedBox(height: 8),
               Text(
                 'So we can personalise your basket',
-                style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 28),
               Row(
                 children: [
-                  Container(
-                    width: 66,
-                    height: 66,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: BasketColors.ink.withValues(alpha: 0.08)),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: const ImageSlot(shape: ImageSlotShape.circle, mini: true),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: BasketColors.primarySoft,
+                          border: Border.all(color: BasketColors.primary.withValues(alpha: 0.3), width: 1.6),
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.person_rounded, size: 34, color: BasketColors.primary.withValues(alpha: 0.6)),
+                      ),
+                      Positioned(
+                        right: -2,
+                        bottom: -2,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: BasketColors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2.5),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.camera_alt_rounded, size: 13, color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Add a photo', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w700)),
+                      Text('Add a photo', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                       const SizedBox(height: 3),
-                      Text('Optional', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                      Text('Optional', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              _NameFieldCard(controller: _nameController, onChanged: cubit.setName),
+              const SizedBox(height: 26),
+              LabeledTextField(
+                label: 'Full name',
+                controller: _nameController,
+                onChanged: cubit.setName,
+                textCapitalization: TextCapitalization.words,
+                hintText: 'Aarav Sharma',
+              ),
               const SizedBox(height: 12),
-              _FieldCard(label: 'Email', value: 'Optional', muted: true),
-              const SizedBox(height: 12),
+              const LabeledStaticField(label: 'Email', value: 'Optional', muted: true),
+              const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
+                  color: BasketColors.primarySoft,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(
-                      'REFERRAL CODE',
-                      style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.card_giftcard_rounded, size: 18, color: BasketColors.primary),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('RAVI250', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                          decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(99)),
-                          child: Text(
-                            '₹250 unlocked',
-                            style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'REFERRAL CODE',
+                            style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: BasketColors.primary, letterSpacing: 0.6),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 2),
+                          Text('RAVI250', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(99)),
+                      child: Text(
+                        '₹250 unlocked',
+                        style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
               ),
               if (authError != null) ...[
                 const SizedBox(height: 12),
-                Text(authError, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                Text(authError, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.error)),
               ],
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.ink,
+                    backgroundColor: BasketColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -128,96 +163,12 @@ class _SetupViewState extends State<SetupView> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
                         )
-                      : Text('Start shopping', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                      : Text('Start shopping', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _NameFieldCard extends StatelessWidget {
-  const _NameFieldCard({required this.controller, required this.onChanged});
-
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 7),
-            child: Text(
-              'FULL NAME',
-              style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
-            ),
-          ),
-          TextField(
-            controller: controller,
-            onChanged: onChanged,
-            textCapitalization: TextCapitalization.words,
-            style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700),
-            decoration: InputDecoration(
-              isDense: true,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
-              hintText: 'Aarav Sharma',
-              hintStyle: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.faint),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FieldCard extends StatelessWidget {
-  const _FieldCard({required this.label, required this.value, this.muted = false});
-
-  final String label;
-  final String value;
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.manrope(
-              fontSize: 15,
-              fontWeight: muted ? FontWeight.w600 : FontWeight.w700,
-              color: muted ? BasketColors.faint : BasketColors.ink,
-            ),
-          ),
-        ],
       ),
     );
   }

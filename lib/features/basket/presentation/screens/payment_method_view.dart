@@ -44,9 +44,9 @@ class PaymentMethodView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Payment method', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Payment method', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
-                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -70,7 +70,7 @@ class PaymentMethodView extends StatelessWidget {
                 ),
                 child: Text(
                   'Payments are processed over an encrypted gateway. A GST invoice is emailed once the order is delivered.',
-                  style: GoogleFonts.manrope(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                  style: GoogleFonts.poppins(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 ),
               ),
             ],
@@ -91,18 +91,18 @@ class PaymentMethodView extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: BasketColors.ink,
+                      backgroundColor: BasketColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     onPressed: cubit.payNow,
-                    child: Text(payCta, style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text(payCta, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 9),
                 TextButton(
                   onPressed: cubit.simulatePaymentFailure,
-                  child: Text('Simulate a failed payment', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: BasketColors.faint)),
+                  child: Text('Simulate a failed payment', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: BasketColors.faint)),
                 ),
               ],
             ),
@@ -145,9 +145,9 @@ class _PaymentMethodTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(method.name, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
+                  Text(method.name, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  Text(method.sub, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(method.sub, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                 ],
               ),
             ),

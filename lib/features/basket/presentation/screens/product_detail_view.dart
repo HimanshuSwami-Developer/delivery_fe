@@ -3,7 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,7 +37,7 @@ class ProductDetailView extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  const SizedBox(width: double.infinity, height: 290, child: ImageSlot(shape: ImageSlotShape.rect, caption: 'Product photo')),
+                  ProductImage(height: 290, discountPct: p.discountPct, radius: 0),
                   Positioned(
                     top: MediaQuery.paddingOf(context).top + 8,
                     left: 14,
@@ -106,20 +106,20 @@ class ProductDetailView extends StatelessWidget {
                           Expanded(
                             child: Text(
                               p.name,
-                              style: GoogleFonts.manrope(fontSize: 19, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
+                              style: GoogleFonts.poppins(fontSize: 19, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                             decoration: BoxDecoration(border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)), borderRadius: BorderRadius.circular(99)),
-                            child: Text('★ ${p.rating}', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                            child: Text('★ ${p.rating}', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         '${p.pack} · Delivery in ${BasketCubit.etaMinutes} min',
-                        style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                        style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
                       ),
                       const SizedBox(height: 14),
                       Row(
@@ -135,17 +135,17 @@ class ProductDetailView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(moneyLabel(p.price), style: GoogleFonts.manrope(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
+                          Text(moneyLabel(p.price), style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
                           const SizedBox(width: 9),
                           Text(
                             moneyLabel(p.mrp),
-                            style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
                           ),
                           const SizedBox(width: 9),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                             decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(99)),
-                            child: Text('${p.discountPct}% off', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                            child: Text('${p.discountPct}% off', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                           ),
                         ],
                       ),
@@ -174,7 +174,7 @@ class ProductDetailView extends StatelessWidget {
                                     ),
                                     child: Text(
                                       t.$1 == PdpTab.reviews ? 'Reviews ${_reviewCount(p.ratingsCount)}' : t.$2,
-                                      style: GoogleFonts.manrope(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w700,
                                         color: tab == t.$1 ? BasketColors.ink : BasketColors.faint,
@@ -189,10 +189,10 @@ class ProductDetailView extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         _tabBody(tab, p),
-                        style: GoogleFonts.manrope(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
+                        style: GoogleFonts.poppins(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
                       ),
                       const SizedBox(height: 22),
-                      Text('Frequently bought with', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text('Frequently bought with', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 11),
                       SizedBox(
                         height: 148,
@@ -227,7 +227,7 @@ class ProductDetailView extends StatelessWidget {
                       _StepButton(label: '−', onTap: () => cubit.bump(p.id, -1)),
                       SizedBox(
                         width: 20,
-                        child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+                        child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
                       ),
                       _StepButton(label: '+', onTap: () => cubit.bump(p.id, 1)),
                     ],
@@ -237,14 +237,14 @@ class ProductDetailView extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: BasketColors.ink,
+                      backgroundColor: BasketColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: cubit.pdpAdd,
                     child: Text(
                       'Add to cart · ${moneyLabel(p.price * pdpQty)}',
-                      style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
                     ),
                   ),
                 ),
@@ -310,7 +310,7 @@ class _VariantPill extends StatelessWidget {
         border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.14)),
         borderRadius: BorderRadius.circular(99),
       ),
-      child: Text(label, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : BasketColors.ink)),
+      child: Text(label, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : BasketColors.ink)),
     );
   }
 }
@@ -333,9 +333,9 @@ class _InfoTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700)),
+          Text(title, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 3),
-          Text(sub, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+          Text(sub, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
         ],
       ),
     );
@@ -362,20 +362,17 @@ class _AlsoBoughtCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: const SizedBox(width: double.infinity, height: 66, child: ImageSlot(mini: true)),
-            ),
+            ProductImage(height: 66, discountPct: product.discountPct, radius: 10),
             const SizedBox(height: 7),
             SizedBox(
               height: 27,
-              child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 10.5, height: 1.3, fontWeight: FontWeight.w600)),
+              child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 10.5, height: 1.3, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(moneyLabel(product.price), style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w800)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: BasketColors.ink, width: 1.3),
@@ -385,7 +382,7 @@ class _AlsoBoughtCard extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () => context.read<BasketCubit>().bump(product.id, 1),
-                  child: Text('ADD', style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w800)),
+                  child: Text('ADD', style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w800)),
                 ),
               ],
             ),
@@ -408,7 +405,7 @@ class _StepButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-        child: Text(label, style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+        child: Text(label, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
       ),
     );
   }

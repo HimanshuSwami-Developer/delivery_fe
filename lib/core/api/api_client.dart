@@ -29,7 +29,9 @@ class ApiClient {
                   // locally-run `python manage.py runserver`. Android
                   // emulators need `10.0.2.2` instead — pass
                   // `--dart-define=API_BASE_URL=http://10.0.2.2:8000/api` there.
-                  defaultValue: 'http://192.168.1.3:8000/api',
+                    // defaultValue: 'http://192.168.1.3:8000/api',
+                  // defaultValue:'http://192.168.9.153:8000/api',
+                   defaultValue:'https://delivery-be-rose.vercel.app/api',
                 ),
             contentType: 'application/json',
           ),
@@ -37,9 +39,12 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await _secureStorage.read(key: _accessTokenKey);
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final isAuthEndpoint = options.path.contains('/auth/');
+          if (!isAuthEndpoint) {
+            final token = await _secureStorage.read(key: _accessTokenKey);
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
           handler.next(options);
         },

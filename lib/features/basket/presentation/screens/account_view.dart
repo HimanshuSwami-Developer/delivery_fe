@@ -32,11 +32,11 @@ class AccountView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Aarav Sharma', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Aarav Sharma', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 3),
                   Text(
                     '+91 $phoneLabel',
-                    style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                    style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
                   ),
                 ],
               ),
@@ -50,15 +50,15 @@ class AccountView extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(18)),
+                decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(18)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Refer & earn ₹250', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('Refer & earn ₹250', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                     const SizedBox(height: 5),
                     Text(
                       'Your friend gets ₹100 off their first order, you get ₹250 in credits.',
-                      style: GoogleFonts.manrope(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                      style: GoogleFonts.poppins(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -72,7 +72,7 @@ class AccountView extends StatelessWidget {
                             ),
                             child: Text(
                               'AARAV250',
-                              style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.3),
+                              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.3),
                             ),
                           ),
                         ),
@@ -80,7 +80,7 @@ class AccountView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
-                          child: Text('Share', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                          child: Text('Share', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                         ),
                       ],
                     ),
@@ -104,13 +104,13 @@ class AccountView extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(row.title, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
+                                Text(row.title, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700)),
                                 const SizedBox(height: 2),
-                                Text(row.sub, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                                Text(row.sub, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                               ],
                             ),
                           ),
-                          Text('›', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                          Text('›', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
                         ],
                       ),
                     ),

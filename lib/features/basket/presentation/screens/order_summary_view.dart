@@ -66,9 +66,9 @@ class OrderSummaryView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order summary', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Order summary', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                       const SizedBox(height: 2),
-                      Text('Step 3 of 3', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      Text('Step 3 of 3', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -102,7 +102,7 @@ class OrderSummaryView extends StatelessWidget {
                   children: [
                     Text(
                       '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} in this order',
-                      style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800),
+                      style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 11),
                     SizedBox(
@@ -123,7 +123,7 @@ class OrderSummaryView extends StatelessWidget {
                                   child: const SizedBox(width: 56, height: 56, child: ImageSlot(mini: true)),
                                 ),
                                 const SizedBox(height: 5),
-                                Text('×$qty', style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w700)),
+                                Text('×$qty', style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           );
@@ -150,8 +150,8 @@ class OrderSummaryView extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('To pay', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(moneyLabel(t.payable), style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text('To pay', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(moneyLabel(t.payable), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ],
@@ -175,22 +175,22 @@ class OrderSummaryView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(moneyLabel(t.payable), style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text(moneyLabel(t.payable), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       Text(
                         t.savings > 0 ? 'You save ${moneyLabel(t.savings)}' : 'Inclusive of all taxes',
-                        style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                        style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
                       ),
                     ],
                   ),
                 ),
                 FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.ink,
+                    backgroundColor: BasketColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   ),
-                  onPressed: cubit.goToPay,
-                  child: Text('Choose payment', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                  onPressed: cubit.checkoutDirect,
+                  child: Text('Place order', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                 ),
               ],
             ),
@@ -219,15 +219,15 @@ class _SummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(title, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800))),
+              Expanded(child: Text(title, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800))),
               GestureDetector(
                 onTap: onChange,
-                child: Text('Change', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                child: Text('Change', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(sub, style: GoogleFonts.manrope(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+          Text(sub, style: GoogleFonts.poppins(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
         ],
       ),
     );
@@ -245,8 +245,8 @@ class _TotalRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(value, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
       ],
     );
   }

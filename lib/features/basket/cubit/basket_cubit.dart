@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:fastswipe/core/api/api_exception.dart';
+import 'package:fastswipe/core/basket_api/models/profile_models.dart';
+import 'package:fastswipe/core/prefs/app_prefs.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
@@ -21,9 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// design, not an oversight.
 class BasketCubit extends Cubit<BasketState> {
   BasketCubit(this.api) : super(const BasketState()) {
-    _splashTimer = Timer(const Duration(milliseconds: 1700), () {
-      if (state.screen == BasketScreen.splash) go(BasketScreen.onboard);
-    });
+    _splashTimer = Timer(const Duration(milliseconds: 1700), _leaveSplash);
     _bootstrap();
   }
 
@@ -65,7 +65,7 @@ class BasketCubit extends Cubit<BasketState> {
   /// Fires every "home screen needs data" fetch in parallel. Each one
   /// manages its own loading/error state independently, so callers don't
   /// await this — it's called once per fresh arrival at home (first
-  /// login, guest mode, post-setup), not on every `goReset(home)`.
+  /// login, post-setup), not on every `goReset(home)`.
   void _loadHomeData() {
     loadCatalog();
     loadZones();
@@ -192,10 +192,26 @@ class BasketCubit extends Cubit<BasketState> {
 
   // ── Onboarding / auth (Part 1) ──────────────────────────────────────
 
-  void skipSplash() => go(BasketScreen.onboard);
+  /// Onboarding is a once-ever, first-launch thing (persisted via
+  /// [AppPrefs]) — every later launch skips straight from splash to
+  /// login instead of replaying it.
+  Future<void> _leaveSplash() async {
+    if (state.screen != BasketScreen.splash) return;
+    final seen = await AppPrefs.hasSeenOnboarding();
+    if (state.screen != BasketScreen.splash) return; // re-check post-await
+    go(seen ? BasketScreen.login : BasketScreen.onboard);
+  }
+
+  void skipSplash() => _leaveSplash();
+
+  void skipOnboarding() {
+    AppPrefs.setSeenOnboarding();
+    go(BasketScreen.login);
+  }
 
   void nextOnboardSlide() {
     if (state.onboardSlide >= BasketCatalog.onboarding.length - 1) {
+      AppPrefs.setSeenOnboarding();
       go(BasketScreen.login);
     } else {
       emit(state.copyWith(onboardSlide: state.onboardSlide + 1));
@@ -231,14 +247,6 @@ class BasketCubit extends Cubit<BasketState> {
     } on ApiException catch (e) {
       emit(state.copyWith(authLoading: false, authError: e.message));
     }
-  }
-
-  void continueAsGuest() {
-    go(BasketScreen.home);
-    // Guest browsing has no token — catalog/zones are public reads and
-    // will load fine; the address/order/coupon fetches will just 401
-    // silently (each `load*` swallows its own errors).
-    _loadHomeData();
   }
 
   void setOtp(String value) => emit(state.copyWith(otp: _digitsOnly(value), clearAuthError: true));
@@ -465,17 +473,59 @@ class BasketCubit extends Cubit<BasketState> {
 
   void selectAddress(String addressId) => emit(state.copyWith(addressId: addressId));
 
-  void openAddressEdit() => go(BasketScreen.addrEdit);
+  void openAddressEdit() {
+    emit(state.copyWith(clearAddressFormError: true));
+    go(BasketScreen.addrEdit);
+  }
 
   void setNewAddressTag(String tag) => emit(state.copyWith(newAddressTag: tag));
 
-  /// Resets the back-stack to `[home, cart]` — from the saved address
+  /// Validates and POSTs a new address (`api.auth.addAddress`), then
+  /// refreshes [BasketState.apiAddresses] and selects the new one. Resets
+  /// the back-stack to `[home, cart]` on success — from the saved address
   /// screen, back should return to the cart, not the address form.
-  void saveAddress() {
-    emit(state.copyWith(
-      screen: BasketScreen.addr,
-      history: const [BasketScreen.home, BasketScreen.cart],
-    ));
+  Future<void> submitNewAddress({
+    required String houseNo,
+    required String landmark,
+    required String city,
+    required String stateName,
+    required String pincode,
+  }) async {
+    if (houseNo.trim().isEmpty) {
+      emit(state.copyWith(addressFormError: 'Flat / house no. is required.'));
+      return;
+    }
+    if (city.trim().isEmpty || stateName.trim().isEmpty || pincode.trim().isEmpty) {
+      emit(state.copyWith(addressFormError: 'City, state and pincode are required.'));
+      return;
+    }
+
+    emit(state.copyWith(addressSaving: true, clearAddressFormError: true));
+    try {
+      final saved = await api.auth.addAddress(ApiAddress(
+        id: '',
+        addressType: state.newAddressTag.toLowerCase(),
+        addressLine1: houseNo.trim(),
+        addressLine2: landmark.trim().isEmpty ? null : landmark.trim(),
+        city: city.trim(),
+        state: stateName.trim(),
+        country: 'India',
+        pincode: pincode.trim(),
+        isDefault: state.apiAddresses.isEmpty,
+      ));
+      final addresses = [...state.apiAddresses, saved];
+      emit(state.copyWith(
+        addressSaving: false,
+        apiAddresses: addresses,
+        addressId: saved.id,
+        screen: BasketScreen.addr,
+        history: const [BasketScreen.home, BasketScreen.cart],
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(addressSaving: false, addressFormError: e.message));
+    } catch (_) {
+      emit(state.copyWith(addressSaving: false, addressFormError: 'Could not save address. Try again.'));
+    }
   }
 
   void goToAddress() => go(BasketScreen.addr);
@@ -550,10 +600,25 @@ class BasketCubit extends Cubit<BasketState> {
     await _placeRealOrder(minDelay: const Duration(milliseconds: 1200));
   }
 
+  /// For now: skips the payment-method screen entirely — checkout goes
+  /// straight from order summary to placing the order (COD) and into live
+  /// tracking, no "Choose payment"/processing-success detour.
+  /// `goToPay`/`payNow`/payment_method_view stay in place, unused, for
+  /// when a real payment method picker comes back.
+  Future<void> checkoutDirect() async {
+    emit(state.copyWith(
+      paymentMethodId: 'cod',
+      screen: BasketScreen.paying,
+      history: const [BasketScreen.home, BasketScreen.cart],
+      trackingStage: 0,
+    ));
+    await _placeRealOrder(minDelay: const Duration(milliseconds: 1200), goToTrackOnSuccess: true);
+  }
+
   /// Places the order from the customer's (already server-synced) cart,
   /// keeping the "paying" screen up for at least [minDelay] even if the
   /// API responds faster, so the processing animation doesn't just flash.
-  Future<void> _placeRealOrder({required Duration minDelay}) async {
+  Future<void> _placeRealOrder({required Duration minDelay, bool goToTrackOnSuccess = false}) async {
     final zoneId = state.zoneId;
     if (zoneId == null) {
       emit(state.copyWith(
@@ -573,10 +638,11 @@ class BasketCubit extends Cubit<BasketState> {
       emit(state.copyWith(
         currentOrder: order,
         cart: const {},
-        screen: BasketScreen.success,
+        screen: goToTrackOnSuccess ? BasketScreen.track : BasketScreen.success,
         history: const [BasketScreen.home],
       ));
       loadOrders();
+      if (goToTrackOnSuccess) await refreshTracking();
     } on ApiException catch (_) {
       await delayFuture;
       emit(state.copyWith(

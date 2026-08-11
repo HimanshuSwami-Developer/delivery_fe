@@ -46,9 +46,9 @@ class OrderDetailScreenView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(detail.id, style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text(detail.id, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
-                  Text(detail.statusLabel, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text(detail.statusLabel, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -70,15 +70,15 @@ class OrderDetailScreenView extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Live tracking', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                            Text('Live tracking', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
                             const SizedBox(height: 4),
                             Text(
                               '$riderName · $etaLeft min away',
-                              style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
                             ),
                           ],
                         ),
-                        Text('›', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                        Text('›', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
                       ],
                     ),
                   ),
@@ -94,24 +94,24 @@ class OrderDetailScreenView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Order placed ${detail.date}', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                            Text('Order placed ${detail.date}', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
                             const SizedBox(height: 4),
                             Text(
                               'Add the same items back to your basket',
-                              style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted),
                             ),
                           ],
                         ),
                       ),
                       FilledButton(
                         style: FilledButton.styleFrom(
-                          backgroundColor: BasketColors.ink,
+                          backgroundColor: BasketColors.primary,
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.reorder,
-                        child: Text('Reorder', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white)),
+                        child: Text('Reorder', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -123,7 +123,7 @@ class OrderDetailScreenView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Items', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                    Text('Items', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 11),
                     for (final (name, pack, qty, rate) in detail.items)
                       Padding(
@@ -139,13 +139,13 @@ class OrderDetailScreenView extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 2),
-                                  Text('$pack · ×$qty', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                                  Text('$pack · ×$qty', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                                 ],
                               ),
                             ),
-                            Text(moneyLabel(rate * qty), style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800)),
+                            Text(moneyLabel(rate * qty), style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w800)),
                           ],
                         ),
                       ),
@@ -167,8 +167,8 @@ class OrderDetailScreenView extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(detail.paidLabel, style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(detail.totalLabel, style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(detail.paidLabel, style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(detail.totalLabel, style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ],
@@ -187,8 +187,8 @@ class OrderDetailScreenView extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Download GST invoice', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                      Text('↓ PDF', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                      Text('Download GST invoice', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                      Text('↓ PDF', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
                     ],
                   ),
                 ),
@@ -206,7 +206,7 @@ class OrderDetailScreenView extends StatelessWidget {
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.openCancelSheet,
-                        child: Text('Cancel order', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                        child: Text('Cancel order', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                       ),
                     ),
                     const SizedBox(width: 9),
@@ -219,7 +219,7 @@ class OrderDetailScreenView extends StatelessWidget {
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.openReturnSheet,
-                        child: Text('Return items', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                        child: Text('Return items', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                       ),
                     ),
                   ],
@@ -235,14 +235,14 @@ class OrderDetailScreenView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 13),
                     ),
                     onPressed: cubit.openReturnSheet,
-                    child: Text('Return items', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                    child: Text('Return items', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                   ),
                 ),
               ],
               Center(
                 child: TextButton(
                   onPressed: cubit.goToSupport,
-                  child: Text('Need help with this order?', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                  child: Text('Need help with this order?', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted)),
                 ),
               ),
             ],
@@ -264,8 +264,8 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(value, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
       ],
     );
   }

@@ -21,9 +21,10 @@ class AddQtyControl extends StatelessWidget {
     final cubit = context.read<BasketCubit>();
 
     if (qty == 0) {
+      final accent = product.oos ? BasketColors.error : BasketColors.primary;
       return OutlinedButton(
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: BasketColors.ink, width: 1.4),
+          side: BorderSide(color: accent, width: 1.4),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
           padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
           minimumSize: Size.zero,
@@ -32,12 +33,12 @@ class AddQtyControl extends StatelessWidget {
         onPressed: product.oos ? null : () => cubit.bump(product.id, 1),
         child: Text(
           product.oos ? 'SOON' : 'ADD',
-          style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w800, color: BasketColors.ink),
+          style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w800, color: accent),
         ),
       );
     }
     return Container(
-      decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(9)),
+      decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(9)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -46,7 +47,7 @@ class AddQtyControl extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Text(
               '$qty',
-              style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
             ),
           ),
           _StepButton(label: '+', onTap: () => cubit.bump(product.id, 1)),
@@ -68,7 +69,7 @@ class _StepButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Text(label, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+        child: Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
       ),
     );
   }

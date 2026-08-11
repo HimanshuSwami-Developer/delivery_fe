@@ -1,20 +1,105 @@
+import 'dart:async';
+
+import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/map_grid_painter.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/osm_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
 const _tags = ['Home', 'Work', 'Other'];
 
-class AddressEditView extends StatelessWidget {
+/// Koramangala, Bengaluru — a reasonable default center until the user
+/// drags the pin or taps "Use my location".
+const _defaultCenter = LatLng(12.9352, 77.6146);
+
+class AddressEditView extends StatefulWidget {
   const AddressEditView({super.key});
+
+  @override
+  State<AddressEditView> createState() => _AddressEditViewState();
+}
+
+class _AddressEditViewState extends State<AddressEditView> {
+  final _houseNoController = TextEditingController();
+  final _landmarkController = TextEditingController();
+  final _cityController = TextEditingController(text: 'Bengaluru');
+  final _stateController = TextEditingController(text: 'Karnataka');
+  final _pincodeController = TextEditingController();
+
+  final _mapController = MapController();
+  final _geocoder = NominatimService();
+  Timer? _geocodeDebounce;
+
+  LatLng _pinLocation = _defaultCenter;
+  String _resolvedAddress = '4th Block, Koramangala, Bengaluru 560034';
+  bool _locating = false;
+
+  @override
+  void dispose() {
+    _houseNoController.dispose();
+    _landmarkController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _pincodeController.dispose();
+    _geocodeDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _onMapMoved(LatLng center) {
+    _pinLocation = center;
+    _geocodeDebounce?.cancel();
+    // Nominatim's usage policy caps lookups at ~1/sec — only resolve once
+    // the pin has settled, not on every drag frame.
+    _geocodeDebounce = Timer(const Duration(milliseconds: 700), () => _resolveAddress(center));
+  }
+
+  Future<void> _resolveAddress(LatLng point) async {
+    final result = await _geocoder.reverseGeocode(point);
+    if (result == null || !mounted) return;
+    setState(() {
+      if (result.displayName.isNotEmpty) _resolvedAddress = result.displayName;
+      if (result.city.isNotEmpty) _cityController.text = result.city;
+      if (result.state.isNotEmpty) _stateController.text = result.state;
+      if (result.postcode.isNotEmpty) _pincodeController.text = result.postcode;
+    });
+  }
+
+  Future<void> _useMyLocation() async {
+    setState(() => _locating = true);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return;
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition();
+      final here = LatLng(position.latitude, position.longitude);
+      _mapController.move(here, 16);
+      setState(() => _pinLocation = here);
+      await _resolveAddress(here);
+    } catch (_) {
+      // Best-effort — the user can still drag the pin manually.
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     final phone = context.select((BasketCubit c) => c.state.phone);
     final newTag = context.select((BasketCubit c) => c.state.newAddressTag);
+    final saving = context.select((BasketCubit c) => c.state.addressSaving);
+    final formError = context.select((BasketCubit c) => c.state.addressFormError);
     final phoneLabel = phone.isEmpty ? '98765 43210' : phone;
 
     return Column(
@@ -24,7 +109,13 @@ class AddressEditView extends StatelessWidget {
           height: 250,
           child: Stack(
             children: [
-              Positioned.fill(child: CustomPaint(painter: MapGridPainter())),
+              Positioned.fill(
+                child: OsmMap(
+                  center: _pinLocation,
+                  mapController: _mapController,
+                  onPositionChanged: _onMapMoved,
+                ),
+              ),
               Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -32,7 +123,7 @@ class AddressEditView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(9)),
-                      child: Text('Drag to set pin', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                      child: Text('Drag to set pin', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
                     ),
                     Container(width: 2, height: 16, color: BasketColors.ink),
                     Container(
@@ -65,14 +156,24 @@ class AddressEditView extends StatelessWidget {
               Positioned(
                 right: 14,
                 bottom: 14,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.92),
-                    border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
-                    borderRadius: BorderRadius.circular(11),
+                child: InkWell(
+                  onTap: _locating ? null : _useMyLocation,
+                  borderRadius: BorderRadius.circular(11),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: _locating
+                        ? const SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(strokeWidth: 1.5),
+                          )
+                        : Text('◎ Use my location', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
                   ),
-                  child: Text('◎ Use my location', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -90,17 +191,55 @@ class AddressEditView extends StatelessWidget {
               ),
               child: ListView(
                 children: [
-                  Text('Add address details', style: GoogleFonts.manrope(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                  Text('Add address details', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                   const SizedBox(height: 5),
-                  Text('4th Block, Koramangala, Bengaluru 560034', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(_resolvedAddress, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   const SizedBox(height: 16),
-                  const _FieldCard(label: 'Flat / House no.', value: '302, Sunrise Residency'),
+                  LabeledTextField(
+                    label: 'Flat / House no.',
+                    controller: _houseNoController,
+                    hintText: '302, Sunrise Residency',
+                    textCapitalization: TextCapitalization.words,
+                  ),
                   const SizedBox(height: 10),
-                  const _FieldCard(label: 'Landmark', value: 'Near Forum Mall', muted: true),
+                  LabeledTextField(
+                    label: 'Landmark',
+                    controller: _landmarkController,
+                    hintText: 'Near Forum Mall',
+                    textCapitalization: TextCapitalization.words,
+                  ),
                   const SizedBox(height: 10),
-                  _FieldCard(label: 'Receiver', value: 'Aarav · +91 $phoneLabel'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: LabeledTextField(
+                          label: 'City',
+                          controller: _cityController,
+                          textCapitalization: TextCapitalization.words,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: LabeledTextField(
+                          label: 'State',
+                          controller: _stateController,
+                          textCapitalization: TextCapitalization.words,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  LabeledTextField(
+                    label: 'Pincode',
+                    controller: _pincodeController,
+                    hintText: '560034',
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                  ),
+                  const SizedBox(height: 10),
+                  LabeledStaticField(label: 'Receiver', value: 'Aarav · +91 $phoneLabel'),
                   const SizedBox(height: 18),
-                  Text('Save as', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text('Save as', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 9),
                   Row(
                     children: [
@@ -110,17 +249,35 @@ class AddressEditView extends StatelessWidget {
                       ],
                     ],
                   ),
+                  if (formError != null) ...[
+                    const SizedBox(height: 14),
+                    Text(formError, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                  ],
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: BasketColors.ink,
+                        backgroundColor: BasketColors.primary,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      onPressed: cubit.saveAddress,
-                      child: Text('Save address', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                      onPressed: saving
+                          ? null
+                          : () => cubit.submitNewAddress(
+                                houseNo: _houseNoController.text,
+                                landmark: _landmarkController.text,
+                                city: _cityController.text,
+                                stateName: _stateController.text,
+                                pincode: _pincodeController.text,
+                              ),
+                      child: saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                            )
+                          : Text('Save address', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                     ),
                   ),
                 ],
@@ -129,45 +286,6 @@ class AddressEditView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FieldCard extends StatelessWidget {
-  const _FieldCard({required this.label, required this.value, this.muted = false});
-
-  final String label;
-  final String value;
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.manrope(
-              fontSize: 14,
-              fontWeight: muted ? FontWeight.w600 : FontWeight.w700,
-              color: muted ? BasketColors.faint : BasketColors.ink,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -191,7 +309,7 @@ class _TagPill extends StatelessWidget {
           border: Border.all(color: style.border),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Text(label, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg)),
+        child: Text(label, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg)),
       ),
     );
   }

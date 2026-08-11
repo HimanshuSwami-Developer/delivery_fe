@@ -41,7 +41,7 @@ class OtpView extends StatelessWidget {
               const SizedBox(height: 26),
               Text(
                 'Verify your number',
-                style: GoogleFonts.manrope(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8),
+                style: GoogleFonts.poppins(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -49,13 +49,13 @@ class OtpView extends StatelessWidget {
                 children: [
                   Text(
                     '6-digit code sent to +91 $phoneLabel · ',
-                    style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                    style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
                   ),
                   GestureDetector(
                     onTap: cubit.back,
                     child: Text(
                       'Change',
-                      style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
+                      style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
                     ),
                   ),
                 ],
@@ -67,7 +67,7 @@ class OtpView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: cubit.setOtp,
-                style: GoogleFonts.manrope(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: 8),
+                style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: 8),
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: '——————',
@@ -96,7 +96,7 @@ class OtpView extends StatelessWidget {
                   ),
                   child: Text(
                     authError,
-                    style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -104,10 +104,10 @@ class OtpView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Didn't get it?", style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.faint)),
+                  Text("Didn't get it?", style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.faint)),
                   GestureDetector(
                     onTap: authLoading ? null : cubit.resendOtp,
-                    child: Text('Resend code', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
+                    child: Text('Resend code', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
                   ),
                 ],
               ),
@@ -116,7 +116,7 @@ class OtpView extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.ink,
+                    backgroundColor: BasketColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -127,7 +127,7 @@ class OtpView extends StatelessWidget {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
                         )
-                      : Text('Verify & continue', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                      : Text('Verify & continue', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
               ),
             ],

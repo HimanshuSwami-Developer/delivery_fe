@@ -3,7 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,11 +64,11 @@ class _CartViewState extends State<CartView> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Your basket', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Your basket', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} · arrives in ${BasketCubit.etaMinutes} min',
-                    style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                    style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                   ),
                 ],
               ),
@@ -108,22 +108,22 @@ class _EmptyState extends StatelessWidget {
               child: const Icon(Icons.shopping_basket_outlined, size: 30, color: BasketColors.ink),
             ),
             const SizedBox(height: 12),
-            Text('Your basket is empty', style: GoogleFonts.manrope(fontSize: 17, fontWeight: FontWeight.w800)),
+            Text('Your basket is empty', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Text(
               "Add a few staples and we'll get them to you in ${BasketCubit.etaMinutes} minutes.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+              style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
             ),
             const SizedBox(height: 14),
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: BasketColors.ink,
+                backgroundColor: BasketColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
               ),
               onPressed: context.read<BasketCubit>().goHome,
-              child: Text('Start shopping', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+              child: Text('Start shopping', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
             ),
           ],
         ),
@@ -168,7 +168,7 @@ class _FullCart extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Coupon', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                    Text('Coupon', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 9),
                     Row(
                       children: [
@@ -177,7 +177,7 @@ class _FullCart extends StatelessWidget {
                             controller: couponController,
                             onChanged: cubit.setCouponInput,
                             textCapitalization: TextCapitalization.characters,
-                            style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
                             decoration: InputDecoration(
                               isDense: true,
                               hintText: 'FIRST50 / FRESH10',
@@ -198,18 +198,18 @@ class _FullCart extends StatelessWidget {
                         const SizedBox(width: 8),
                         FilledButton(
                           style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.ink,
+                            backgroundColor: BasketColors.primary,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.applyCoupon,
-                          child: Text('Apply', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Apply', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 9),
-                    Text(couponMessage, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
+                    Text(couponMessage, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
                   ],
                 ),
               ),
@@ -228,8 +228,8 @@ class _FullCart extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('To pay', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(moneyLabel(t.total), style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text('To pay', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(moneyLabel(t.total), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ],
@@ -252,22 +252,22 @@ class _FullCart extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(moneyLabel(t.total), style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text(moneyLabel(t.total), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
                       Text(
                         t.savings > 0 ? 'You save ${moneyLabel(t.savings)}' : 'Inclusive of all taxes',
-                        style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                        style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
                       ),
                     ],
                   ),
                 ),
                 FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.ink,
+                    backgroundColor: BasketColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   ),
                   onPressed: cubit.goCheckout,
-                  child: Text('Checkout →', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                  child: Text('Checkout →', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                 ),
               ],
             ),
@@ -292,20 +292,17 @@ class _CartItemRow extends StatelessWidget {
       decoration: glassCard(radius: 16),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(11),
-            child: const SizedBox(width: 56, height: 56, child: ImageSlot(mini: true)),
-          ),
+          const ProductImageMini(size: 56),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 3),
-                Text(product.pack, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                Text(product.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                 const SizedBox(height: 4),
-                Text(moneyLabel(product.price * qty), style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price * qty), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -318,15 +315,15 @@ class _CartItemRow extends StatelessWidget {
                   onTap: () => cubit.bump(product.id, -1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('−', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('−', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                   ),
                 ),
-                Text('$qty', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                Text('$qty', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                 InkWell(
                   onTap: () => cubit.bump(product.id, 1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('+', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('+', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                   ),
                 ),
               ],
@@ -349,8 +346,8 @@ class _TotalRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(value, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
       ],
     );
   }

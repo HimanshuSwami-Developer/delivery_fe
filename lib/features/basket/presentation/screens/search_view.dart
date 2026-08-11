@@ -2,7 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -90,12 +90,12 @@ class _SearchViewState extends State<SearchView> {
                           controller: _text,
                           focusNode: _focus,
                           onChanged: _setQuery,
-                          style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white),
+                          style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white),
                           decoration: InputDecoration(
                             isDense: true,
                             border: InputBorder.none,
                             hintText: 'Search products',
-                            hintStyle: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.55)),
+                            hintStyle: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.55)),
                           ),
                         ),
                       ),
@@ -122,8 +122,8 @@ class _SearchViewState extends State<SearchView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Recent searches', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-                    Text('Clear', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                    Text('Recent searches', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
+                    Text('Clear', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.faint)),
                   ],
                 ),
                 const SizedBox(height: 11),
@@ -136,7 +136,7 @@ class _SearchViewState extends State<SearchView> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                Text('Trending now', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+                Text('Trending now', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 11),
                 Wrap(
                   spacing: 8,
@@ -149,7 +149,7 @@ class _SearchViewState extends State<SearchView> {
               ] else if (results.isNotEmpty) ...[
                 Text(
                   '${results.length} results for "$query"',
-                  style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.faint),
+                  style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.faint),
                 ),
                 const SizedBox(height: 11),
                 for (final p in results)
@@ -166,20 +166,17 @@ class _SearchViewState extends State<SearchView> {
                         ),
                         child: Row(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: const SizedBox(width: 56, height: 56, child: ImageSlot(mini: true)),
-                            ),
+                            const ProductImageMini(size: 56),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
+                                  Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
-                                  Text(p.pack, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                                  Text(p.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                                   const SizedBox(height: 4),
-                                  Text(moneyLabel(p.price), style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                                  Text(moneyLabel(p.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -194,18 +191,18 @@ class _SearchViewState extends State<SearchView> {
                   padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
                   child: Column(
                     children: [
-                      Text('No match for "$query"', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text('No match for "$query"', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 8),
                       Text(
                         "Check the spelling, or request it and we'll try to stock it within 48 hours.",
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.manrope(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                        style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                       ),
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(12)),
-                        child: Text('Request this product', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                        child: Text('Request this product', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -239,7 +236,7 @@ class _Chip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.manrope(fontSize: 12, fontWeight: filled ? FontWeight.w700 : FontWeight.w600),
+          style: GoogleFonts.poppins(fontSize: 12, fontWeight: filled ? FontWeight.w700 : FontWeight.w600),
         ),
       ),
     );

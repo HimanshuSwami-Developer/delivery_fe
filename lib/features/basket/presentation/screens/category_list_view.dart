@@ -5,7 +5,7 @@ import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,12 +50,12 @@ class CategoryListView extends StatelessWidget {
                       category.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${items.length} items · $subcategory',
-                      style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                      style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                     ),
                   ],
                 ),
@@ -182,17 +182,14 @@ class _SubcategoryItem extends StatelessWidget {
         ),
         child: Column(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: const SizedBox(width: 42, height: 42, child: ImageSlot(mini: true)),
-            ),
+            const ProductImageMini(size: 42),
             const SizedBox(height: 5),
             Text(
               sub,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(fontSize: 9.5, height: 1.25, fontWeight: FontWeight.w600),
+              style: GoogleFonts.poppins(fontSize: 9.5, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
             ),
           ],
         ),
@@ -218,7 +215,7 @@ class _FilterPill extends StatelessWidget {
           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Text(label, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700)),
+        child: Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -241,10 +238,7 @@ class _GridCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(11),
-                child: const SizedBox(width: double.infinity, height: 72, child: ImageSlot(mini: true)),
-              ),
+              ProductImage(height: 78, discountPct: product.discountPct, radius: 11),
               const SizedBox(height: 7),
               SizedBox(
                 height: 28,
@@ -252,15 +246,15 @@ class _GridCard extends StatelessWidget {
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.poppins(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
                 ),
               ),
-              Text(product.pack, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+              Text(product.pack, style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
               const SizedBox(height: 7),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(moneyLabel(product.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                  Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                   AddQtyControl(product: product),
                 ],
               ),
@@ -288,26 +282,28 @@ class _RowCard extends StatelessWidget {
           decoration: glassCard(radius: 15),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(11),
-                child: const SizedBox(width: 64, height: 64, child: ImageSlot(mini: true)),
-              ),
+              SizedBox(width: 64, height: 64, child: ProductImage(height: 64, discountPct: product.discountPct, radius: 11)),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(fontSize: 12, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                    ),
                     const SizedBox(height: 3),
-                    Text('${product.pack} · ★ ${product.rating}', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                    Text('${product.pack} · ★ ${product.rating}', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        Text(moneyLabel(product.price), style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                        Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                         const SizedBox(width: 6),
                         Text(
                           moneyLabel(product.mrp),
-                          style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                          style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
                         ),
                         const Spacer(),
                         AddQtyControl(product: product),

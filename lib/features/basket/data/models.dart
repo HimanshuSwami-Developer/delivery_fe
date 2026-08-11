@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
+import 'package:flutter/material.dart';
 
 class BasketCategory {
   const BasketCategory({
@@ -8,6 +9,7 @@ class BasketCategory {
     required this.name,
     required this.subs,
     required this.count,
+    this.icon = '',
   });
 
   final String key;
@@ -15,8 +17,13 @@ class BasketCategory {
   final List<String> subs;
   final int count;
 
+  /// Emoji/glyph from `Category.icon` on the backend (e.g. '🥦') — shown
+  /// large on the category's home/category-grid tile instead of a generic
+  /// placeholder image.
+  final String icon;
+
   factory BasketCategory.fromApi(ApiCategory c) =>
-      BasketCategory(key: c.key, name: c.name, subs: c.subs, count: c.productCount);
+      BasketCategory(key: c.key, name: c.name, subs: c.subs, count: c.productCount, icon: c.icon);
 }
 
 class BasketProduct {
@@ -93,11 +100,17 @@ class OnboardSlide {
     required this.title,
     required this.body,
     required this.slotLabel,
+    required this.icon,
   });
 
   final String title;
   final String body;
   final String slotLabel;
+
+  /// Themed icon shown in the illustration panel — there's no real image
+  /// pipeline for onboarding art, so each slide gets a large brand-green
+  /// icon on a soft tinted panel instead of a generic placeholder.
+  final IconData icon;
 }
 
 class AccountRow {

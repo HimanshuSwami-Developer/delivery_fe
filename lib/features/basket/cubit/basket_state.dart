@@ -48,6 +48,8 @@ class BasketState extends Equatable {
     this.paymentMethodId = 'upi',
     this.trackingStage = 0,
     this.newAddressTag = 'Home',
+    this.addressSaving = false,
+    this.addressFormError,
     this.cancelReason,
     this.cancelMode = CancelMode.cancel,
     this.apiCategories = const [],
@@ -114,6 +116,15 @@ class BasketState extends Equatable {
   final int trackingStage;
 
   final String newAddressTag;
+
+  /// True while [BasketCubit.submitNewAddress] is awaiting the API call —
+  /// disables the "Save address" button so a slow network can't double-post.
+  final bool addressSaving;
+
+  /// Validation/API error from the last `submitNewAddress` attempt, shown
+  /// inline on the address-edit form.
+  final String? addressFormError;
+
   final String? cancelReason;
   final CancelMode cancelMode;
 
@@ -174,6 +185,9 @@ class BasketState extends Equatable {
     String? paymentMethodId,
     int? trackingStage,
     String? newAddressTag,
+    bool? addressSaving,
+    String? addressFormError,
+    bool clearAddressFormError = false,
     String? cancelReason,
     bool clearCancelReason = false,
     CancelMode? cancelMode,
@@ -219,6 +233,8 @@ class BasketState extends Equatable {
       paymentMethodId: paymentMethodId ?? this.paymentMethodId,
       trackingStage: trackingStage ?? this.trackingStage,
       newAddressTag: newAddressTag ?? this.newAddressTag,
+      addressSaving: addressSaving ?? this.addressSaving,
+      addressFormError: clearAddressFormError ? null : (addressFormError ?? this.addressFormError),
       cancelReason: clearCancelReason ? null : (cancelReason ?? this.cancelReason),
       cancelMode: cancelMode ?? this.cancelMode,
       apiCategories: apiCategories ?? this.apiCategories,
@@ -266,6 +282,8 @@ class BasketState extends Equatable {
         paymentMethodId,
         trackingStage,
         newAddressTag,
+        addressSaving,
+        addressFormError,
         cancelReason,
         cancelMode,
         apiCategories,

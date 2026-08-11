@@ -62,14 +62,14 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
             },
           ),
           const SizedBox(height: 16),
-          Text('Processing ${moneyLabel(payable)}', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+          Text('Processing ${moneyLabel(payable)}', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
           const SizedBox(height: 16),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 230),
             child: Text(
               "Do not close the app. We're confirming with $methodName.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+              style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
             ),
           ),
         ],

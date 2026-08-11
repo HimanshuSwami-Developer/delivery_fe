@@ -46,9 +46,9 @@ class AddressListView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delivery address', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Delivery address', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                       const SizedBox(height: 2),
-                      Text('Step 1 of 3', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      Text('Step 1 of 3', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -79,7 +79,7 @@ class AddressListView extends StatelessWidget {
                   child: Text(
                     '+ Add a new address',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -99,12 +99,12 @@ class AddressListView extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: BasketColors.ink,
+                  backgroundColor: BasketColors.primary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: cubit.goToSlot,
-                child: Text('Deliver here →', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                child: Text('Deliver here →', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
               ),
             ),
           ),
@@ -129,7 +129,7 @@ class _AddressCard extends StatelessWidget {
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.68),
-          border: Border.all(color: selected ? BasketColors.ink : Colors.white.withValues(alpha: 0.85), width: 1.5),
+          border: Border.all(color: selected ? BasketColors.primary : Colors.white.withValues(alpha: 0.85), width: 1.5),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.12), blurRadius: 20, offset: const Offset(0, 8))],
         ),
@@ -142,8 +142,8 @@ class _AddressCard extends StatelessWidget {
               margin: const EdgeInsets.only(top: 2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: selected ? BasketColors.ink : Colors.transparent,
-                border: Border.all(color: BasketColors.ink, width: 1.5),
+                color: selected ? BasketColors.primary : Colors.transparent,
+                border: Border.all(color: selected ? BasketColors.primary : BasketColors.ink, width: 1.5),
               ),
             ),
             const SizedBox(width: 11),
@@ -153,7 +153,7 @@ class _AddressCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(address.label, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                      Text(address.label, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
                       const SizedBox(width: 7),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -161,14 +161,14 @@ class _AddressCard extends StatelessWidget {
                           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
                           borderRadius: BorderRadius.circular(99),
                         ),
-                        child: Text(address.tag, style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w700)),
+                        child: Text(address.tag, style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w700)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
-                  Text(address.line, style: GoogleFonts.manrope(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(address.line, style: GoogleFonts.poppins(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   const SizedBox(height: 6),
-                  Text('Delivers in ${address.eta} min', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
+                  Text('Delivers in ${address.eta} min', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

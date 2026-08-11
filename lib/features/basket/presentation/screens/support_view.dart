@@ -39,9 +39,9 @@ class SupportView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Help & support', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Help & support', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
-                  Text('Typical reply in under 2 min', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text('Typical reply in under 2 min', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -61,7 +61,7 @@ class SupportView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              Text('Common questions', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+              Text('Common questions', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
               const SizedBox(height: 11),
               for (final q in BasketCatalog.faqs)
                 Padding(
@@ -76,8 +76,8 @@ class SupportView extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text(q, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600))),
-                        Text('›', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                        Expanded(child: Text(q, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600))),
+                        Text('›', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
                       ],
                     ),
                   ),
@@ -113,7 +113,7 @@ class _ContactTile extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Colors.white : BasketColors.ink),
+            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Colors.white : BasketColors.ink),
           ),
         ],
       ),
