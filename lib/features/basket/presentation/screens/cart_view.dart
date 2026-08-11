@@ -177,7 +177,7 @@ class _FullCart extends StatelessWidget {
                             controller: couponController,
                             onChanged: cubit.setCouponInput,
                             textCapitalization: TextCapitalization.characters,
-                            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
                             decoration: InputDecoration(
                               isDense: true,
                               hintText: 'FIRST50 / FRESH10',
@@ -296,7 +296,7 @@ class _CartItemRow extends StatelessWidget {
       decoration: glassCard(radius: 16),
       child: Row(
         children: [
-          const ProductImageMini(size: 56),
+          ProductImageMini(size: 56, imageUrl: product.imageUrl),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

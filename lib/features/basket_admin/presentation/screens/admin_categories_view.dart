@@ -74,7 +74,21 @@ class _CategoryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(width: 52, height: 52, child: ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true)),
+              SizedBox(
+                width: 52,
+                height: 52,
+                child: category.imageUrl.isEmpty
+                    ? const ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true)
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(13),
+                        child: Image.network(
+                          category.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true),
+                        ),
+                      ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

@@ -238,7 +238,7 @@ class _GridCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProductImage(height: 78, discountPct: product.discountPct, radius: 11),
+              ProductImage(height: 78, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11),
               const SizedBox(height: 7),
               SizedBox(
                 height: 28,
@@ -282,7 +282,7 @@ class _RowCard extends StatelessWidget {
           decoration: glassCard(radius: 15),
           child: Row(
             children: [
-              SizedBox(width: 64, height: 64, child: ProductImage(height: 64, discountPct: product.discountPct, radius: 11)),
+              SizedBox(width: 64, height: 64, child: ProductImage(height: 64, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11)),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

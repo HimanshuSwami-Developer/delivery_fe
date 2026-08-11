@@ -106,7 +106,7 @@ class _WishRow extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () => cubit.openProduct(product.id),
-            child: const ProductImageMini(size: 58),
+            child: ProductImageMini(size: 58, imageUrl: product.imageUrl),
           ),
           const SizedBox(width: 10),
           Expanded(

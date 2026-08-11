@@ -35,7 +35,7 @@ class OnboardingView extends StatelessWidget {
                         child: const Icon(Icons.shopping_basket_rounded, color: Colors.white, size: 15),
                       ),
                       const SizedBox(width: 8),
-                      Text('basket', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.15, color: BasketColors.ink)),
+                      Text('Aapno Bazar', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.15, color: BasketColors.ink)),
                     ],
                   ),
                   TextButton(

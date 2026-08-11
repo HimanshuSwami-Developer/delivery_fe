@@ -24,7 +24,7 @@ class LoginView extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(24, MediaQuery.paddingOf(context).top + 24, 24, 0),
               height: 300 + MediaQuery.paddingOf(context).top - 32,
-              color: BasketColors.ink,
+              decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
               child: Stack(
                 children: [
                   Positioned(
@@ -58,7 +58,7 @@ class LoginView extends StatelessWidget {
                             child: const Icon(Icons.shopping_basket_rounded, color: Colors.white, size: 16),
                           ),
                           const SizedBox(width: 9),
-                          Text('basket', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+                          Text('Aapno Bazar', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
                         ],
                       ),
                       const SizedBox(height: 44),

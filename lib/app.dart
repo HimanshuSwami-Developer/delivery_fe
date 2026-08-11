@@ -21,7 +21,7 @@ class FastSwipeApp extends StatelessWidget {
             final router = buildAppRouter(context.read<AuthBloc>());
             return MaterialApp.router(
               debugShowCheckedModeBanner: false,
-              title: 'FastSwipe',
+              title: 'Aapno Bazar',
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
               routerConfig: router,

@@ -2,11 +2,10 @@ import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Design tokens and small style helpers for the Basket Admin console,
-/// ported from `Basket Admin.dc.html`. The color palette (`#0B0B0C` ink,
-/// `#EDEDEF` card, `#6F6F78` muted, `#9A9AA2` faint) is identical to the
-/// customer app's, so it's reused from [BasketColors] rather than
-/// redeclared here — this file only adds what's specific to the admin
-/// console's desktop chrome.
+/// ported from `Basket Admin.dc.html`. The color palette (navy ink, card,
+/// muted, faint) is identical to the customer app's, so it's reused from
+/// [BasketColors] rather than redeclared here — this file only adds what's
+/// specific to the admin console's desktop chrome.
 class AdminColors {
   AdminColors._();
 

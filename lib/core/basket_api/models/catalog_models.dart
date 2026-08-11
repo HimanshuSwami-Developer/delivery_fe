@@ -6,7 +6,6 @@ class ApiCategory {
     required this.id,
     required this.key,
     required this.name,
-    required this.icon,
     required this.imageUrl,
     required this.order,
     required this.subs,
@@ -16,7 +15,6 @@ class ApiCategory {
   final int id;
   final String key;
   final String name;
-  final String icon;
   final String imageUrl;
   final int order;
   final List<String> subs;
@@ -26,7 +24,6 @@ class ApiCategory {
         id: json['id'] as int,
         key: json['key'] as String,
         name: json['name'] as String,
-        icon: json['icon'] as String? ?? '',
         imageUrl: json['image_url'] as String? ?? '',
         order: json['order'] as int? ?? 0,
         subs: (json['subs'] as List? ?? []).map((e) => e.toString()).toList(),

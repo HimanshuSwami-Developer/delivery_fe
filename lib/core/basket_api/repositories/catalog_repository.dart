@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fastswipe/core/api/api_client.dart';
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
@@ -9,6 +10,21 @@ class CatalogRepository {
   CatalogRepository(this._client);
 
   final ApiClient _client;
+
+  /// Uploads an image file straight to Cloudinary (`ImageUploadView` —
+  /// admin-only) and returns its `secure_url`. This is the *only* way
+  /// photos get into the app now — every admin form that needs a photo
+  /// (category/product/banner) uploads through here first, then saves the
+  /// returned URL, instead of taking a hand-typed image URL.
+  Future<String> uploadImage(List<int> bytes, String filename) async {
+    try {
+      final form = FormData.fromMap({'file': MultipartFile.fromBytes(bytes, filename: filename)});
+      final response = await _client.dio.post('/images/upload/', data: form);
+      return response.data['url'] as String;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
 
   Future<List<ApiCategory>> fetchCategories() async {
     try {

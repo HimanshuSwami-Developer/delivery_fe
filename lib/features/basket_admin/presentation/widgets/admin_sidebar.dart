@@ -27,7 +27,14 @@ class AdminSidebar extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
             child: Row(
               children: [
-                Text('basket', style: GoogleFonts.manrope(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+                Flexible(
+                  child: Text(
+                    'Aapno Bazar',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                  ),
+                ),
                 const SizedBox(width: 9),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

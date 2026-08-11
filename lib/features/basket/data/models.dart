@@ -9,7 +9,7 @@ class BasketCategory {
     required this.name,
     required this.subs,
     required this.count,
-    this.icon = '',
+    this.imageUrl = '',
   });
 
   final String key;
@@ -17,13 +17,14 @@ class BasketCategory {
   final List<String> subs;
   final int count;
 
-  /// Emoji/glyph from `Category.icon` on the backend (e.g. '🥦') — shown
-  /// large on the category's home/category-grid tile instead of a generic
-  /// placeholder image.
-  final String icon;
+  /// Cloudinary-hosted photo (`Category.image_url` on the backend) — shown
+  /// on the category's home/category-grid tile. Empty when the admin
+  /// hasn't uploaded one yet, in which case the tile falls back to a
+  /// generic placeholder icon.
+  final String imageUrl;
 
   factory BasketCategory.fromApi(ApiCategory c) =>
-      BasketCategory(key: c.key, name: c.name, subs: c.subs, count: c.productCount, icon: c.icon);
+      BasketCategory(key: c.key, name: c.name, subs: c.subs, count: c.productCount, imageUrl: c.imageUrl);
 }
 
 class BasketProduct {
@@ -39,6 +40,7 @@ class BasketProduct {
     required this.rating,
     required this.ratingsCount,
     this.oos = false,
+    this.imageUrl = '',
   });
 
   final String id;
@@ -52,6 +54,11 @@ class BasketProduct {
   final double rating;
   final int ratingsCount;
   final bool oos;
+
+  /// Cloudinary-hosted photo (`Product.main_image_url` on the backend).
+  /// Empty when the admin hasn't uploaded one yet, in which case product
+  /// cards fall back to a generic placeholder.
+  final String imageUrl;
 
   int get discountPct => (100 * (1 - price / mrp)).round();
 
@@ -71,6 +78,7 @@ class BasketProduct {
         rating: p.rating,
         ratingsCount: p.ratingsCount,
         oos: p.isOutOfStock,
+        imageUrl: p.mainImageUrl,
       );
 }
 

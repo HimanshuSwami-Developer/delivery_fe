@@ -75,7 +75,7 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                 ),
                 const SizedBox(height: 22),
                 Text(
-                  'basket',
+                  'Aapno Bazar',
                   style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.6, height: 1),
                 ),
                 const SizedBox(height: 10),

@@ -107,7 +107,18 @@ class _CategoryCard extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(color: BasketColors.primarySoft, borderRadius: BorderRadius.circular(16)),
                 alignment: Alignment.center,
-                child: Text(category.icon.isNotEmpty ? category.icon : '🛒', style: const TextStyle(fontSize: 40)),
+                child: category.imageUrl.isEmpty
+                    ? const Text('🛒', style: TextStyle(fontSize: 40))
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          category.imageUrl,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Text('🛒', style: TextStyle(fontSize: 40)),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 10),

@@ -59,7 +59,7 @@ class _BrandPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('basket', style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+              Text('Aapno Bazar', style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
               const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

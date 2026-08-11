@@ -173,7 +173,7 @@ class _SearchViewState extends State<SearchView> {
                         ),
                         child: Row(
                           children: [
-                            const ProductImageMini(size: 56),
+                            ProductImageMini(size: 56, imageUrl: p.imageUrl),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(

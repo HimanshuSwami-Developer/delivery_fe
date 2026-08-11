@@ -32,7 +32,10 @@ class BasketBottomNav extends StatelessWidget {
     final count = context.select((BasketCubit c) => cartTotals(c.state).itemCount);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(color: BasketColors.ink),
+      decoration: const BoxDecoration(
+        color: BasketColors.white,
+        border: Border(top: BorderSide(color: BasketColors.divider)),
+      ),
       child: SafeArea(
         top: false,
         child: Padding(
@@ -73,7 +76,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? BasketColors.primary : Colors.white.withValues(alpha: 0.45);
+    final color = selected ? BasketColors.primary : BasketColors.muted;
     return InkWell(
       onTap: onTap,
       child: Column(

@@ -3,6 +3,7 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   late final _mrp = TextEditingController(text: _editing == null ? '' : '${_editing.mrp}');
   late final _price = TextEditingController(text: _editing == null ? '' : '${_editing.price}');
   late final _costPrice = TextEditingController();
-  late final _mainImageUrl = TextEditingController(text: _editing?.mainImageUrl ?? '');
+  late String _mainImageUrl = _editing?.mainImageUrl ?? '';
 
   int? _categoryId;
   bool _categoryInitialized = false;
@@ -58,7 +59,6 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
     _mrp.dispose();
     _price.dispose();
     _costPrice.dispose();
-    _mainImageUrl.dispose();
     super.dispose();
   }
 
@@ -90,7 +90,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'cost_price': int.tryParse(_costPrice.text.trim()),
         'gst_slab': _gstSlab,
         'is_out_of_stock': _outOfStock,
-        'main_image_url': _mainImageUrl.text.trim(),
+        'main_image_url': _mainImageUrl,
       };
       if (_editing == null) {
         await cubit.createProduct(data);
@@ -227,7 +227,11 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                     children: [
                       Text('Image', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 12),
-                      AdminEditField(label: 'Main image URL', controller: _mainImageUrl, hint: 'https://...'),
+                      AdminImagePicker(
+                        label: 'Main image',
+                        imageUrl: _mainImageUrl,
+                        onChanged: (url) => setState(() => _mainImageUrl = url),
+                      ),
                     ],
                   ),
                 ),

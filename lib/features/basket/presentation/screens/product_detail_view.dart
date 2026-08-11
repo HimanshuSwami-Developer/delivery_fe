@@ -37,7 +37,7 @@ class ProductDetailView extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  ProductImage(height: 290, discountPct: p.discountPct, radius: 0),
+                  ProductImage(height: 290, imageUrl: p.imageUrl, discountPct: p.discountPct, radius: 0),
                   Positioned(
                     top: MediaQuery.paddingOf(context).top + 8,
                     left: 14,
@@ -144,7 +144,7 @@ class ProductDetailView extends StatelessWidget {
                           const SizedBox(width: 9),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(99)),
+                            decoration: BoxDecoration(color: BasketColors.accentOrange, borderRadius: BorderRadius.circular(99)),
                             child: Text('${p.discountPct}% off', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                           ),
                         ],
@@ -362,7 +362,7 @@ class _AlsoBoughtCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImage(height: 66, discountPct: product.discountPct, radius: 10),
+            ProductImage(height: 66, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 10),
             const SizedBox(height: 7),
             SizedBox(
               height: 27,

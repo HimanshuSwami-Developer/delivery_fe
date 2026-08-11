@@ -118,7 +118,7 @@ class HomeView extends StatelessWidget {
   }
 }
 
-const _skeletonCategory = BasketCategory(key: 'x', name: 'Category name', subs: [], count: 12, icon: '🥦');
+const _skeletonCategory = BasketCategory(key: 'x', name: 'Category name', subs: [], count: 12);
 const _skeletonProduct = BasketProduct(
   id: 'x',
   name: 'Product name placeholder',
@@ -225,7 +225,7 @@ class _HomeHeader extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 18),
-        color: BasketColors.ink,
+        decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
         child: Stack(
           children: [
             Positioned(
@@ -390,7 +390,7 @@ class _BuyAgainCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImage(height: 66),
+            ProductImage(height: 66, imageUrl: product.imageUrl),
             const SizedBox(height: 7),
             SizedBox(
               height: 28,
@@ -492,7 +492,7 @@ class _CouponBanner extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: BasketColors.ink,
+          color: BasketColors.accentTeal,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Stack(
@@ -503,7 +503,7 @@ class _CouponBanner extends StatelessWidget {
               child: Container(
                 width: 110,
                 height: 110,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: BasketColors.primary.withValues(alpha: 0.18)),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.14)),
               ),
             ),
             Row(
@@ -511,9 +511,9 @@ class _CouponBanner extends StatelessWidget {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(11)),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.local_offer_rounded, size: 19, color: Colors.white),
+                  child: const Icon(Icons.local_offer_rounded, size: 19, color: BasketColors.accentTeal),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -565,7 +565,18 @@ class _CategoryChip extends StatelessWidget {
                 border: Border.all(color: BasketColors.primary.withValues(alpha: 0.12)),
               ),
               alignment: Alignment.center,
-              child: Text(category.icon.isNotEmpty ? category.icon : '🛒', style: const TextStyle(fontSize: 28)),
+              child: category.imageUrl.isEmpty
+                  ? const Text('🛒', style: TextStyle(fontSize: 28))
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        category.imageUrl,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Text('🛒', style: TextStyle(fontSize: 28)),
+                      ),
+                    ),
             ),
             const SizedBox(height: 7),
             SizedBox(
@@ -602,7 +613,7 @@ class _PriceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImage(height: 84, discountPct: product.discountPct),
+            ProductImage(height: 84, imageUrl: product.imageUrl, discountPct: product.discountPct),
             const SizedBox(height: 8),
             SizedBox(
               height: 30,
@@ -655,7 +666,7 @@ class _RecommendedCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImage(height: 96, discountPct: product.discountPct),
+            ProductImage(height: 96, imageUrl: product.imageUrl, discountPct: product.discountPct),
             const SizedBox(height: 8),
             SizedBox(
               height: 30,

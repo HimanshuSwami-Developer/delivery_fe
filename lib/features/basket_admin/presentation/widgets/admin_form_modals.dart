@@ -3,6 +3,7 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +26,7 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
 
   late final _key = TextEditingController(text: _editing?.key ?? '');
   late final _name = TextEditingController(text: _editing?.name ?? '');
-  late final _icon = TextEditingController(text: _editing?.icon ?? '');
+  late String _imageUrl = _editing?.imageUrl ?? '';
   bool _loading = false;
   String? _error;
 
@@ -33,7 +34,6 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
   void dispose() {
     _key.dispose();
     _name.dispose();
-    _icon.dispose();
     super.dispose();
   }
 
@@ -49,9 +49,9 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
     });
     try {
       if (_editing == null) {
-        await cubit.createCategory({'key': _key.text.trim(), 'name': name, 'icon': _icon.text.trim()});
+        await cubit.createCategory({'key': _key.text.trim(), 'name': name, 'image_url': _imageUrl});
       } else {
-        await cubit.updateCategory(_editing.key, {'name': name, 'icon': _icon.text.trim()});
+        await cubit.updateCategory(_editing.key, {'name': name, 'image_url': _imageUrl});
       }
       if (mounted) cubit.closeModal();
     } on ApiException catch (e) {
@@ -84,7 +84,7 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
           inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
         ),
         AdminEditField(label: 'Name', controller: _name, hint: 'Atta, Rice & Dal'),
-        AdminEditField(label: 'Icon (emoji, optional)', controller: _icon, hint: '◈'),
+        AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
       ],
     );
   }
@@ -275,8 +275,8 @@ class AddBannerModal extends StatefulWidget {
 
 class _AddBannerModalState extends State<AddBannerModal> {
   final _title = TextEditingController();
-  final _imageUrl = TextEditingController();
   final _linkScreen = TextEditingController();
+  String _imageUrl = '';
   String _placement = 'home_carousel';
   bool _loading = false;
   String? _error;
@@ -284,7 +284,6 @@ class _AddBannerModalState extends State<AddBannerModal> {
   @override
   void dispose() {
     _title.dispose();
-    _imageUrl.dispose();
     _linkScreen.dispose();
     super.dispose();
   }
@@ -302,7 +301,7 @@ class _AddBannerModalState extends State<AddBannerModal> {
     try {
       await cubit.createBanner({
         'title': title,
-        'image_url': _imageUrl.text.trim(),
+        'image_url': _imageUrl,
         'placement': _placement,
         'link_screen': _linkScreen.text.trim(),
       });
@@ -327,7 +326,7 @@ class _AddBannerModalState extends State<AddBannerModal> {
       submitLabel: 'Create banner',
       fields: [
         AdminEditField(label: 'Title', controller: _title, hint: 'Fresh fruit, up to 30% off'),
-        AdminEditField(label: 'Image URL (optional)', controller: _imageUrl, hint: 'https://...'),
+        AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
         AdminEditDropdown<String>(
           label: 'Placement',
           value: _placement,

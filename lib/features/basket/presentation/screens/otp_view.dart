@@ -67,7 +67,7 @@ class OtpView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: cubit.setOtp,
-                style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: 8),
+                style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: 8, color: BasketColors.ink),
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: '——————',

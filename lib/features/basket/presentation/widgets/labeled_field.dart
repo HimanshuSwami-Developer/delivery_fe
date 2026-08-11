@@ -62,7 +62,7 @@ class LabeledTextField extends StatelessWidget {
             inputFormatters: inputFormatters,
             maxLength: maxLength,
             textAlign: textAlign,
-            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700),
+            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.ink),
             decoration: InputDecoration(
               isDense: true,
               counterText: '',
