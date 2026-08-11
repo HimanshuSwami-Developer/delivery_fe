@@ -192,6 +192,10 @@ class _FullCart extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(11),
                                 borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12)),
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                borderSide: const BorderSide(color: BasketColors.primary, width: 1.6),
+                              ),
                             ),
                           ),
                         ),

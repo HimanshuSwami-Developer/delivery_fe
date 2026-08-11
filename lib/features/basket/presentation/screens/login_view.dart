@@ -125,7 +125,14 @@ class LoginView extends StatelessWidget {
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       counterText: '',
+                                      // Unset `filled` inherits the app-wide
+                                      // theme's near-white fill, painting an
+                                      // extra box behind this already-boxed
+                                      // field — force it off.
+                                      filled: false,
                                       border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
                                       hintText: '98765 43210',
                                     ),
                                   ),

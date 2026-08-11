@@ -120,7 +120,18 @@ class _NavLink extends StatelessWidget {
         color: active ? Colors.white.withValues(alpha: 0.14) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            onTap();
+            // On the narrow layout this sidebar lives inside a `Drawer`
+            // (see `_AdminRoot`/`_AdminShell`) — close it after navigating,
+            // same as any mobile nav drawer. `hasDrawer` is only true in
+            // that case (the wide layout renders this inline with no
+            // `drawer:` on the Scaffold at all), so this is a no-op there.
+            final scaffold = Scaffold.maybeOf(context);
+            if (scaffold != null && scaffold.hasDrawer) {
+              scaffold.closeDrawer();
+            }
+          },
           borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),

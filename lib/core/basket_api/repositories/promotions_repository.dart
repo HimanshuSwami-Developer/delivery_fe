@@ -40,6 +40,23 @@ class PromotionsRepository {
     }
   }
 
+  Future<ApiCoupon> updateCoupon(String code, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/coupons/$code/', data: data);
+      return ApiCoupon.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteCoupon(String code) async {
+    try {
+      await _client.dio.delete('/coupons/$code/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// Returns `(discount, errorMessage)` — exactly one is non-null.
   Future<(int?, String?)> validateCoupon({required String code, required int subtotal}) async {
     try {

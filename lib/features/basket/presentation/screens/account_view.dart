@@ -116,10 +116,51 @@ class AccountView extends StatelessWidget {
                     ),
                   ),
                 ),
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: () => _confirmLogout(context, cubit),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                  decoration: glassCard(radius: 15),
+                  child: Row(
+                    children: [
+                      const Text('⎋', style: TextStyle(fontSize: 15)),
+                      const SizedBox(width: 12),
+                      Text('Log out', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context, BasketCubit cubit) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Log out?', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+        content: Text(
+          'You\'ll need to verify your mobile number again to sign back in.',
+          style: GoogleFonts.poppins(fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('Cancel', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: BasketColors.muted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text('Log out', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: BasketColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await cubit.signOut();
+    }
   }
 }

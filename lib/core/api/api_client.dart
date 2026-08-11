@@ -9,6 +9,21 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// giving up and clearing the session (the caller sees the original 401
 /// and should route back to login).
 class ApiClient {
+  /// Pre-login endpoints that must never get a stored `Authorization`
+  /// header attached (a stale/invalid one gets rejected by the backend
+  /// before the view even runs) and must never trigger the refresh-retry
+  /// flow on 401. NOT a blanket `/auth/` prefix check — `/auth/profile/`
+  /// is a real authenticated endpoint and needs the token like any other.
+  static const _publicAuthPaths = [
+    '/auth/send-otp/',
+    '/auth/resend-otp/',
+    '/auth/verify-otp/',
+    '/auth/master-login/',
+  ];
+
+  static bool _isPublicAuthEndpoint(String path) =>
+      _publicAuthPaths.any((p) => path.contains(p));
+
   /// [tokenScope] namespaces the stored tokens (e.g. `'customer'` vs.
   /// `'admin'`) so the customer app and the admin console — two separate
   /// products sharing one Flutter codebase/process here — can each hold
@@ -39,7 +54,7 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final isAuthEndpoint = options.path.contains('/auth/');
+          final isAuthEndpoint = _isPublicAuthEndpoint(options.path);
           if (!isAuthEndpoint) {
             final token = await _secureStorage.read(key: _accessTokenKey);
             if (token != null) {
@@ -50,7 +65,7 @@ class ApiClient {
         },
         onError: (error, handler) async {
           final isAuthError = error.response?.statusCode == 401;
-          final isAuthEndpoint = error.requestOptions.path.contains('/auth/');
+          final isAuthEndpoint = _isPublicAuthEndpoint(error.requestOptions.path);
           if (isAuthError && !isAuthEndpoint && error.requestOptions.extra['_retried'] != true) {
             final refreshed = await _tryRefresh();
             if (refreshed != null) {

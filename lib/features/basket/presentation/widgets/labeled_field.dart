@@ -66,7 +66,20 @@ class LabeledTextField extends StatelessWidget {
             decoration: InputDecoration(
               isDense: true,
               counterText: '',
+              // `InputDecoration.filled` defaults to null, not false, so
+              // an unset field silently inherits the app-wide theme's
+              // `filled: true` + near-white `fillColor` — painting an
+              // extra background block behind text that's already sitting
+              // on the card [Container] above. Force it off explicitly.
+              filled: false,
+              // The card [Container] above already draws the field's
+              // border, in every state — a focused-state color/width
+              // change here would fight that static border instead of
+              // complementing it, so every border stays none.
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 4),
               hintText: hintText,
               hintStyle: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.faint),

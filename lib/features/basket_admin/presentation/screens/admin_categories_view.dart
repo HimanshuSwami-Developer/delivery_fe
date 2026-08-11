@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
@@ -8,39 +9,59 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Category management: a grid of cards, each with its subcategory chips
-/// and Edit/Reorder actions (decorative — the source design never wires
-/// them to anything).
+/// and Edit/Delete actions.
 class AdminCategoriesView extends StatelessWidget {
   const AdminCategoriesView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<BasketAdminCubit>();
     final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
 
-    if (categories.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return SingleChildScrollView(
-      child: LayoutBuilder(builder: (context, constraints) {
-        final cols = constraints.maxWidth < 640 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
-        return GridView.count(
-          crossAxisCount: cols,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 14,
-          crossAxisSpacing: 14,
-          childAspectRatio: 1.15,
-          children: [for (final c in categories) _CategoryCard(category: c)],
-        );
-      }),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: AdminSectionTitle('Categories')),
+              FilledButton(
+                onPressed: cubit.openAddCategory,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AdminColors.ink,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                ),
+                child: Text('+ Add category', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (categories.isEmpty)
+            const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
+          else
+            LayoutBuilder(builder: (context, constraints) {
+              final cols = constraints.maxWidth < 640 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
+              return GridView.count(
+                crossAxisCount: cols,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 1.15,
+                children: [for (final c in categories) _CategoryCard(category: c, cubit: cubit)],
+              );
+            }),
+        ],
+      ),
     );
   }
 }
 
 class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category});
+  const _CategoryCard({required this.category, required this.cubit});
   final ApiCategory category;
+  final BasketAdminCubit cubit;
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +112,10 @@ class _CategoryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: null,
+                  onPressed: () => cubit.openAddCategory(category: category),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                    disabledForegroundColor: AdminColors.ink,
+                    foregroundColor: AdminColors.ink,
                     padding: const EdgeInsets.symmetric(vertical: 9),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -104,14 +125,14 @@ class _CategoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: null,
+                  onPressed: () => _confirmDelete(context, cubit, category),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
-                    disabledForegroundColor: AdminColors.muted,
+                    foregroundColor: AdminColors.muted,
                     padding: const EdgeInsets.symmetric(vertical: 9),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: Text('Reorder', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
+                  child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                 ),
               ),
             ],
@@ -119,5 +140,38 @@ class _CategoryCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiCategory category) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('Delete "${category.name}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+      content: Text(
+        category.productCount > 0
+            ? 'This category still has ${category.productCount} product(s) in it — deletion will be rejected until they\'re moved or removed.'
+            : 'This can\'t be undone.',
+        style: GoogleFonts.manrope(fontSize: 13),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  try {
+    await cubit.deleteCategory(category.key);
+  } on ApiException catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }

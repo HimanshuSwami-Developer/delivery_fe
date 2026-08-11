@@ -27,10 +27,9 @@ class AdminBannersView extends StatelessWidget {
             children: [
               const Expanded(child: AdminSectionTitle('Home banners')),
               FilledButton(
-                onPressed: null,
+                onPressed: cubit.openAddBanner,
                 style: FilledButton.styleFrom(
                   backgroundColor: AdminColors.ink,
-                  disabledBackgroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),

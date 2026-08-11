@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kFlex = [2.3, 1.0, 1.0, 0.9, 0.9, 0.8];
+const _kFlex = [2.3, 1.0, 1.0, 0.9, 0.9, 0.8, 0.5];
 
 /// Product catalog: category tabs (built from the real catalog, not a
 /// hardcoded list) + a table (image/name, category, SKU, MRP, price,
@@ -79,13 +80,19 @@ class AdminProductsView extends StatelessWidget {
                 width: 900,
                 child: Column(
                   children: [
-                    const AdminTableHeader(flex: _kFlex, labels: ['Product', 'Category', 'SKU', 'MRP', 'Price', 'Status']),
+                    const AdminTableHeader(flex: _kFlex, labels: ['Product', 'Category', 'SKU', 'MRP', 'Price', 'Status', '']),
                     if (rows.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Text('No products in this category yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                       ),
-                    for (final p in rows) _ProductRow(p: p, categoryName: categoryNameByKey[p.cat] ?? p.cat, onTap: cubit.goProductNew),
+                    for (final p in rows)
+                      _ProductRow(
+                        p: p,
+                        categoryName: categoryNameByKey[p.cat] ?? p.cat,
+                        onTap: () => cubit.goProductNew(product: p),
+                        onDelete: () => _confirmDelete(context, cubit, p),
+                      ),
                   ],
                 ),
               ),
@@ -98,10 +105,11 @@ class AdminProductsView extends StatelessWidget {
 }
 
 class _ProductRow extends StatelessWidget {
-  const _ProductRow({required this.p, required this.categoryName, required this.onTap});
+  const _ProductRow({required this.p, required this.categoryName, required this.onTap, required this.onDelete});
   final ApiProduct p;
   final String categoryName;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +141,43 @@ class _ProductRow extends StatelessWidget {
         Text(adminMoney(p.mrp), style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text(adminMoney(p.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
         Align(alignment: Alignment.centerLeft, child: AdminChipBadge(state)),
+        InkWell(
+          onTap: onDelete,
+          borderRadius: BorderRadius.circular(8),
+          child: const Padding(
+            padding: EdgeInsets.all(6),
+            child: Icon(Icons.delete_outline, size: 17, color: AdminColors.faint),
+          ),
+        ),
       ],
     );
+  }
+}
+
+Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiProduct p) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('Delete "${p.name}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+      content: Text('SKU ${p.sku} — this can\'t be undone.', style: GoogleFonts.manrope(fontSize: 13)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  try {
+    await cubit.deleteProduct(p.id);
+  } on ApiException catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }

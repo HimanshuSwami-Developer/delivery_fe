@@ -40,6 +40,21 @@ class AdminPartnersView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              const Expanded(child: AdminSectionTitle('Delivery partners')),
+              FilledButton(
+                onPressed: cubit.openPartnerForm,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AdminColors.ink,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                ),
+                child: Text('+ Add partner', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
           const SizedBox(height: 14),
           Container(
@@ -79,6 +94,7 @@ class _PartnerRow extends StatelessWidget {
     final status = kPartnerStatusFromCode[p.status] ?? p.status;
     return AdminTableRow(
       flex: _kFlex,
+      onTap: () => cubit.openPartnerForm(partner: p),
       children: [
         Row(
           children: [

@@ -1,5 +1,8 @@
 import 'package:fastswipe/core/api/api_exception.dart';
+import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
+import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
+import 'package:fastswipe/core/basket_api/models/zone_models.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
@@ -48,29 +51,16 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   void setOtpCode(String value) => emit(state.copyWith(otpCode: value, clearAuthError: true));
 
+  /// Admin sign-in is master-OTP only (`settings.MASTER_OTP`) — no SMS, no
+  /// OTP row, so there's nothing to actually "send". This just moves the
+  /// UI to the code-entry step; [verifyOtp] does the real network call.
   Future<void> sendOtp() async {
     final mobile = state.mobileNumber.trim();
     if (mobile.isEmpty) {
       emit(state.copyWith(authError: 'Enter your work mobile number.'));
       return;
     }
-    emit(state.copyWith(authLoading: true, clearAuthError: true));
-    try {
-      await api.auth.sendOtp(mobile);
-      emit(state.copyWith(authLoading: false, otpSent: true));
-    } on ApiException catch (e) {
-      emit(state.copyWith(authLoading: false, authError: e.message));
-    }
-  }
-
-  Future<void> resendOtp() async {
-    emit(state.copyWith(authLoading: true, clearAuthError: true));
-    try {
-      await api.auth.resendOtp(state.mobileNumber.trim());
-      emit(state.copyWith(authLoading: false));
-    } on ApiException catch (e) {
-      emit(state.copyWith(authLoading: false, authError: e.message));
-    }
+    emit(state.copyWith(otpSent: true, clearAuthError: true));
   }
 
   /// Changes the number after `sendOtp`, back to the mobile-number step.
@@ -78,12 +68,12 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   Future<void> verifyOtp() async {
     if (state.otpCode.trim().isEmpty) {
-      emit(state.copyWith(authError: 'Enter the code we sent you.'));
+      emit(state.copyWith(authError: 'Enter your admin access code.'));
       return;
     }
     emit(state.copyWith(authLoading: true, clearAuthError: true));
     try {
-      await api.auth.verifyOtp(mobileNumber: state.mobileNumber.trim(), otpCode: state.otpCode.trim());
+      await api.auth.masterLogin(mobileNumber: state.mobileNumber.trim(), masterOtp: state.otpCode.trim());
       final profile = await api.auth.fetchProfile();
       if (profile == null || !profile.isAdmin) {
         await api.auth.logout();
@@ -169,7 +159,18 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   void goOrders() => go(AdminPage.orders);
   void goProducts() => go(AdminPage.products);
-  void goProductNew() => go(AdminPage.productNew);
+
+  /// [product] null opens a blank draft (create); non-null opens that
+  /// product prefilled (edit) — see `AdminProductNewView`.
+  void goProductNew({ApiProduct? product}) {
+    emit(state.copyWith(
+      page: AdminPage.productNew,
+      modal: AdminModal.none,
+      currentProduct: product,
+      clearCurrentProduct: product == null,
+    ));
+  }
+
   void goCategories() => go(AdminPage.categories);
   void goInventory() => go(AdminPage.inventory);
 
@@ -245,7 +246,37 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(state.copyWith(modal: AdminModal.assign));
   }
 
-  void closeModal() => emit(state.copyWith(modal: AdminModal.none));
+  void closeModal() => emit(state.copyWith(
+        modal: AdminModal.none,
+        clearEditingPartner: true,
+        clearEditingCategory: true,
+        clearEditingCoupon: true,
+      ));
+
+  /// [category] null opens the form blank (create); non-null opens it
+  /// prefilled (edit) — see `AddCategoryModal`.
+  void openAddCategory({ApiCategory? category}) {
+    emit(state.copyWith(modal: AdminModal.addCategory, editingCategory: category, clearEditingCategory: category == null));
+  }
+
+  void openAddZone() => emit(state.copyWith(modal: AdminModal.addZone));
+
+  /// [coupon] null opens the form blank (create); non-null opens it
+  /// prefilled (edit) — see `AddCouponModal`.
+  void openAddCoupon({ApiCoupon? coupon}) {
+    emit(state.copyWith(modal: AdminModal.addCoupon, editingCoupon: coupon, clearEditingCoupon: coupon == null));
+  }
+
+  void openAddBanner() => emit(state.copyWith(modal: AdminModal.addBanner));
+
+  /// [partner] null opens the form blank (create); non-null opens it
+  /// prefilled (edit) — see `PartnerFormModal`. That form's zone dropdown
+  /// needs [BasketAdminState.apiZones], which the Partners page itself
+  /// never loads (only Zones/Inventory do), so fetch it here if missing.
+  void openPartnerForm({ApiDeliveryPartner? partner}) {
+    if (state.apiZones.isEmpty) loadZones();
+    emit(state.copyWith(modal: AdminModal.partnerForm, editingPartner: partner, clearEditingPartner: partner == null));
+  }
 
   void pickAssign(ApiDeliveryPartner partner) => emit(state.copyWith(assign: partner));
 
@@ -286,19 +317,32 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   /// static mock list.
   void setCatTab(String key) => emit(state.copyWith(catTab: key));
 
-  void setGstSlab(String slab) => emit(state.copyWith(gstSlab: slab));
-
-  void toggleSkuZone(String zone) {
-    final next = Map<String, bool>.from(state.skuZones);
-    next[zone] = !(next[zone] ?? false);
-    emit(state.copyWith(skuZones: next));
-  }
-
   Future<void> loadCategories() async {
     try {
       final categories = await api.catalog.fetchCategories();
       emit(state.copyWith(apiCategories: categories));
     } catch (_) {}
+  }
+
+  /// Rethrows [ApiException] rather than swallowing it (unlike the `load*`
+  /// methods above) — the caller is always a modal/form with its own local
+  /// loading spinner and inline error text, so it needs the failure back.
+  Future<ApiCategory> createCategory(Map<String, dynamic> data) async {
+    final created = await api.catalog.createCategory(data);
+    emit(state.copyWith(apiCategories: [...state.apiCategories, created]));
+    return created;
+  }
+
+  Future<ApiCategory> updateCategory(String key, Map<String, dynamic> data) async {
+    final updated = await api.catalog.updateCategory(key, data);
+    final next = [for (final c in state.apiCategories) if (c.key == key) updated else c];
+    emit(state.copyWith(apiCategories: next));
+    return updated;
+  }
+
+  Future<void> deleteCategory(String key) async {
+    await api.catalog.deleteCategory(key);
+    emit(state.copyWith(apiCategories: state.apiCategories.where((c) => c.key != key).toList()));
   }
 
   Future<void> loadProducts() async {
@@ -309,6 +353,24 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     } catch (_) {
       emit(state.copyWith(productsLoading: false));
     }
+  }
+
+  Future<ApiProduct> createProduct(Map<String, dynamic> data) async {
+    final created = await api.catalog.createProduct(data);
+    emit(state.copyWith(apiProducts: [...state.apiProducts, created]));
+    return created;
+  }
+
+  Future<ApiProduct> updateProduct(int id, Map<String, dynamic> data) async {
+    final updated = await api.catalog.updateProduct(id, data);
+    final next = [for (final p in state.apiProducts) if (p.id == id) updated else p];
+    emit(state.copyWith(apiProducts: next));
+    return updated;
+  }
+
+  Future<void> deleteProduct(int id) async {
+    await api.catalog.deleteProduct(id);
+    emit(state.copyWith(apiProducts: state.apiProducts.where((p) => p.id != id).toList()));
   }
 
   // ── Inventory ─────────────────────────────────────────────────────────
@@ -356,6 +418,19 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     }
   }
 
+  Future<ApiDeliveryPartner> createPartner(Map<String, dynamic> data) async {
+    final created = await api.delivery.createPartner(data);
+    emit(state.copyWith(apiPartners: [...state.apiPartners, created]));
+    return created;
+  }
+
+  Future<ApiDeliveryPartner> updatePartner(int id, Map<String, dynamic> data) async {
+    final updated = await api.delivery.updatePartner(id, data);
+    final next = [for (final p in state.apiPartners) if (p.id == id) updated else p];
+    emit(state.copyWith(apiPartners: next));
+    return updated;
+  }
+
   // ── Coupons / banners ────────────────────────────────────────────────
 
   Future<void> loadCoupons() async {
@@ -363,6 +438,24 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       final coupons = await api.promotions.fetchCoupons();
       emit(state.copyWith(apiCoupons: coupons));
     } catch (_) {}
+  }
+
+  Future<ApiCoupon> createCoupon(Map<String, dynamic> data) async {
+    final created = await api.promotions.createCoupon(data);
+    emit(state.copyWith(apiCoupons: [...state.apiCoupons, created]));
+    return created;
+  }
+
+  Future<ApiCoupon> updateCoupon(String code, Map<String, dynamic> data) async {
+    final updated = await api.promotions.updateCoupon(code, data);
+    final next = [for (final c in state.apiCoupons) if (c.code == code) updated else c];
+    emit(state.copyWith(apiCoupons: next));
+    return updated;
+  }
+
+  Future<void> deleteCoupon(String code) async {
+    await api.promotions.deleteCoupon(code);
+    emit(state.copyWith(apiCoupons: state.apiCoupons.where((c) => c.code != code).toList()));
   }
 
   Future<void> toggleCoupon(String code, bool isActive) async {
@@ -382,6 +475,12 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     } catch (_) {}
   }
 
+  Future<ApiBanner> createBanner(Map<String, dynamic> data) async {
+    final created = await api.promotions.createBanner(data);
+    emit(state.copyWith(apiBanners: [...state.apiBanners, created]));
+    return created;
+  }
+
   Future<void> toggleBanner(int id, bool isActive) async {
     try {
       final updated = await api.promotions.setBannerActive(id, isActive);
@@ -393,6 +492,12 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   }
 
   // ── Zones & stores ────────────────────────────────────────────────────
+
+  Future<ApiZone> createZone(Map<String, dynamic> data) async {
+    final created = await api.zones.createZone(data);
+    emit(state.copyWith(apiZones: [...state.apiZones, created]));
+    return created;
+  }
 
   Future<void> toggleZoneStore(int id, bool isOpen) async {
     try {

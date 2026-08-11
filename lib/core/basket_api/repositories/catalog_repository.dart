@@ -28,6 +28,25 @@ class CatalogRepository {
     }
   }
 
+  /// [key] is the category's slug — `CategoryViewSet.lookup_field = "key"`,
+  /// not the numeric id.
+  Future<ApiCategory> updateCategory(String key, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/categories/$key/', data: data);
+      return ApiCategory.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteCategory(String key) async {
+    try {
+      await _client.dio.delete('/categories/$key/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// [category]/[subcategory] are the string keys/names the Flutter state
   /// already uses (not numeric ids) — matches `ProductFilter` server-side.
   Future<List<ApiProduct>> fetchProducts({
@@ -83,6 +102,14 @@ class CatalogRepository {
     try {
       final response = await _client.dio.patch('/products/$id/', data: data);
       return ApiProduct.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteProduct(int id) async {
+    try {
+      await _client.dio.delete('/products/$id/');
     } catch (e) {
       throw ApiException.from(e);
     }

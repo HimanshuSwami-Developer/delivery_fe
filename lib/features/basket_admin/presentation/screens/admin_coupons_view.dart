@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
@@ -25,10 +26,9 @@ class AdminCouponsView extends StatelessWidget {
             children: [
               const Expanded(child: AdminSectionTitle('Active & scheduled campaigns')),
               FilledButton(
-                onPressed: null,
+                onPressed: cubit.openAddCoupon,
                 style: FilledButton.styleFrom(
                   backgroundColor: AdminColors.ink,
-                  disabledBackgroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
@@ -50,12 +50,16 @@ class AdminCouponsView extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 14,
               crossAxisSpacing: 14,
-              childAspectRatio: 1.75,
+              // Shorter than before (was 1.75) — the card grew an Edit/Delete
+              // row, so it needs more height for the same width.
+              childAspectRatio: 1.4,
               children: [
                 for (final c in coupons)
                   _CouponCard(
                     coupon: c,
                     onToggle: () => cubit.toggleCoupon(c.code, !c.isActive),
+                    onEdit: () => cubit.openAddCoupon(coupon: c),
+                    onDelete: () => _confirmDelete(context, cubit, c),
                   ),
               ],
             );
@@ -67,10 +71,12 @@ class AdminCouponsView extends StatelessWidget {
 }
 
 class _CouponCard extends StatelessWidget {
-  const _CouponCard({required this.coupon, required this.onToggle});
+  const _CouponCard({required this.coupon, required this.onToggle, required this.onEdit, required this.onDelete});
 
   final ApiCoupon coupon;
   final VoidCallback onToggle;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +126,72 @@ class _CouponCard extends StatelessWidget {
           const SizedBox(height: 15),
           Text('Min order ${adminMoney(coupon.minOrderValue)} · $discountLabel${coupon.maxDiscount != null ? ' · max ${adminMoney(coupon.maxDiscount!)}' : ''}',
               style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+          const Spacer(),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onEdit,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AdminColors.ink, width: 1.3),
+                    foregroundColor: AdminColors.ink,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onDelete,
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
+                    foregroundColor: AdminColors.muted,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+}
+
+Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiCoupon coupon) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('Delete "${coupon.code}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+      content: Text(
+        coupon.usedCount > 0
+            ? 'This coupon has already been redeemed ${coupon.usedCount} time(s) — deleting it only stops future use, past orders are unaffected.'
+            : 'This can\'t be undone.',
+        style: GoogleFonts.manrope(fontSize: 13),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  try {
+    await cubit.deleteCoupon(coupon.code);
+  } on ApiException catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }
 

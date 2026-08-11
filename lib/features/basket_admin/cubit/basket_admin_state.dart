@@ -33,14 +33,7 @@ class BasketAdminState extends Equatable {
     this.assign,
     this.orderStatus = 'new',
     this.month = 'aug',
-    this.gstSlab = '5%',
     this.audience = 'All users',
-    this.skuZones = const {
-      'Koramangala': true,
-      'HSR Layout': true,
-      'Jayanagar': true,
-      'Whitefield': false,
-    },
     this.apiZones = const [],
     this.apiOrders = const [],
     this.ordersLoading = false,
@@ -55,7 +48,10 @@ class BasketAdminState extends Equatable {
     this.customersLoading = false,
     this.apiPartners = const [],
     this.partnersLoading = false,
+    this.editingPartner,
     this.apiCoupons = const [],
+    this.editingCoupon,
+    this.editingCategory,
     this.apiBanners = const [],
     this.apiNotifications = const [],
     this.dashboardReport,
@@ -114,14 +110,8 @@ class BasketAdminState extends Equatable {
   /// GST report month key: `'aug' | 'jul' | 'jun'`.
   final String month;
 
-  /// GST slab pill selected on the Add Product page.
-  final String gstSlab;
-
   /// Notification compose audience.
   final String audience;
-
-  /// Zone name -> whether the product being edited is listed there.
-  final Map<String, bool> skuZones;
 
   // ── Live backend data (fetched via BasketAdminApi; see BasketAdminCubit) ──
 
@@ -150,7 +140,20 @@ class BasketAdminState extends Equatable {
   final List<ApiDeliveryPartner> apiPartners;
   final bool partnersLoading;
 
+  /// The partner shown on [AdminModal.partnerForm] — null means the modal
+  /// is creating a new one, non-null means it's editing this one.
+  final ApiDeliveryPartner? editingPartner;
+
   final List<ApiCoupon> apiCoupons;
+
+  /// The coupon shown on [AdminModal.addCoupon] — null means the modal is
+  /// creating a new one, non-null means it's editing this one.
+  final ApiCoupon? editingCoupon;
+
+  /// The category shown on [AdminModal.addCategory] — null means create,
+  /// non-null means edit.
+  final ApiCategory? editingCategory;
+
   final List<ApiBanner> apiBanners;
   final List<ApiNotification> apiNotifications;
 
@@ -180,9 +183,7 @@ class BasketAdminState extends Equatable {
     bool clearAssign = false,
     String? orderStatus,
     String? month,
-    String? gstSlab,
     String? audience,
-    Map<String, bool>? skuZones,
     List<ApiZone>? apiZones,
     List<ApiOrder>? apiOrders,
     bool? ordersLoading,
@@ -191,13 +192,20 @@ class BasketAdminState extends Equatable {
     List<ApiProduct>? apiProducts,
     bool? productsLoading,
     ApiProduct? currentProduct,
+    bool clearCurrentProduct = false,
     List<ApiProductStock>? apiStocks,
     bool? stocksLoading,
     List<AdminCustomerRow>? apiCustomers,
     bool? customersLoading,
     List<ApiDeliveryPartner>? apiPartners,
     bool? partnersLoading,
+    ApiDeliveryPartner? editingPartner,
+    bool clearEditingPartner = false,
     List<ApiCoupon>? apiCoupons,
+    ApiCoupon? editingCoupon,
+    bool clearEditingCoupon = false,
+    ApiCategory? editingCategory,
+    bool clearEditingCategory = false,
     List<ApiBanner>? apiBanners,
     List<ApiNotification>? apiNotifications,
     DashboardReport? dashboardReport,
@@ -224,9 +232,7 @@ class BasketAdminState extends Equatable {
       assign: clearAssign ? null : (assign ?? this.assign),
       orderStatus: orderStatus ?? this.orderStatus,
       month: month ?? this.month,
-      gstSlab: gstSlab ?? this.gstSlab,
       audience: audience ?? this.audience,
-      skuZones: skuZones ?? this.skuZones,
       apiZones: apiZones ?? this.apiZones,
       apiOrders: apiOrders ?? this.apiOrders,
       ordersLoading: ordersLoading ?? this.ordersLoading,
@@ -234,14 +240,17 @@ class BasketAdminState extends Equatable {
       apiCategories: apiCategories ?? this.apiCategories,
       apiProducts: apiProducts ?? this.apiProducts,
       productsLoading: productsLoading ?? this.productsLoading,
-      currentProduct: currentProduct ?? this.currentProduct,
+      currentProduct: clearCurrentProduct ? null : (currentProduct ?? this.currentProduct),
       apiStocks: apiStocks ?? this.apiStocks,
       stocksLoading: stocksLoading ?? this.stocksLoading,
       apiCustomers: apiCustomers ?? this.apiCustomers,
       customersLoading: customersLoading ?? this.customersLoading,
       apiPartners: apiPartners ?? this.apiPartners,
       partnersLoading: partnersLoading ?? this.partnersLoading,
+      editingPartner: clearEditingPartner ? null : (editingPartner ?? this.editingPartner),
       apiCoupons: apiCoupons ?? this.apiCoupons,
+      editingCoupon: clearEditingCoupon ? null : (editingCoupon ?? this.editingCoupon),
+      editingCategory: clearEditingCategory ? null : (editingCategory ?? this.editingCategory),
       apiBanners: apiBanners ?? this.apiBanners,
       apiNotifications: apiNotifications ?? this.apiNotifications,
       dashboardReport: dashboardReport ?? this.dashboardReport,
@@ -271,9 +280,7 @@ class BasketAdminState extends Equatable {
         assign,
         orderStatus,
         month,
-        gstSlab,
         audience,
-        skuZones,
         apiZones,
         apiOrders,
         ordersLoading,
@@ -288,7 +295,10 @@ class BasketAdminState extends Equatable {
         customersLoading,
         apiPartners,
         partnersLoading,
+        editingPartner,
         apiCoupons,
+        editingCoupon,
+        editingCategory,
         apiBanners,
         apiNotifications,
         dashboardReport,

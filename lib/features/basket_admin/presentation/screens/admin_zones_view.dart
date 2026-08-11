@@ -24,10 +24,9 @@ class AdminZonesView extends StatelessWidget {
             children: [
               const Expanded(child: AdminSectionTitle('Dark stores & delivery zones')),
               FilledButton(
-                onPressed: null,
+                onPressed: cubit.openAddZone,
                 style: FilledButton.styleFrom(
                   backgroundColor: AdminColors.ink,
-                  disabledBackgroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),

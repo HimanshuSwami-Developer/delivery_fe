@@ -93,7 +93,14 @@ class _SearchViewState extends State<SearchView> {
                           style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white),
                           decoration: InputDecoration(
                             isDense: true,
+                            // Unset `filled` inherits the app-wide theme's
+                            // near-white fill — on this dark header, that
+                            // painted a near-white box behind the white
+                            // input text, making it unreadable.
+                            filled: false,
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                             hintText: 'Search products',
                             hintStyle: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.55)),
                           ),

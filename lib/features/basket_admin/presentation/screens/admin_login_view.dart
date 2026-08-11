@@ -5,9 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Split-screen sign-in: a dark brand panel with headline copy and 3 live
-/// stats on the left, a real two-step phone + OTP sign-in form on the
-/// right (mobile number -> code) against the Django backend. Only accounts
-/// with `role='admin'` get past `verifyOtp` — see `BasketAdminCubit`.
+/// stats on the left, a two-step mobile number + master-OTP sign-in form
+/// on the right, against `/api/auth/master-login/` (no SMS involved — see
+/// `MasterOTPLoginView`). Only accounts with `role='admin'` get past
+/// `verifyOtp` — see `BasketAdminCubit`.
 class AdminLoginView extends StatelessWidget {
   const AdminLoginView({super.key});
 
@@ -154,7 +155,7 @@ class _SignInPanelState extends State<_SignInPanel> {
             Text('Sign in', style: GoogleFonts.manrope(fontSize: 27, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: AdminColors.ink)),
             const SizedBox(height: 8),
             Text(
-              otpSent ? 'Enter the code we sent to ${_mobileController.text}' : 'Use your Basket operations mobile number',
+              otpSent ? 'Enter your admin access code' : 'Use your Basket operations mobile number',
               style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
             ),
             const SizedBox(height: 28),
@@ -173,7 +174,7 @@ class _SignInPanelState extends State<_SignInPanel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _AdminTextField(
-                    label: 'OTP code',
+                    label: 'Access code',
                     controller: _otpController,
                     keyboardType: TextInputType.number,
                     hint: '6-digit code',
@@ -182,21 +183,10 @@ class _SignInPanelState extends State<_SignInPanel> {
                     onSubmitted: (_) => cubit.verifyOtp(),
                   ),
                   const SizedBox(height: 10),
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    runSpacing: 4,
-                    children: [
-                      TextButton(
-                        onPressed: loading ? null : cubit.editMobileNumber,
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                        child: Text('Change number', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                      ),
-                      TextButton(
-                        onPressed: loading ? null : cubit.resendOtp,
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                        child: Text('Resend code', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                      ),
-                    ],
+                  TextButton(
+                    onPressed: loading ? null : cubit.editMobileNumber,
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    child: Text('Change number', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   ),
                 ],
               ),
@@ -221,7 +211,7 @@ class _SignInPanelState extends State<_SignInPanel> {
                         child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
                       )
                     : Text(
-                        otpSent ? 'Verify & sign in' : 'Send code',
+                        otpSent ? 'Verify & sign in' : 'Continue',
                         style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w800, color: Colors.white),
                       ),
               ),
@@ -283,7 +273,10 @@ class _AdminTextField extends StatelessWidget {
             style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
             decoration: InputDecoration(
               isDense: true,
+              filled: false,
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 5),
               hintText: hint,
               hintStyle: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w700, color: AdminColors.faint),

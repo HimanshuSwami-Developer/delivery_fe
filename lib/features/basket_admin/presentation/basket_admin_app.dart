@@ -18,9 +18,11 @@ import 'package:fastswipe/features/basket_admin/presentation/screens/admin_produ
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_products_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_sales_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_zones_view.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_form_modals.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_sidebar.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_topbar.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/assign_partner_modal.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/partner_form_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -58,17 +60,28 @@ class _AdminRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screen = context.select((BasketAdminCubit c) => c.state.screen);
+    // This console was built desktop-first — a fixed 238px sidebar plus a
+    // topbar with several fixed-width controls (search box, zone switcher)
+    // that together need ~900px to lay out at all. Below that (any phone,
+    // or a narrow browser window) it used to overflow outright. Narrow
+    // screens now get the sidebar as a `Drawer` (opened via a hamburger
+    // button in `AdminTopBar`) instead of pinned inline, same threshold
+    // `AdminLoginView` already uses for its own narrow/wide split.
+    final narrow = MediaQuery.sizeOf(context).width < 900;
     return Scaffold(
       backgroundColor: AdminColors.backdrop,
-      body: screen == AdminScreen.login ? const AdminLoginView() : const _AdminShell(),
+      drawer: narrow && screen == AdminScreen.app ? const Drawer(width: 238, child: SafeArea(child: AdminSidebar())) : null,
+      body: screen == AdminScreen.login ? const AdminLoginView() : _AdminShell(narrow: narrow),
     );
   }
 }
 
 /// Sidebar + topbar + the active page, with the assign-partner modal
-/// overlaid on top when open.
+/// overlaid on top when open. [narrow] pulls the sidebar out into the
+/// Scaffold's `Drawer` instead of pinning it inline — see `_AdminRoot`.
 class _AdminShell extends StatelessWidget {
-  const _AdminShell();
+  const _AdminShell({required this.narrow});
+  final bool narrow;
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +92,11 @@ class _AdminShell extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AdminSidebar(),
+              if (!narrow) const AdminSidebar(),
               Expanded(
                 child: Column(
                   children: [
-                    const AdminTopBar(),
+                    AdminTopBar(narrow: narrow),
                     Expanded(
                       child: ColoredBox(
                         color: AdminColors.card,
@@ -99,6 +112,11 @@ class _AdminShell extends StatelessWidget {
             ],
           ),
           if (modal == AdminModal.assign) const AssignPartnerModal(),
+          if (modal == AdminModal.addCategory) const AddCategoryModal(),
+          if (modal == AdminModal.addZone) const AddZoneModal(),
+          if (modal == AdminModal.partnerForm) const PartnerFormModal(),
+          if (modal == AdminModal.addCoupon) const AddCouponModal(),
+          if (modal == AdminModal.addBanner) const AddBannerModal(),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Wraps [children] (each a naturally-sized, self-contained card — no
@@ -340,5 +341,272 @@ class AdminSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text, style: GoogleFonts.manrope(fontSize: size, fontWeight: FontWeight.w800, color: AdminColors.ink));
+  }
+}
+
+/// The editable twin of [AdminFieldBox] — same boxed "LABEL above value"
+/// shape, but a real [TextField] instead of static text. Used by every
+/// add/edit form in the console (product, category, zone, partner, coupon,
+/// banner) so they all share one input look.
+class AdminEditField extends StatelessWidget {
+  const AdminEditField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.keyboardType,
+    this.inputFormatters,
+    this.maxLines = 1,
+    this.enabled = true,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final int maxLines;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              label.toUpperCase(),
+              style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
+            ),
+          ),
+          TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            maxLines: maxLines,
+            enabled: enabled,
+            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
+            decoration: InputDecoration(
+              isDense: true,
+              filled: false,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 5),
+              hintText: hint,
+              hintStyle: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.faint),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A labeled dropdown in the same boxed shape as [AdminEditField], for the
+/// handful of form fields that pick from a fixed/loaded set (zone,
+/// vehicle, status) instead of free text.
+class AdminEditDropdown<T> extends StatelessWidget {
+  const AdminEditDropdown({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.itemLabel,
+    required this.onChanged,
+  });
+
+  final String label;
+  final T? value;
+  final List<T> items;
+  final String Function(T) itemLabel;
+  final ValueChanged<T?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              label.toUpperCase(),
+              style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
+            ),
+          ),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              isDense: true,
+              isExpanded: true,
+              icon: const Icon(Icons.expand_more, size: 16, color: AdminColors.faint),
+              style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
+              items: [for (final item in items) DropdownMenuItem(value: item, child: Text(itemLabel(item)))],
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shared backdrop + centered white card shell for every add/edit form
+/// dialog (category, zone, partner, coupon, banner) — the same shape as
+/// `AssignPartnerModal`, factored out so each form only supplies its own
+/// fields instead of re-building the backdrop/header/footer each time.
+class AdminFormModal extends StatelessWidget {
+  const AdminFormModal({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.fields,
+    required this.onCancel,
+    required this.onSubmit,
+    required this.submitLabel,
+    this.loading = false,
+    this.error,
+    this.maxWidth = 480,
+  });
+
+  final String title;
+  final String subtitle;
+  final List<Widget> fields;
+  final VoidCallback onCancel;
+  final VoidCallback? onSubmit;
+  final String submitLabel;
+  final bool loading;
+  final String? error;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: loading ? null : onCancel,
+            child: ColoredBox(color: AdminColors.ink.withValues(alpha: 0.42)),
+          ),
+        ),
+        Center(
+          child: ConstrainedBox(
+            // Bounded height too, not just width — without this the card
+            // sizes to its content unconditionally, and a form with enough
+            // fields (coupon, partner) overflows the bottom of any screen
+            // shorter than that content, since nothing above ever imposed
+            // a real ceiling. The fields region below turns scrollable
+            // once it's the thing actually running out of room.
+            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: MediaQuery.sizeOf(context).height * 0.9),
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.98),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [BoxShadow(color: AdminColors.ink.withValues(alpha: 0.3), blurRadius: 60, offset: const Offset(0, 30))],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(title, style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
+                            const SizedBox(height: 6),
+                            Text(subtitle, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: loading ? null : onCancel,
+                        child: const Text('✕', style: TextStyle(fontSize: 15, color: AdminColors.faint)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  // `ListView(shrinkWrap: true)`, not `SingleChildScrollView`
+                  // — the latter has no shrinkWrap and always greedily
+                  // fills whatever height `Flexible` offers, which would
+                  // stretch even a 3-field form to the modal's max height.
+                  // shrinkWrap sizes to content when it fits, and still
+                  // scrolls+caps at the `Flexible` bound when it doesn't
+                  // (coupon, partner — the forms with enough fields to
+                  // actually run past that bound on a short screen).
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      children: [for (var i = 0; i < fields.length; i++) ...[if (i > 0) const SizedBox(height: 12), fields[i]]],
+                    ),
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: 12),
+                    Text(error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                  ],
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: loading ? null : onCancel,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AdminColors.ink, width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                          ),
+                          child: Text('Cancel', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: AdminColors.ink)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 2,
+                        child: FilledButton(
+                          onPressed: loading ? null : onSubmit,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AdminColors.ink,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                          ),
+                          child: loading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                                )
+                              : Text(submitLabel, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

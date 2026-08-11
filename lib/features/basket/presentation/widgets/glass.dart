@@ -9,11 +9,14 @@ BoxDecoration glassCard({double radius = 16, double opacity = 0.68}) {
     color: Colors.white.withValues(alpha: opacity),
     border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
     borderRadius: BorderRadius.circular(radius),
+    // Tighter, tonal shadow (per `stitch_instazepto_grocery_mart`'s
+    // "minimal use of shadows" elevation spec) instead of a heavy floaty
+    // blur — reads as grounded/corporate rather than glossy.
     boxShadow: [
       BoxShadow(
-        color: BasketColors.ink.withValues(alpha: 0.12),
-        blurRadius: 20,
-        offset: const Offset(0, 8),
+        color: BasketColors.ink.withValues(alpha: 0.08),
+        blurRadius: 12,
+        offset: const Offset(0, 4),
       ),
     ],
   );

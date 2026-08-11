@@ -32,38 +32,45 @@ class BasketColors {
   static const onPrimary = Colors.white;
 
   // ── Error / destructive (red) ────────────────────────────────────────
-  static const error = Color(0xFFD32F2F);
+  // Aligned to the same error red `core/theme/app_colors.dart` and the
+  // `stitch_instazepto_grocery_mart` reference use — one less-alarm-bright
+  // red instead of two slightly different ones across the app.
+  static const error = Color(0xFFBA1A1A);
 
   /// Pale red tint — "cancelled"/error badge backgrounds.
-  static const errorSoft = Color(0xFFFFEBEE);
+  static const errorSoft = Color(0xFFFFDAD6);
 
   // ── Neutrals ─────────────────────────────────────────────────────────
+  // Tones nudged toward `stitch_instazepto_grocery_mart/mercantile_core`'s
+  // cooler, slightly-more-defined neutral scale — same tier structure
+  // (page < surface < divider, ink > muted > faint), just recalibrated.
   /// Page/app background.
-  static const page = Color(0xFFFAFAFA);
+  static const page = Color(0xFFF9F9F9);
 
   /// Card/section surface a shade darker than [page] (filter bars, image
   /// placeholders).
-  static const surface = Color(0xFFF5F5F5);
+  static const surface = Color(0xFFF3F3F3);
 
   /// Charcoal — body/heading text, and the structural dark surfaces
   /// (splash background, screen headers, bottom nav). Not pure black, so
   /// text stays easy on the eyes at length.
-  static const ink = Color(0xFF212121);
+  static const ink = Color(0xFF1A1C1C);
 
   /// Secondary text, placeholders.
-  static const muted = Color(0xFF757575);
+  static const muted = Color(0xFF75777C);
 
   /// Lighter still — the faintest hint text.
-  static const faint = Color(0xFF9E9E9E);
+  static const faint = Color(0xFF9AA0A6);
 
-  /// Borders/dividers.
-  static const divider = Color(0xFFE0E0E0);
+  /// Borders/dividers — a touch more defined than before, for a bit more
+  /// structural clarity on cards/inputs.
+  static const divider = Color(0xFFD8DADC);
 
   /// Pending/inactive step markers (order tracking).
   static const pending = Color(0xFFBDBDBD);
 
-  static const slot = Color(0xFFF5F5F5);
-  static const slotAlt = Color(0xFFEDEDEE);
+  static const slot = Color(0xFFF3F3F3);
+  static const slotAlt = Color(0xFFEEEEEE);
 
   static const white = Colors.white;
 }

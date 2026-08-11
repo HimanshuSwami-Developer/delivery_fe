@@ -82,6 +82,10 @@ class OtpView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12), width: 1.5),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: BasketColors.primary, width: 1.8),
+                  ),
                 ),
               ),
               if (authError != null) ...[
