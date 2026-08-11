@@ -22,7 +22,7 @@ class CategoriesView extends StatelessWidget {
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
-            color: BasketColors.ink,
+            decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
             child: Stack(
               children: [
                 Positioned(

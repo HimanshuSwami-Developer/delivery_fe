@@ -54,7 +54,7 @@ class _SearchViewState extends State<SearchView> {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(14, MediaQuery.paddingOf(context).top + 8, 14, 14),
-          color: BasketColors.ink,
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
           child: Row(
             children: [
               InkWell(

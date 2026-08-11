@@ -31,7 +31,7 @@ class OrderSuccessView extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(22, MediaQuery.paddingOf(context).top + 30, 22, 34),
-            decoration: const BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
+            decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
             child: Column(
               children: [
                 Container(

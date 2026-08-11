@@ -65,6 +65,15 @@ class BasketColors {
   /// deal reads as a deal, not as a warning or a brand element.
   static const accentOrange = Color(0xFFE65100);
 
+  /// Pale orange tint — soft pill background for discount badges.
+  static const accentOrangeSoft = Color(0xFFFFF3E0);
+
+  /// "Add to cart" / positive-action green — the product card's add button
+  /// specifically. Kept apart from [primary] navy (that's for the *page's*
+  /// CTAs — Send OTP, Checkout, Place order) so a tiny per-tile add button
+  /// doesn't compete with navy for attention against dozens of tiles.
+  static const success = Color(0xFF108910);
+
   // ── Error / destructive (red) ────────────────────────────────────────
   // Aligned to the same error red `core/theme/app_colors.dart` and the
   // `stitch_instazepto_grocery_mart` reference use — one less-alarm-bright

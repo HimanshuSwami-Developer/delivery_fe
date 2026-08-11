@@ -2,10 +2,10 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// A file-upload photo field for every admin form that needs one (category,
 /// subcategory, product, banner). Replaces the old "paste an image URL"
@@ -37,10 +37,8 @@ class _AdminImagePickerState extends State<AdminImagePicker> {
   String? _error;
 
   Future<void> _pickAndUpload() async {
-    final result = await FilePicker.pickFiles(type: FileType.image, withData: true);
-    if (!mounted) return;
-    final file = result?.files.single;
-    if (file?.bytes == null) return;
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 90);
+    if (!mounted || file == null) return;
 
     final cubit = context.read<BasketAdminCubit>();
     setState(() {
@@ -48,7 +46,8 @@ class _AdminImagePickerState extends State<AdminImagePicker> {
       _error = null;
     });
     try {
-      final url = await cubit.api.catalog.uploadImage(file!.bytes!, file.name);
+      final bytes = await file.readAsBytes();
+      final url = await cubit.api.catalog.uploadImage(bytes, file.name);
       if (mounted) widget.onChanged(url);
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);

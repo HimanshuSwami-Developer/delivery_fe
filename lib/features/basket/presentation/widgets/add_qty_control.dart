@@ -20,29 +20,43 @@ class AddQtyControl extends StatelessWidget {
     final qty = context.select((BasketCubit c) => c.state.cart[product.id] ?? 0);
     final cubit = context.read<BasketCubit>();
 
-    if (qty == 0) {
-      final accent = product.oos ? BasketColors.error : BasketColors.primary;
-      return OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: accent, width: 1.4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        onPressed: product.oos ? null : () => cubit.bump(product.id, 1),
+    if (product.oos) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(color: BasketColors.errorSoft, borderRadius: BorderRadius.circular(99)),
         child: Text(
-          product.oos ? 'SOON' : 'ADD',
-          style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w800, color: accent),
+          'SOON',
+          style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w800, color: BasketColors.error),
+        ),
+      );
+    }
+    if (qty == 0) {
+      // A round icon button, not a labeled pill — matches the reference
+      // design's product-card "add" affordance, and green (not brand navy)
+      // so it reads as its own small action rather than competing with
+      // navy across dozens of tiles on one screen.
+      return InkWell(
+        onTap: () => cubit.bump(product.id, 1),
+        borderRadius: BorderRadius.circular(99),
+        child: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: BasketColors.success,
+            shape: BoxShape.circle,
+            boxShadow: [BoxShadow(color: BasketColors.success.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))],
+          ),
+          alignment: Alignment.center,
+          child: const Icon(Icons.add, size: 18, color: Colors.white),
         ),
       );
     }
     return Container(
-      decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(9)),
+      decoration: BoxDecoration(color: BasketColors.success, borderRadius: BorderRadius.circular(99)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(label: '−', onTap: () => cubit.bump(product.id, -1)),
+          _StepButton(icon: Icons.remove, onTap: () => cubit.bump(product.id, -1)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Text(
@@ -50,7 +64,7 @@ class AddQtyControl extends StatelessWidget {
               style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
             ),
           ),
-          _StepButton(label: '+', onTap: () => cubit.bump(product.id, 1)),
+          _StepButton(icon: Icons.add, onTap: () => cubit.bump(product.id, 1)),
         ],
       ),
     );
@@ -58,18 +72,19 @@ class AddQtyControl extends StatelessWidget {
 }
 
 class _StepButton extends StatelessWidget {
-  const _StepButton({required this.label, required this.onTap});
+  const _StepButton({required this.icon, required this.onTap});
 
-  final String label;
+  final IconData icon;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(99),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+        padding: const EdgeInsets.all(6),
+        child: Icon(icon, size: 14, color: Colors.white),
       ),
     );
   }

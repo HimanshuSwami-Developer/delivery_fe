@@ -386,7 +386,7 @@ class _BuyAgainCard extends StatelessWidget {
       child: Container(
         width: 108,
         padding: const EdgeInsets.all(8),
-        decoration: glassCard(radius: 16),
+        decoration: productCardDecoration(radius: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -609,7 +609,7 @@ class _PriceCard extends StatelessWidget {
       child: Container(
         width: width,
         padding: const EdgeInsets.all(9),
-        decoration: glassCard(radius: 16),
+        decoration: productCardDecoration(radius: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -662,7 +662,7 @@ class _RecommendedCard extends StatelessWidget {
       onTap: () => context.read<BasketCubit>().openProduct(product.id),
       child: Container(
         padding: const EdgeInsets.all(9),
-        decoration: glassCard(radius: 16),
+        decoration: productCardDecoration(radius: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

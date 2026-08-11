@@ -3,6 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -354,11 +355,7 @@ class _AlsoBoughtCard extends StatelessWidget {
       child: Container(
         width: 112,
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.8),
-          border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
-          borderRadius: BorderRadius.circular(14),
-        ),
+        decoration: productCardDecoration(radius: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -17,7 +17,7 @@ class SupportView extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 22),
-          decoration: BoxDecoration(color: BasketColors.ink, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26))),
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
           child: Row(
             children: [
               InkWell(

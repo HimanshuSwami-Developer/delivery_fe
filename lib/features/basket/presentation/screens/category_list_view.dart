@@ -36,7 +36,7 @@ class CategoryListView extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(14, MediaQuery.paddingOf(context).top + 8, 14, 14),
-          color: BasketColors.ink,
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
           child: Row(
             children: [
               _CircleIconButton(icon: Icons.arrow_back, onTap: cubit.back),
@@ -234,7 +234,7 @@ class _GridCard extends StatelessWidget {
         onTap: () => context.read<BasketCubit>().openProduct(product.id),
         child: Container(
           padding: const EdgeInsets.all(8),
-          decoration: glassCard(radius: 15),
+          decoration: productCardDecoration(radius: 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -279,7 +279,7 @@ class _RowCard extends StatelessWidget {
         onTap: () => context.read<BasketCubit>().openProduct(product.id),
         child: Container(
           padding: const EdgeInsets.all(9),
-          decoration: glassCard(radius: 15),
+          decoration: productCardDecoration(radius: 15),
           child: Row(
             children: [
               SizedBox(width: 64, height: 64, child: ProductImage(height: 64, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11)),
