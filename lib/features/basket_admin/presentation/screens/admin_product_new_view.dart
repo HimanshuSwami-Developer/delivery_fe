@@ -3,6 +3,7 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_gallery_picker.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +49,28 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   bool _loading = false;
   String? _error;
 
+  /// Gallery photos beyond the main image — [_editing] comes from the
+  /// products list (`ProductListSerializer`, no `images`), so on edit we
+  /// fetch the full detail once here to seed this and [_initialGalleryIds]
+  /// (the latter is what `_submit` diffs against to know which existing
+  /// `ProductImage` rows were removed).
+  List<GalleryImage> _gallery = [];
+  List<int> _initialGalleryIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (_editing != null) {
+      context.read<BasketAdminCubit>().api.catalog.fetchProduct(_editing.id).then((full) {
+        if (!mounted) return;
+        setState(() {
+          _gallery = [for (final img in full.images) (id: img.id, url: img.imageUrl)];
+          _initialGalleryIds = [for (final g in _gallery) g.id!];
+        });
+      });
+    }
+  }
+
   @override
   void dispose() {
     _name.dispose();
@@ -92,11 +115,20 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'is_out_of_stock': _outOfStock,
         'main_image_url': _mainImageUrl,
       };
-      if (_editing == null) {
-        await cubit.createProduct(data);
-      } else {
-        await cubit.updateProduct(_editing.id, data);
+      final product = _editing == null
+          ? await cubit.createProduct(data)
+          : await cubit.updateProduct(_editing.id, data);
+
+      final keptIds = {for (final g in _gallery) if (g.id != null) g.id!};
+      for (final removedId in _initialGalleryIds.where((id) => !keptIds.contains(id))) {
+        await cubit.api.catalog.deleteProductImage(removedId);
       }
+      for (var i = 0; i < _gallery.length; i++) {
+        if (_gallery[i].id == null) {
+          await cubit.api.catalog.addProductImage(product.id, _gallery[i].url, order: i);
+        }
+      }
+
       if (mounted) cubit.goProducts();
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
@@ -231,6 +263,11 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                         label: 'Main image',
                         imageUrl: _mainImageUrl,
                         onChanged: (url) => setState(() => _mainImageUrl = url),
+                      ),
+                      const SizedBox(height: 16),
+                      AdminGalleryPicker(
+                        images: _gallery,
+                        onChanged: (v) => setState(() => _gallery = v),
                       ),
                     ],
                   ),

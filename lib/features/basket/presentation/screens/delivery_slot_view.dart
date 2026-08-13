@@ -47,9 +47,9 @@ class DeliverySlotView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delivery slot', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Delivery slot', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                       const SizedBox(height: 2),
-                      Text('Step 2 of 3', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      Text('Step 2 of 3', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -91,7 +91,7 @@ class DeliverySlotView extends StatelessWidget {
                 ),
                 child: Text(
                   'Express slots are dispatched from the Koramangala dark store. Scheduled slots arrive within a 2-hour window.',
-                  style: GoogleFonts.poppins(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 ),
               ),
             ],
@@ -115,7 +115,7 @@ class DeliverySlotView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: cubit.goToSummary,
-                child: Text('Continue to payment →', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                child: Text('Continue to payment →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
               ),
             ),
           ),
@@ -146,11 +146,11 @@ class _DayPill extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(day.label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800, color: style.fg)),
+            Text(day.label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: style.fg)),
             const SizedBox(height: 3),
             Opacity(
               opacity: 0.7,
-              child: Text(day.date, style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: style.fg)),
+              child: Text(day.date, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: style.fg)),
             ),
           ],
         ),
@@ -197,13 +197,13 @@ class _SlotCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700)),
+                    Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 3),
-                    Text(slot.sub, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                    Text(slot.sub, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   ],
                 ),
               ),
-              Text(slot.fee, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w800)),
+              Text(slot.fee, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800)),
             ],
           ),
         ),

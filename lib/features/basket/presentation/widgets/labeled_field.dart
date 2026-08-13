@@ -51,7 +51,7 @@ class LabeledTextField extends StatelessWidget {
             padding: const EdgeInsets.only(top: 7),
             child: Text(
               label.toUpperCase(),
-              style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
+              style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
             ),
           ),
           TextField(
@@ -62,7 +62,7 @@ class LabeledTextField extends StatelessWidget {
             inputFormatters: inputFormatters,
             maxLength: maxLength,
             textAlign: textAlign,
-            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.ink),
+            style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.ink),
             decoration: InputDecoration(
               isDense: true,
               counterText: '',
@@ -82,7 +82,7 @@ class LabeledTextField extends StatelessWidget {
               disabledBorder: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 4),
               hintText: hintText,
-              hintStyle: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.faint),
+              hintStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.faint),
             ),
           ),
         ],
@@ -116,12 +116,12 @@ class LabeledStaticField extends StatelessWidget {
         children: [
           Text(
             label.toUpperCase(),
-            style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
+            style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: muted ? FontWeight.w600 : FontWeight.w700,
               color: muted ? BasketColors.faint : BasketColors.ink,

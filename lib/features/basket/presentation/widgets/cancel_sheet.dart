@@ -47,14 +47,14 @@ class CancelSheet extends StatelessWidget {
                 children: [
                   Text(
                     isReturn ? 'Return items' : 'Cancel this order?',
-                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     isReturn
                         ? 'Pick a reason. Refunds reach your original payment method in 3–5 working days.'
                         : 'Free to cancel until the rider picks up your order. Refunds are instant to UPI.',
-                    style: GoogleFonts.poppins(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                   ),
                   const SizedBox(height: 15),
                   Column(
@@ -82,7 +82,7 @@ class CancelSheet extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.closeSheet,
-                          child: Text('Keep order', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                          child: Text('Keep order', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -98,7 +98,7 @@ class CancelSheet extends StatelessWidget {
                           onPressed: cubit.confirmCancel,
                           child: Text(
                             isReturn ? 'Request return' : 'Cancel order',
-                            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
                           ),
                         ),
                       ),
@@ -145,7 +145,7 @@ class _ReasonTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600)),
+            Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

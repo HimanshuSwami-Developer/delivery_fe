@@ -45,7 +45,7 @@ class CartBar extends StatelessWidget {
                   children: [
                     Text(
                       '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} · ${moneyLabel(t.subtotal)}',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -54,7 +54,7 @@ class CartBar extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       free,
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w500,
                         color: Colors.white.withValues(alpha: 0.55),
@@ -71,7 +71,7 @@ class CartBar extends StatelessWidget {
                 ),
                 child: Text(
                   'View basket',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
                     color: BasketColors.ink,

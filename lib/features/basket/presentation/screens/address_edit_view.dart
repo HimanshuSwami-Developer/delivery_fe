@@ -123,7 +123,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(9)),
-                      child: Text('Drag to set pin', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                      child: Text('Drag to set pin', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
                     ),
                     Container(width: 2, height: 16, color: BasketColors.ink),
                     Container(
@@ -172,7 +172,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                             height: 12,
                             child: CircularProgressIndicator(strokeWidth: 1.5),
                           )
-                        : Text('◎ Use my location', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                        : Text('◎ Use my location', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -191,9 +191,9 @@ class _AddressEditViewState extends State<AddressEditView> {
               ),
               child: ListView(
                 children: [
-                  Text('Add address details', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                  Text('Add address details', style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                   const SizedBox(height: 5),
-                  Text(_resolvedAddress, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(_resolvedAddress, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   const SizedBox(height: 16),
                   LabeledTextField(
                     label: 'Flat / House no.',
@@ -239,7 +239,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                   const SizedBox(height: 10),
                   LabeledStaticField(label: 'Receiver', value: 'Aarav · +91 $phoneLabel'),
                   const SizedBox(height: 18),
-                  Text('Save as', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text('Save as', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 9),
                   Row(
                     children: [
@@ -251,7 +251,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                   ),
                   if (formError != null) ...[
                     const SizedBox(height: 14),
-                    Text(formError, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                    Text(formError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
                   ],
                   const SizedBox(height: 20),
                   SizedBox(
@@ -277,7 +277,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
                             )
-                          : Text('Save address', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                          : Text('Save address', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                     ),
                   ),
                 ],
@@ -309,7 +309,7 @@ class _TagPill extends StatelessWidget {
           border: Border.all(color: style.border),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Text(label, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg)),
+        child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg)),
       ),
     );
   }

@@ -52,7 +52,7 @@ class OrdersView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text('My orders', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              Text('My orders', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             ],
           ),
         ),
@@ -103,7 +103,7 @@ class _OrderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(row.orderNumber, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                Text(row.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
@@ -116,7 +116,7 @@ class _OrderCard extends StatelessWidget {
                   ),
                   child: Text(
                     row.statusLabel,
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 9.5,
                       fontWeight: FontWeight.w700,
                       color: switch ((row.isLive, row.statusLabel)) {
@@ -132,14 +132,14 @@ class _OrderCard extends StatelessWidget {
             const SizedBox(height: 7),
             Text(
               '${row.dateLabel} · ${row.itemCount} items',
-              style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
+              style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(row.totalLabel, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
-                Text('${row.ctaLabel} ›', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                Text(row.totalLabel, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+                Text('${row.ctaLabel} ›', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
               ],
             ),
           ],

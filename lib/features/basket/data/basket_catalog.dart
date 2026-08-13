@@ -99,20 +99,23 @@ class BasketCatalog {
 
   static const onboarding = <OnboardSlide>[
     OnboardSlide(
-      title: 'Fresh picks,\nevery morning.',
-      body: 'Farm-sourced fruit and veg graded at 5am and packed the moment you order.',
+      badge: 'Fresh from the mandi',
+      title: 'Your neighbourhood bazar, now in your pocket',
+      body: 'Handpicked fruits, vegetables and daily staples sourced every morning from local sellers you already trust.',
       slotLabel: 'Onboarding illustration 1',
       icon: Icons.eco_rounded,
     ),
     OnboardSlide(
-      title: 'Delivered before\nthe kettle boils.',
-      body: 'Dark stores across your city mean groceries land at your door in minutes.',
+      badge: '15-minute delivery',
+      title: 'Delivered before the kettle boils',
+      body: 'Riders from the store closest to you bring your order in 15 minutes flat — with live tracking from cart to doorstep.',
       slotLabel: 'Onboarding illustration 2',
       icon: Icons.bolt_rounded,
     ),
     OnboardSlide(
-      title: 'Prices you can\ncheck twice.',
-      body: 'MRP on every pack, coupons applied up front, no surprise fees at checkout.',
+      badge: 'Everyday savings',
+      title: 'Bazar prices, no bargaining needed',
+      body: 'Weekly wholesale rates, family packs and a running total that never surprises you at checkout.',
       slotLabel: 'Onboarding illustration 3',
       icon: Icons.price_check_rounded,
     ),

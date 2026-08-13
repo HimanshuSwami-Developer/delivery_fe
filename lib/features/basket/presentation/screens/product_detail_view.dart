@@ -38,7 +38,7 @@ class ProductDetailView extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  ProductImage(height: 290, imageUrl: p.imageUrl, discountPct: p.discountPct, radius: 0),
+                  _ProductGallery(key: ValueKey(p.id), images: p.galleryImages, discountPct: p.discountPct),
                   Positioned(
                     top: MediaQuery.paddingOf(context).top + 8,
                     left: 14,
@@ -57,25 +57,6 @@ class ProductDetailView extends StatelessWidget {
                             const _DarkCircleButton(icon: Icons.ios_share_rounded, onTap: null),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    right: 14,
-                    bottom: 34,
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < 4; i++) ...[
-                          if (i > 0) const SizedBox(height: 7),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: i == 0 ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.22),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -107,20 +88,27 @@ class ProductDetailView extends StatelessWidget {
                           Expanded(
                             child: Text(
                               p.name,
-                              style: GoogleFonts.poppins(fontSize: 19, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 19, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                             decoration: BoxDecoration(border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)), borderRadius: BorderRadius.circular(99)),
-                            child: Text('★ ${p.rating}', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.star_rounded, size: 14, color: BasketColors.gold),
+                                const SizedBox(width: 2),
+                                Text('${p.rating}', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         '${p.pack} · Delivery in ${BasketCubit.etaMinutes} min',
-                        style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
                       ),
                       const SizedBox(height: 14),
                       Row(
@@ -136,17 +124,17 @@ class ProductDetailView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(moneyLabel(p.price), style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
+                          Text(moneyLabel(p.price), style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
                           const SizedBox(width: 9),
                           Text(
                             moneyLabel(p.mrp),
-                            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
                           ),
                           const SizedBox(width: 9),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(color: BasketColors.accentOrange, borderRadius: BorderRadius.circular(99)),
-                            child: Text('${p.discountPct}% off', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                            decoration: BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.circular(99)),
+                            child: Text('${p.discountPct}% off', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: BasketColors.primary)),
                           ),
                         ],
                       ),
@@ -175,7 +163,7 @@ class ProductDetailView extends StatelessWidget {
                                     ),
                                     child: Text(
                                       t.$1 == PdpTab.reviews ? 'Reviews ${_reviewCount(p.ratingsCount)}' : t.$2,
-                                      style: GoogleFonts.poppins(
+                                      style: GoogleFonts.plusJakartaSans(
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w700,
                                         color: tab == t.$1 ? BasketColors.ink : BasketColors.faint,
@@ -190,10 +178,10 @@ class ProductDetailView extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         _tabBody(tab, p),
-                        style: GoogleFonts.poppins(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
                       ),
                       const SizedBox(height: 22),
-                      Text('Frequently bought with', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text('Frequently bought with', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 11),
                       SizedBox(
                         height: 148,
@@ -228,7 +216,7 @@ class ProductDetailView extends StatelessWidget {
                       _StepButton(label: '−', onTap: () => cubit.bump(p.id, -1)),
                       SizedBox(
                         width: 20,
-                        child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
+                        child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
                       ),
                       _StepButton(label: '+', onTap: () => cubit.bump(p.id, 1)),
                     ],
@@ -245,7 +233,7 @@ class ProductDetailView extends StatelessWidget {
                     onPressed: cubit.pdpAdd,
                     child: Text(
                       'Add to cart · ${moneyLabel(p.price * pdpQty)}',
-                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
                     ),
                   ),
                 ),
@@ -271,6 +259,126 @@ class ProductDetailView extends StatelessWidget {
       case PdpTab.description:
         return '${p.name} — ${p.pack}. Sourced daily and cold-chain handled from the dark store to your door. Best consumed within 2 days of delivery; keep refrigerated below 5°C.';
     }
+  }
+}
+
+/// The PDP hero: swipe through [images] via `PageView`, tap a dot or a
+/// thumbnail to jump straight to that photo. Keyed by product id in the
+/// parent so switching products resets the page/thumbnail state instead of
+/// carrying over the previous product's selected index.
+class _ProductGallery extends StatefulWidget {
+  const _ProductGallery({super.key, required this.images, required this.discountPct});
+
+  final List<String> images;
+  final int discountPct;
+
+  @override
+  State<_ProductGallery> createState() => _ProductGalleryState();
+}
+
+class _ProductGalleryState extends State<_ProductGallery> {
+  final _controller = PageController();
+  int _index = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _goTo(int i) {
+    setState(() => _index = i);
+    _controller.animateToPage(i, duration: const Duration(milliseconds: 260), curve: Curves.easeOut);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final images = widget.images;
+    final multi = images.length > 1;
+
+    return SizedBox(
+      height: 290,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          PageView.builder(
+            controller: _controller,
+            itemCount: images.isEmpty ? 1 : images.length,
+            onPageChanged: (i) => setState(() => _index = i),
+            itemBuilder: (context, i) => ProductImage(
+              height: 290,
+              imageUrl: images.isEmpty ? '' : images[i],
+              discountPct: i == 0 ? widget.discountPct : 0,
+              radius: 0,
+            ),
+          ),
+          if (multi)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 92,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < images.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () => _goTo(i),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          width: i == _index ? 16 : 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: i == _index ? Colors.white : Colors.white.withValues(alpha: 0.45),
+                            boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.25), blurRadius: 3)],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          if (multi)
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: 34,
+              child: SizedBox(
+                height: 46,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: images.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, i) => GestureDetector(
+                    onTap: () => _goTo(i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: i == _index ? BasketColors.ink : Colors.white, width: i == _index ? 2.4 : 1.6),
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 6, offset: const Offset(0, 2))],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(7.5),
+                        child: Image.network(
+                          images[i],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const ColoredBox(color: BasketColors.surface),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
@@ -311,7 +419,7 @@ class _VariantPill extends StatelessWidget {
         border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.14)),
         borderRadius: BorderRadius.circular(99),
       ),
-      child: Text(label, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : BasketColors.ink)),
+      child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : BasketColors.ink)),
     );
   }
 }
@@ -334,9 +442,9 @@ class _InfoTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700)),
+          Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 3),
-          Text(sub, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+          Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
         ],
       ),
     );
@@ -363,13 +471,13 @@ class _AlsoBoughtCard extends StatelessWidget {
             const SizedBox(height: 7),
             SizedBox(
               height: 27,
-              child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 10.5, height: 1.3, fontWeight: FontWeight.w600)),
+              child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, height: 1.3, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: BasketColors.ink, width: 1.3),
@@ -379,7 +487,7 @@ class _AlsoBoughtCard extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () => context.read<BasketCubit>().bump(product.id, 1),
-                  child: Text('ADD', style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w800)),
+                  child: Text('ADD', style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w800)),
                 ),
               ],
             ),
@@ -402,7 +510,7 @@ class _StepButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-        child: Text(label, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800)),
+        child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
       ),
     );
   }

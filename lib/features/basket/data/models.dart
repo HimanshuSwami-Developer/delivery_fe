@@ -41,6 +41,7 @@ class BasketProduct {
     required this.ratingsCount,
     this.oos = false,
     this.imageUrl = '',
+    this.images = const [],
   });
 
   final String id;
@@ -59,6 +60,17 @@ class BasketProduct {
   /// Empty when the admin hasn't uploaded one yet, in which case product
   /// cards fall back to a generic placeholder.
   final String imageUrl;
+
+  /// Extra PDP gallery photos (`ProductImage` rows on the backend), beyond
+  /// [imageUrl]. Only populated once the full product detail has loaded
+  /// (list/card screens fetch the lighter shape that omits these) — see
+  /// [galleryImages].
+  final List<String> images;
+
+  /// Everything the PDP slider should show: the gallery photos if the admin
+  /// added any, else just [imageUrl] (or nothing, if the product has no
+  /// photo at all yet).
+  List<String> get galleryImages => images.isNotEmpty ? images : (imageUrl.isEmpty ? const [] : [imageUrl]);
 
   int get discountPct => (100 * (1 - price / mrp)).round();
 
@@ -79,6 +91,7 @@ class BasketProduct {
         ratingsCount: p.ratingsCount,
         oos: p.isOutOfStock,
         imageUrl: p.mainImageUrl,
+        images: [for (final img in p.images) img.imageUrl],
       );
 }
 
@@ -105,19 +118,23 @@ class BasketCoupon {
 
 class OnboardSlide {
   const OnboardSlide({
+    required this.badge,
     required this.title,
     required this.body,
     required this.slotLabel,
     required this.icon,
   });
 
+  /// Small pill label overlaid on the hero panel (e.g. "15-minute
+  /// delivery") — matches the mockup's badge chip.
+  final String badge;
   final String title;
   final String body;
   final String slotLabel;
 
   /// Themed icon shown in the illustration panel — there's no real image
-  /// pipeline for onboarding art, so each slide gets a large brand-green
-  /// icon on a soft tinted panel instead of a generic placeholder.
+  /// pipeline for onboarding art, so each slide gets a large icon on a
+  /// tinted panel instead of a dropped-in photo.
   final IconData icon;
 }
 

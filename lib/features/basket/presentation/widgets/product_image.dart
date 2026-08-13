@@ -47,10 +47,10 @@ class ProductImage extends StatelessWidget {
                   top: 6,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: const BoxDecoration(color: BasketColors.accentOrangeSoft, borderRadius: BorderRadius.all(Radius.circular(99))),
+                    decoration: const BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.all(Radius.circular(99))),
                     child: Text(
                       '$discountPct% OFF',
-                      style: GoogleFonts.poppins(fontSize: 8.5, fontWeight: FontWeight.w800, color: BasketColors.accentOrange),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 8.5, fontWeight: FontWeight.w800, color: BasketColors.primary),
                     ),
                   ),
                 ),

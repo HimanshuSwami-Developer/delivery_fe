@@ -82,11 +82,15 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SizedBox(
+            height: 5,
+            child: selected ? const Center(child: _GoldDot()) : null,
+          ),
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 5),
           Text(
             label,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 9.5,
               fontWeight: FontWeight.w700,
               color: color,
@@ -96,5 +100,17 @@ class _NavItem extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Small gold marker above the active tab — matches the design's
+/// dot-highlight motif (badge-chip dot, splash logo pulse) rather than a
+/// plain navy underline/pill.
+class _GoldDot extends StatelessWidget {
+  const _GoldDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 4, height: 4, decoration: const BoxDecoration(color: BasketColors.gold, shape: BoxShape.circle));
   }
 }

@@ -37,11 +37,11 @@ class CategoriesView extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('All categories', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.4)),
+                    Text('All categories', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.4)),
                     const SizedBox(height: 4),
                     Text(
                       '${categories.length} categories to shop from',
-                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
                     ),
                     const SizedBox(height: 14),
                     InkWell(
@@ -57,7 +57,7 @@ class CategoriesView extends StatelessWidget {
                             const SizedBox(width: 10),
                             Text(
                               'Search 5,000+ products',
-                              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: BasketColors.muted),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: BasketColors.muted),
                             ),
                           ],
                         ),
@@ -95,7 +95,7 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.read<BasketCubit>().openCategory(category.key, category.subs.first),
+      onTap: () => context.read<BasketCubit>().openCategory(category),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: glassCard(radius: 18),
@@ -128,11 +128,11 @@ class _CategoryCard extends StatelessWidget {
                 category.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(fontSize: 13, height: 1.25, fontWeight: FontWeight.w700, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.25, fontWeight: FontWeight.w700, color: BasketColors.ink),
               ),
             ),
             const SizedBox(height: 3),
-            Text('${category.count} items', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+            Text('${category.count} items', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
           ],
         ),
       ),

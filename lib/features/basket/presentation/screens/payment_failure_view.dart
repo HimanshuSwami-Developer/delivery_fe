@@ -27,17 +27,17 @@ class PaymentFailureView extends StatelessWidget {
             height: 58,
             decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
             alignment: Alignment.center,
-            child: Text('!', style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+            child: Text('!', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
           ),
           const SizedBox(height: 18),
           Text(
             "Payment didn't go through",
-            style: GoogleFonts.poppins(fontSize: 22, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
+            style: GoogleFonts.plusJakartaSans(fontSize: 22, height: 1.25, fontWeight: FontWeight.w800, letterSpacing: -0.4),
           ),
           const SizedBox(height: 10),
           Text(
             'No money has left your account. Your basket is saved — try another method or pay on delivery.',
-            style: GoogleFonts.poppins(fontSize: 13, height: 1.65, fontWeight: FontWeight.w500, color: BasketColors.muted),
+            style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.65, fontWeight: FontWeight.w500, color: BasketColors.muted),
           ),
           const SizedBox(height: 20),
           Container(
@@ -67,7 +67,7 @@ class PaymentFailureView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
               onPressed: cubit.goToPay,
-              child: Text('Retry payment', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+              child: Text('Retry payment', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
             ),
           ),
           const SizedBox(height: 9),
@@ -80,7 +80,7 @@ class PaymentFailureView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               onPressed: cubit.payCashOnDelivery,
-              child: Text('Switch to cash on delivery', style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+              child: Text('Switch to cash on delivery', style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
             ),
           ),
         ],
@@ -100,8 +100,8 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
       ],
     );
   }

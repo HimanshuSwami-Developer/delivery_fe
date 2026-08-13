@@ -50,12 +50,12 @@ class CategoryListView extends StatelessWidget {
                       category.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${items.length} items · $subcategory',
-                      style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                      subcategory.isEmpty ? '${items.length} items' : '${items.length} items · $subcategory',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                     ),
                   ],
                 ),
@@ -71,21 +71,22 @@ class CategoryListView extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(
-                width: 78,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    border: Border(right: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
-                  ),
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    children: [
-                      for (final s in category.subs) _SubcategoryItem(sub: s, active: s == subcategory),
-                    ],
+              if (category.subs.isNotEmpty)
+                SizedBox(
+                  width: 78,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      border: Border(right: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
+                    ),
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      children: [
+                        for (final s in category.subs) _SubcategoryItem(sub: s, active: s == subcategory),
+                      ],
+                    ),
                   ),
                 ),
-              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -189,7 +190,7 @@ class _SubcategoryItem extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(fontSize: 9.5, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
+              style: GoogleFonts.plusJakartaSans(fontSize: 9.5, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
             ),
           ],
         ),
@@ -215,7 +216,7 @@ class _FilterPill extends StatelessWidget {
           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700)),
+        child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -246,15 +247,15 @@ class _GridCard extends StatelessWidget {
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
                 ),
               ),
-              Text(product.pack, style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+              Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
               const SizedBox(height: 7),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                  Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                   AddQtyControl(product: product),
                 ],
               ),
@@ -292,18 +293,27 @@ class _RowCard extends StatelessWidget {
                       product.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(fontSize: 12, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
                     ),
                     const SizedBox(height: 3),
-                    Text('${product.pack} · ★ ${product.rating}', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                    RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                        children: [
+                          TextSpan(text: '${product.pack} · '),
+                          const TextSpan(text: '★ ', style: TextStyle(color: BasketColors.gold)),
+                          TextSpan(text: '${product.rating}'),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                        Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                         const SizedBox(width: 6),
                         Text(
                           moneyLabel(product.mrp),
-                          style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
                         ),
                         const Spacer(),
                         AddQtyControl(product: product),

@@ -38,7 +38,7 @@ class CouponsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text('My coupons', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              Text('My coupons', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             ],
           ),
         ),
@@ -58,7 +58,7 @@ class CouponsView extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(c.code, style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                            Text(c.code, style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: 1)),
                             FilledButton(
                               style: FilledButton.styleFrom(
                                 backgroundColor: BasketColors.primary,
@@ -69,15 +69,15 @@ class CouponsView extends StatelessWidget {
                               onPressed: () => cubit.applyCouponFromCard(c.code),
                               child: Text(
                                 applied == c.code ? 'Applied' : 'Apply',
-                                style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(c.title, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                        Text(c.title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 5),
-                        Text(c.terms, style: GoogleFonts.poppins(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                        Text(c.terms, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                       ],
                     ),
                   ),

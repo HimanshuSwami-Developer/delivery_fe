@@ -46,9 +46,9 @@ class AddressListView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delivery address', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Delivery address', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                       const SizedBox(height: 2),
-                      Text('Step 1 of 3', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      Text('Step 1 of 3', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -79,7 +79,7 @@ class AddressListView extends StatelessWidget {
                   child: Text(
                     '+ Add a new address',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -104,7 +104,7 @@ class AddressListView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: cubit.goToSlot,
-                child: Text('Deliver here →', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                child: Text('Deliver here →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
               ),
             ),
           ),
@@ -153,7 +153,7 @@ class _AddressCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(address.label, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
+                      Text(address.label, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
                       const SizedBox(width: 7),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -161,14 +161,14 @@ class _AddressCard extends StatelessWidget {
                           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
                           borderRadius: BorderRadius.circular(99),
                         ),
-                        child: Text(address.tag, style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w700)),
+                        child: Text(address.tag, style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w700)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
-                  Text(address.line, style: GoogleFonts.poppins(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(address.line, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   const SizedBox(height: 6),
-                  Text('Delivers in ${address.eta} min', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600)),
+                  Text('Delivers in ${address.eta} min', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

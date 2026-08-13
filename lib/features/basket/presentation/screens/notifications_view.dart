@@ -55,7 +55,7 @@ class NotificationsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text('Notifications', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              Text('Notifications', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             ],
           ),
         ),
@@ -84,11 +84,11 @@ class NotificationsView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(n.title, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                              Text(n.title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                               const SizedBox(height: 4),
-                              Text(n.body, style: GoogleFonts.poppins(fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                              Text(n.body, style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                               const SizedBox(height: 6),
-                              Text(_relativeTime(n.sentAt), style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: BasketColors.faint)),
+                              Text(_relativeTime(n.sentAt), style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w600, color: BasketColors.faint)),
                             ],
                           ),
                         ),

@@ -63,6 +63,7 @@ class BasketState extends Equatable {
     this.apiNotifications = const [],
     this.apiZones = const [],
     this.zoneId,
+    this.apiBanners = const [],
   });
 
   final BasketScreen screen;
@@ -153,6 +154,9 @@ class BasketState extends Equatable {
   /// store" UI, so this is just the first open zone once [apiZones] loads.
   final int? zoneId;
 
+  /// Home-carousel promo banners (`Banner.placement == 'home_carousel'`).
+  final List<ApiBanner> apiBanners;
+
   BasketState copyWith({
     BasketScreen? screen,
     List<BasketScreen>? history,
@@ -202,6 +206,7 @@ class BasketState extends Equatable {
     List<ApiNotification>? apiNotifications,
     List<ApiZone>? apiZones,
     int? zoneId,
+    List<ApiBanner>? apiBanners,
   }) {
     return BasketState(
       screen: screen ?? this.screen,
@@ -248,6 +253,7 @@ class BasketState extends Equatable {
       apiNotifications: apiNotifications ?? this.apiNotifications,
       apiZones: apiZones ?? this.apiZones,
       zoneId: zoneId ?? this.zoneId,
+      apiBanners: apiBanners ?? this.apiBanners,
     );
   }
 
@@ -297,5 +303,6 @@ class BasketState extends Equatable {
         apiNotifications,
         apiZones,
         zoneId,
+        apiBanners,
       ];
 }

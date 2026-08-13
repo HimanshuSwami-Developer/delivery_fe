@@ -64,11 +64,11 @@ class _CartViewState extends State<CartView> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Your basket', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Your basket', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} · arrives in ${BasketCubit.etaMinutes} min',
-                    style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                   ),
                 ],
               ),
@@ -108,12 +108,12 @@ class _EmptyState extends StatelessWidget {
               child: const Icon(Icons.shopping_basket_outlined, size: 30, color: BasketColors.ink),
             ),
             const SizedBox(height: 12),
-            Text('Your basket is empty', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800)),
+            Text('Your basket is empty', style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Text(
               "Add a few staples and we'll get them to you in ${BasketCubit.etaMinutes} minutes.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+              style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
             ),
             const SizedBox(height: 14),
             FilledButton(
@@ -123,7 +123,7 @@ class _EmptyState extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
               ),
               onPressed: context.read<BasketCubit>().goHome,
-              child: Text('Start shopping', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+              child: Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
             ),
           ],
         ),
@@ -168,7 +168,7 @@ class _FullCart extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Coupon', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                    Text('Coupon', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 9),
                     Row(
                       children: [
@@ -177,7 +177,7 @@ class _FullCart extends StatelessWidget {
                             controller: couponController,
                             onChanged: cubit.setCouponInput,
                             textCapitalization: TextCapitalization.characters,
-                            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
                             decoration: InputDecoration(
                               isDense: true,
                               hintText: 'FIRST50 / FRESH10',
@@ -208,12 +208,12 @@ class _FullCart extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.applyCoupon,
-                          child: Text('Apply', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 9),
-                    Text(couponMessage, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
+                    Text(couponMessage, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
                   ],
                 ),
               ),
@@ -232,8 +232,8 @@ class _FullCart extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('To pay', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(moneyLabel(t.total), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text('To pay', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(moneyLabel(t.total), style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ],
@@ -256,10 +256,10 @@ class _FullCart extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(moneyLabel(t.total), style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text(moneyLabel(t.total), style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
                       Text(
                         t.savings > 0 ? 'You save ${moneyLabel(t.savings)}' : 'Inclusive of all taxes',
-                        style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
                       ),
                     ],
                   ),
@@ -271,7 +271,7 @@ class _FullCart extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   ),
                   onPressed: cubit.goCheckout,
-                  child: Text('Checkout →', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                  child: Text('Checkout →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                 ),
               ],
             ),
@@ -302,11 +302,11 @@ class _CartItemRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 3),
-                Text(product.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                 const SizedBox(height: 4),
-                Text(moneyLabel(product.price * qty), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price * qty), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -319,15 +319,15 @@ class _CartItemRow extends StatelessWidget {
                   onTap: () => cubit.bump(product.id, -1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('−', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('−', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                   ),
                 ),
-                Text('$qty', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                Text('$qty', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                 InkWell(
                   onTap: () => cubit.bump(product.id, 1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('+', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('+', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                   ),
                 ),
               ],
@@ -350,8 +350,8 @@ class _TotalRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
       ],
     );
   }

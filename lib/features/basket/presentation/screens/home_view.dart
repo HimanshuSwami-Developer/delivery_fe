@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
@@ -6,6 +7,7 @@ import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/promo_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,10 +24,22 @@ class HomeView extends StatelessWidget {
     final buyAgain = context.select((BasketCubit c) => buyAgainProducts(c.state));
     final under99 = context.select((BasketCubit c) => productsOf(c.state).where((p) => p.price < 99 && !p.oos).take(6).toList());
     final recommended = context.select((BasketCubit c) => recommendedProducts(c.state));
+    final banners = context.select((BasketCubit c) => c.state.apiBanners);
 
     if (catalogLoading && categories.isEmpty) {
       return const _HomeSkeleton();
     }
+
+    // Page order: top banner → category → products → banner → recommended
+    // → two more banners. `banners` is already ordered by the backend
+    // (`Banner.Meta.ordering = ['order', ...]`), so slots just take
+    // consecutive slices of it rather than filtering by any client-side
+    // placement flag — that also means a slot silently disappears if the
+    // admin hasn't added enough banners yet, instead of crashing on a
+    // missing index.
+    final topBanner = banners.isNotEmpty ? banners[0] : null;
+    final midBanner = banners.length > 1 ? banners[1] : null;
+    final bottomBanners = banners.length > 2 ? banners.sublist(2, banners.length.clamp(2, 4)) : const <ApiBanner>[];
 
     return Column(
       children: [
@@ -34,30 +48,10 @@ class HomeView extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 18, bottom: 120),
             children: [
-              if (BasketCubit.showBuyAgain && buyAgain.isNotEmpty) ...[
-                _SectionHeader(title: 'Buy again', action: 'See all', onAction: () {}),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 200,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    itemCount: buyAgain.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 10),
-                    itemBuilder: (context, i) => _BuyAgainCard(product: buyAgain[i]),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(18, 14, 18, 0),
-                  child: _LastOrderCard(),
-                ),
-                const SizedBox(height: 6),
+              if (topBanner != null) ...[
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBanner(banner: topBanner)),
+                const SizedBox(height: 22),
               ],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: _CouponBanner(),
-              ),
-              const SizedBox(height: 22),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: _SectionHeader(title: 'Shop by category', action: 'See all', onAction: () => cubit.go(BasketScreen.cats)),
@@ -73,7 +67,29 @@ class HomeView extends StatelessWidget {
                   itemBuilder: (context, i) => _CategoryChip(category: categories[i]),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 26),
+              if (BasketCubit.showBuyAgain && buyAgain.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: _SectionHeader(title: 'Buy again', action: 'See all', onAction: () {}),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 200,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    itemCount: buyAgain.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (context, i) => _BuyAgainCard(product: buyAgain[i]),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(18, 14, 18, 0),
+                  child: _LastOrderCard(),
+                ),
+                const SizedBox(height: 22),
+              ],
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: _SectionHeader(title: 'Under ₹99 store', action: 'See all', onAction: () {}),
@@ -89,6 +105,14 @@ class HomeView extends StatelessWidget {
                   itemBuilder: (context, i) => _PriceCard(product: under99[i], width: 132),
                 ),
               ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(18, 18, 18, 0),
+                child: _CouponBanner(),
+              ),
+              if (midBanner != null) ...[
+                const SizedBox(height: 24),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBanner(banner: midBanner)),
+              ],
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -110,6 +134,10 @@ class HomeView extends StatelessWidget {
                   itemBuilder: (context, i) => _RecommendedCard(product: recommended[i]),
                 ),
               ),
+              if (bottomBanners.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBannerRow(banners: bottomBanners)),
+              ],
             ],
           ),
         ),
@@ -152,6 +180,11 @@ class _HomeSkeleton extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.only(top: 18, bottom: 120),
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Container(height: 132, decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(20))),
+                  ),
+                  const SizedBox(height: 22),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     child: _SectionHeader(title: 'Shop by category', action: 'See all', onAction: () {}),
@@ -248,11 +281,11 @@ class _HomeHeader extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.bolt_rounded, size: 13, color: BasketColors.primaryLight),
+                              Icon(Icons.bolt_rounded, size: 13, color: BasketColors.gold),
                               const SizedBox(width: 3),
                               Text(
                                 'DELIVERY IN ${BasketCubit.etaMinutes} MIN',
-                                style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.6), letterSpacing: 0.8),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.6), letterSpacing: 0.8),
                               ),
                             ],
                           ),
@@ -264,7 +297,7 @@ class _HomeHeader extends StatelessWidget {
                                   'Home · Koramangala',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                                  style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
                                 ),
                               ),
                               const SizedBox(width: 5),
@@ -308,7 +341,7 @@ class _HomeHeader extends StatelessWidget {
                         const SizedBox(width: 10),
                         Text(
                           'Search "atta, milk, dal"',
-                          style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
                         ),
                       ],
                     ),
@@ -337,14 +370,14 @@ class _SectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(title, style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: BasketColors.ink)),
+        Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: BasketColors.ink)),
         if (action.isNotEmpty)
           GestureDetector(
             onTap: onAction,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(action, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.primary)),
+                Text(action, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.primary)),
                 Icon(Icons.chevron_right_rounded, size: 15, color: BasketColors.primary),
               ],
             ),
@@ -365,9 +398,9 @@ class _RatingPill extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.star_rounded, size: 13, color: BasketColors.primary),
+        Icon(Icons.star_rounded, size: 13, color: BasketColors.gold),
         const SizedBox(width: 2),
-        Text(rating.toStringAsFixed(1), style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
+        Text(rating.toStringAsFixed(1), style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
       ],
     );
   }
@@ -398,10 +431,10 @@ class _BuyAgainCard extends StatelessWidget {
                 product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
               ),
             ),
-            Text(product.pack, style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+            Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
             const SizedBox(height: 7),
             SizedBox(
               width: double.infinity,
@@ -417,7 +450,7 @@ class _BuyAgainCard extends StatelessWidget {
                 onPressed: () => cubit.bump(product.id, 1),
                 child: Text(
                   'ADD ${moneyLabel(product.price)}',
-                  style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w700),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -453,11 +486,11 @@ class _LastOrderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Your last order · ${last.itemCount} items', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                Text('Your last order · ${last.itemCount} items', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                 const SizedBox(height: 3),
                 Text(
                   '${moneyLabel(last.total)} · ${orderStatusLabel(last.status)}',
-                  style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 ),
               ],
             ),
@@ -470,7 +503,7 @@ class _LastOrderCard extends StatelessWidget {
               minimumSize: Size.zero,
             ),
             onPressed: context.read<BasketCubit>().repeatOrder,
-            child: Text('Repeat', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
+            child: Text('Repeat', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
           ),
         ],
       ),
@@ -520,11 +553,11 @@ class _CouponBanner extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${coupon.code} · ${coupon.title}', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text('${coupon.code} · ${coupon.title}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                       const SizedBox(height: 4),
                       Text(
                         'Tap to apply at checkout',
-                        style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
                       ),
                     ],
                   ),
@@ -532,7 +565,7 @@ class _CouponBanner extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                   decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
-                  child: Text('Apply', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                  child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
               ],
             ),
@@ -551,7 +584,7 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.read<BasketCubit>().openCategory(category.key, category.subs.first),
+      onTap: () => context.read<BasketCubit>().openCategory(category),
       child: SizedBox(
         width: 76,
         child: Column(
@@ -586,7 +619,7 @@ class _CategoryChip extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(fontSize: 11, height: 1.2, fontWeight: FontWeight.w700, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.2, fontWeight: FontWeight.w700, color: BasketColors.ink),
               ),
             ),
           ],
@@ -621,11 +654,11 @@ class _PriceCard extends StatelessWidget {
                 product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
               ),
             ),
             const SizedBox(height: 2),
-            Text(product.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+            Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -633,11 +666,11 @@ class _PriceCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                    Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                     if (product.mrp > product.price)
                       Text(
                         moneyLabel(product.mrp),
-                        style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
                       ),
                   ],
                 ),
@@ -674,14 +707,14 @@ class _RecommendedCard extends StatelessWidget {
                 product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
               ),
             ),
             const SizedBox(height: 2),
             Row(
               children: [
                 Expanded(
-                  child: Text(product.pack, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                  child: Text(product.pack, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                 ),
                 _RatingPill(rating: product.rating),
               ],
@@ -690,7 +723,7 @@ class _RecommendedCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                 AddQtyControl(product: product),
               ],
             ),

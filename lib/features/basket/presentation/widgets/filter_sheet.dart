@@ -59,18 +59,18 @@ class FilterSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Filters', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text('Filters', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
                       GestureDetector(
                         onTap: cubit.resetFilters,
                         child: Text(
                           'Clear all',
-                          style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 18),
-                  Text('Price', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text('Price', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 9),
                   Wrap(
                     spacing: 8,
@@ -85,7 +85,7 @@ class FilterSheet extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  Text('Sort by', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text('Sort by', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 9),
                   Wrap(
                     spacing: 8,
@@ -111,7 +111,7 @@ class FilterSheet extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.resetFilters,
-                          child: Text('Reset', style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                          child: Text('Reset', style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -127,7 +127,7 @@ class FilterSheet extends StatelessWidget {
                           onPressed: cubit.closeSheet,
                           child: Text(
                             'Show $listCount results',
-                            style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w700, color: Colors.white),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: Colors.white),
                           ),
                         ),
                       ),
@@ -163,7 +163,7 @@ class _Pill extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg),
+          style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg),
         ),
       ),
     );

@@ -40,12 +40,12 @@ class _SetupViewState extends State<SetupView> {
             children: [
               Text(
                 'Tell us about you',
-                style: GoogleFonts.poppins(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8, color: BasketColors.ink),
+                style: GoogleFonts.plusJakartaSans(fontSize: 26, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.8, color: BasketColors.ink),
               ),
               const SizedBox(height: 8),
               Text(
                 'So we can personalise your basket',
-                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted),
               ),
               const SizedBox(height: 28),
               Row(
@@ -85,9 +85,9 @@ class _SetupViewState extends State<SetupView> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Add a photo', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                      Text('Add a photo', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                       const SizedBox(height: 3),
-                      Text('Optional', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                      Text('Optional', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                     ],
                   ),
                 ],
@@ -125,10 +125,10 @@ class _SetupViewState extends State<SetupView> {
                         children: [
                           Text(
                             'REFERRAL CODE',
-                            style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: BasketColors.primary, letterSpacing: 0.6),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700, color: BasketColors.primary, letterSpacing: 0.6),
                           ),
                           const SizedBox(height: 2),
-                          Text('RAVI250', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                          Text('RAVI250', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                         ],
                       ),
                     ),
@@ -137,7 +137,7 @@ class _SetupViewState extends State<SetupView> {
                       decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(99)),
                       child: Text(
                         '₹250 unlocked',
-                        style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),
                   ],
@@ -145,7 +145,7 @@ class _SetupViewState extends State<SetupView> {
               ),
               if (authError != null) ...[
                 const SizedBox(height: 12),
-                Text(authError, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.error)),
+                Text(authError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.error)),
               ],
               const Spacer(),
               SizedBox(
@@ -163,7 +163,7 @@ class _SetupViewState extends State<SetupView> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
                         )
-                      : Text('Start shopping', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                      : Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
               ),
             ],

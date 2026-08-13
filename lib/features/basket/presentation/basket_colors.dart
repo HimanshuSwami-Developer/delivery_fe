@@ -1,57 +1,69 @@
 import 'package:flutter/material.dart';
 
-/// Color tokens for the basket app's palette: White is the dominant
-/// surface everywhere (page, cards, bottom nav, sheets); navy is the one
-/// *accent* — used sparingly for CTAs, active/selected states, and links,
-/// never as a base fill. Structural dark panels (screen headers, hero
-/// cards) use a separate neutral [ink], not navy and not flat black/
-/// charcoal, so navy doesn't end up painted over the whole app. A couple
-/// of extra accent hues cover promo/status elements that shouldn't read as
-/// "just another navy thing" (coupon banners, discount badges). Single
-/// source of truth — screens reference the named roles below, never raw
-/// hex. Scoped to the basket feature only — the rest of the app
-/// (restaurant/delivery dashboards) keeps using `core/theme/app_colors.dart`.
+/// Color tokens for the basket app's palette — "Aapno Bazar" brand navy
+/// (`#0A1F3C`) and gold (`#F3B14A`), ported 1:1 from the Claude Design
+/// splash/onboarding/OTP mockup and extended across the rest of the app.
+/// White is the dominant surface everywhere (page, cards, bottom nav,
+/// sheets); navy is the primary accent — CTAs, active/selected states,
+/// links, and (per the design's own convention, where heading text and
+/// CTAs share the same `#0A1F3C`) body/heading text and structural dark
+/// panels too — see [ink]. [gold] is the secondary accent, used the same
+/// way the design itself uses it: badge highlights (discount tags, rating
+/// stars, active-tab dots), never as a base fill or a CTA color (that's
+/// still navy's job — two competing "primary" colors would muddy the
+/// selection/CTA signal). [accentTeal] covers coupon/savings callouts,
+/// which the mockup never specifies, so it's kept as its own pre-existing
+/// functional color. Single source of truth — screens reference the named
+/// roles below, never raw hex. Scoped to the basket feature only — the
+/// rest of the app (restaurant/delivery dashboards) keeps using
+/// `core/theme/app_colors.dart`.
 ///
 /// Semantic rule (keep this invariant whenever you touch UI here):
-///  - [primary] (navy) — the one accent: every primary action button (Send
-///    OTP, Add to cart, Checkout, Place order, ...), navigation active
-///    state, links, selection (radios/pills/tags). Used for emphasis, not
-///    as a background fill for large panels. Never used for a destructive
-///    action.
-///  - [ink] (neutral dark) — body/heading text, borders, and the
-///    structural dark hero panels (screen headers, dark cards). Distinct
-///    from [primary] on purpose — if every dark surface were navy, navy
-///    would stop reading as an accent.
-///  - [accentTeal] / [accentOrange] — promo/status accents (coupon
-///    banners, discount badges) that need to stand apart from both the
-///    brand navy and plain ink.
+///  - [primary] (navy) — every primary action button (Send OTP, Add to
+///    cart, Checkout, Place order, ...), navigation active state, links,
+///    selection (radios/pills/tags). The only CTA/selection color.
+///  - [ink] (navy) — body/heading text, borders, and the structural dark
+///    hero panels (screen headers, dark cards). Equal to [primary] — the
+///    design doesn't distinguish a separate "text navy" from "brand navy"
+///    (its heading text and CTAs are the same `#0A1F3C`) — kept as a
+///    separate named constant only so call sites don't need to change.
+///  - [gold] — decorative highlight only: discount badges, rating stars,
+///    badge-chip dots, an emphasized word/amount in a sentence. Never a
+///    button fill or a selection state (that would compete with navy).
+///  - [accentTeal] — coupon/savings callouts, standing apart from both
+///    navy and gold.
 ///  - [error] (red) — strictly errors, out-of-stock, cancellations. Never
 ///    used elsewhere, so it keeps its urgency.
 class BasketColors {
   BasketColors._();
 
-  // ── Brand navy — the one accent, used sparingly ─────────────────────
+  // ── Brand navy — "Aapno Bazar" ──────────────────────────────────────
   /// Primary navy — CTA buttons, nav active state, links, selection.
-  static const primary = Color(0xFF1A237E);
+  static const primary = Color(0xFF0A1F3C);
 
-  /// Lighter navy-blue — secondary tags, subtle accents on top of [ink]
-  /// panels.
-  static const primaryLight = Color(0xFF4C56AF);
+  /// Lighter navy — gradient highlight (header glow), secondary tags,
+  /// subtle accents on top of [ink] panels.
+  static const primaryLight = Color(0xFF173C6E);
 
-  /// Pale navy tint — soft badge backgrounds where a solid fill would be
-  /// too loud.
-  static const primarySoft = Color(0xFFE8EAF6);
+  /// Pale navy-tinted gray — soft badge/panel backgrounds where a solid
+  /// fill would be too loud. Matches the design's hero-panel/input fill.
+  static const primarySoft = Color(0xFFEDF1F7);
+
+  /// Gold accent — badge dots, highlighted phrases on dark navy, the
+  /// splash logo's sprout. The design's only non-navy brand color.
+  static const gold = Color(0xFFF3B14A);
 
   /// Text/icon color on top of a [primary] or [primaryLight] fill.
   static const onPrimary = Colors.white;
 
-  /// Two-navy-shade gradient for the login and home screen hero headers —
-  /// deeper [primary] at the top-left fading to [primaryLight] at the
-  /// bottom-right, instead of a flat fill.
-  static const headerGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, primaryLight],
+  /// Radial navy gradient for screen hero headers — ported from the
+  /// splash/OTP/login mockups (`radial-gradient(...#173C6E 0%, #0A1F3C
+  /// 62-72%)`) rather than a flat fill or the old diagonal linear one.
+  static const headerGradient = RadialGradient(
+    center: Alignment(-0.5, -1),
+    radius: 1.4,
+    colors: [primaryLight, primary],
+    stops: [0, 0.72],
   );
 
   // ── Other accents — coupon/discount, kept distinct from navy ───────
@@ -60,13 +72,6 @@ class BasketColors {
 
   /// Pale teal tint — soft backgrounds for coupon/savings badges.
   static const accentTealSoft = Color(0xFFE0F2F1);
-
-  /// Discount/"% OFF" tags — deliberately not navy or [error] red, so a
-  /// deal reads as a deal, not as a warning or a brand element.
-  static const accentOrange = Color(0xFFE65100);
-
-  /// Pale orange tint — soft pill background for discount badges.
-  static const accentOrangeSoft = Color(0xFFFFF3E0);
 
   /// "Add to cart" / positive-action green — the product card's add button
   /// specifically. Kept apart from [primary] navy (that's for the *page's*
@@ -96,10 +101,8 @@ class BasketColors {
   static const surface = Color(0xFFF3F3F3);
 
   /// Body/heading text, borders, and structural dark hero panels (screen
-  /// headers, dark cards) — a neutral near-black with a faint cool cast.
-  /// Deliberately not [primary] navy (so navy stays a sparingly-used
-  /// accent) and not a flat charcoal/black.
-  static const ink = Color(0xFF20222C);
+  /// headers, dark cards) — same navy as [primary] (see class doc).
+  static const ink = primary;
 
   /// Secondary text, placeholders.
   static const muted = Color(0xFF75777C);

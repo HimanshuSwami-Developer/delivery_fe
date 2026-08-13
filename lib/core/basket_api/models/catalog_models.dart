@@ -31,6 +31,21 @@ class ApiCategory {
       );
 }
 
+/// Mirrors `catalog.serializers.ProductImageSerializer`.
+class ApiProductImage {
+  const ApiProductImage({required this.id, required this.imageUrl, required this.order});
+
+  final int id;
+  final String imageUrl;
+  final int order;
+
+  factory ApiProductImage.fromJson(Map<String, dynamic> json) => ApiProductImage(
+        id: json['id'] as int,
+        imageUrl: json['image_url'] as String,
+        order: json['order'] as int? ?? 0,
+      );
+}
+
 /// Mirrors `catalog.serializers.ProductListSerializer` (+ the extra detail
 /// fields when fetched via `ProductDetailSerializer`, all nullable here).
 class ApiProduct {
@@ -76,7 +91,7 @@ class ApiProduct {
   final String? description;
   final String? hsnCode;
   final String? gstSlab;
-  final List<String> images;
+  final List<ApiProductImage> images;
 
   factory ApiProduct.fromJson(Map<String, dynamic> json) => ApiProduct(
         id: json['id'] as int,
@@ -99,7 +114,7 @@ class ApiProduct {
         hsnCode: json['hsn_code'] as String?,
         gstSlab: json['gst_slab'] as String?,
         images: (json['images'] as List? ?? [])
-            .map((e) => (e as Map<String, dynamic>)['image_url'] as String)
+            .map((e) => ApiProductImage.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
 }

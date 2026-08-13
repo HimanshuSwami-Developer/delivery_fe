@@ -26,7 +26,7 @@ class AddQtyControl extends StatelessWidget {
         decoration: BoxDecoration(color: BasketColors.errorSoft, borderRadius: BorderRadius.circular(99)),
         child: Text(
           'SOON',
-          style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w800, color: BasketColors.error),
+          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w800, color: BasketColors.error),
         ),
       );
     }
@@ -61,7 +61,7 @@ class AddQtyControl extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Text(
               '$qty',
-              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
             ),
           ),
           _StepButton(icon: Icons.add, onTap: () => cubit.bump(product.id, 1)),

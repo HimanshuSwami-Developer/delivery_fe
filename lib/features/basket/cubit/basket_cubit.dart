@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
+import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/prefs/app_prefs.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
+import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Owns every action in the Basket app — navigation, cart/wishlist,
@@ -73,6 +75,7 @@ class BasketCubit extends Cubit<BasketState> {
     loadOrders();
     loadCoupons();
     loadNotifications();
+    loadBanners();
   }
 
   Future<void> loadCatalog() async {
@@ -84,6 +87,13 @@ class BasketCubit extends Cubit<BasketState> {
     } catch (_) {
       emit(state.copyWith(catalogLoading: false));
     }
+  }
+
+  Future<void> loadBanners() async {
+    try {
+      final banners = await api.promotions.fetchBanners(placement: 'home_carousel', isActive: true);
+      emit(state.copyWith(apiBanners: banners));
+    } catch (_) {}
   }
 
   Future<void> loadZones() async {
@@ -161,6 +171,11 @@ class BasketCubit extends Cubit<BasketState> {
 
   void goHome() => goReset(BasketScreen.home);
 
+  /// Opens the PDP immediately with whatever's already cached (list screens
+  /// only carry `ProductListSerializer`'s lighter shape, so no gallery yet),
+  /// then fetches the full `ProductDetailSerializer` shape in the background
+  /// and merges it back into `apiProducts` — that's what fills in `images`
+  /// for the slider a moment later.
   void openProduct(String productId) {
     emit(state.copyWith(
       history: [...state.history, state.screen],
@@ -169,16 +184,38 @@ class BasketCubit extends Cubit<BasketState> {
       pdpTab: PdpTab.description,
       sheet: ActiveSheet.none,
     ));
+    final id = int.tryParse(productId);
+    if (id == null) return;
+    api.catalog.fetchProduct(id).then((detail) {
+      if (isClosed) return;
+      emit(state.copyWith(apiProducts: [for (final p in state.apiProducts) if (p.id == id) detail else p]));
+    }).catchError((_) {});
   }
 
-  void openCategory(String categoryKey, String firstSubcategory) {
+  /// Takes the whole [BasketCategory] (not just its key) so this can pick a
+  /// safe starting subcategory itself — some real backend categories have
+  /// no subcategories at all, and `category.subs.first` at the call site
+  /// threw on those (the "subcategory screen not showing" bug: the tap
+  /// crashed before `go` ever ran).
+  void openCategory(BasketCategory category) {
     emit(state.copyWith(
       history: [...state.history, state.screen],
       screen: BasketScreen.list,
-      category: categoryKey,
-      subcategory: firstSubcategory,
+      category: category.key,
+      subcategory: category.subs.isEmpty ? '' : category.subs.first,
       sheet: ActiveSheet.none,
     ));
+  }
+
+  /// Home banners are optionally tied to a category (`Banner.category` on
+  /// the backend) — tapping one jumps straight to that category's listing,
+  /// same destination as tapping the category chip itself. No-op for
+  /// banners with no linked category (pure promo art).
+  void openBanner(ApiBanner banner) {
+    if (banner.categoryId == null) return;
+    final match = state.apiCategories.where((c) => c.id == banner.categoryId);
+    if (match.isEmpty) return;
+    openCategory(BasketCategory.fromApi(match.first));
   }
 
   void openCoupons({String? code}) {
@@ -217,6 +254,10 @@ class BasketCubit extends Cubit<BasketState> {
       emit(state.copyWith(onboardSlide: state.onboardSlide + 1));
     }
   }
+
+  /// Jumps straight to a slide — the onboarding dots are tappable, not just
+  /// swipe/Next-driven.
+  void setOnboardSlide(int i) => emit(state.copyWith(onboardSlide: i));
 
   void setPhone(String value) => emit(state.copyWith(phone: _digitsOnly(value), clearAuthError: true));
 

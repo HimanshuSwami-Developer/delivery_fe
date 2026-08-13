@@ -2,10 +2,12 @@ import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Design tokens and small style helpers for the Basket Admin console,
-/// ported from `Basket Admin.dc.html`. The color palette (navy ink, card,
-/// muted, faint) is identical to the customer app's, so it's reused from
-/// [BasketColors] rather than redeclared here — this file only adds what's
-/// specific to the admin console's desktop chrome.
+/// ported from `Basket Admin.dc.html`. [card]/[muted]/[faint] are reused
+/// from [BasketColors] (identical neutrals in both). [ink] is its own
+/// constant, not [BasketColors.ink] — the customer app's `ink` was
+/// repointed to the "Aapno Bazar" brand navy for the splash/onboarding/
+/// login/OTP reskin, but that reskin is scoped to the customer app only for
+/// now, so the admin console keeps its original near-black ink here.
 class AdminColors {
   AdminColors._();
 
@@ -13,7 +15,7 @@ class AdminColors {
   /// the source; approximated with a flat fill here).
   static const backdrop = Color(0xFFDEDEE2);
 
-  static const ink = BasketColors.ink;
+  static const ink = Color(0xFF20222C);
   static const card = BasketColors.page;
   static const muted = BasketColors.muted;
   static const faint = BasketColors.faint;

@@ -62,7 +62,7 @@ class OrderTrackingView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                             decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(8)),
-                            child: Text('Rider', style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('Rider', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                           ),
                           const SizedBox(height: 4),
                           Container(
@@ -92,7 +92,7 @@ class OrderTrackingView extends StatelessWidget {
                               border: Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('You', style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700)),
+                            child: Text('You', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700)),
                           ),
                           const SizedBox(height: 4),
                           Container(
@@ -151,11 +151,11 @@ class OrderTrackingView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(headline, style: GoogleFonts.poppins(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                            Text(headline, style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                             const SizedBox(height: 5),
                             Text(
                               '${order?.orderNumber ?? '—'} · ${order?.itemCount ?? 0} ${order?.itemCount == 1 ? 'item' : 'items'}',
-                              style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
                             ),
                           ],
                         ),
@@ -163,9 +163,9 @@ class OrderTrackingView extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('$etaLeft min', style: GoogleFonts.poppins(fontSize: 19, fontWeight: FontWeight.w800)),
+                          Text('$etaLeft min', style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800)),
                           const SizedBox(height: 4),
-                          Text('remaining', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                          Text('remaining', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                         ],
                       ),
                     ],
@@ -185,9 +185,9 @@ class OrderTrackingView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(riderName, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                              Text(riderName, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
                               const SizedBox(height: 3),
-                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
+                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
                             ],
                           ),
                         ),
@@ -230,7 +230,7 @@ class OrderTrackingView extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.refreshTracking,
-                          child: Text('Refresh status', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                          child: Text('Refresh status', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
                         ),
                       ),
                       const SizedBox(width: 9),
@@ -243,7 +243,7 @@ class OrderTrackingView extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.goToSupport,
-                          child: Text('Get help', style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Get help', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -306,9 +306,9 @@ class _TimelineStep extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  Text(sub, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                 ],
               ),
             ),

@@ -131,6 +131,30 @@ class CatalogRepository {
     }
   }
 
+  /// Attaches an already-uploaded (Cloudinary) photo to a product's PDP
+  /// gallery — separate from `main_image_url`, which stays the card/list
+  /// photo. [order] controls its position in the gallery slider.
+  Future<ApiProductImage> addProductImage(int productId, String imageUrl, {int order = 0}) async {
+    try {
+      final response = await _client.dio.post('/product-images/', data: {
+        'product': productId,
+        'image_url': imageUrl,
+        'order': order,
+      });
+      return ApiProductImage.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteProductImage(int imageId) async {
+    try {
+      await _client.dio.delete('/product-images/$imageId/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<ApiProductStock>> fetchStocks({int? zone, int? product}) async {
     try {
       final response = await _client.dio.get('/stocks/', queryParameters: {

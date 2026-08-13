@@ -45,11 +45,11 @@ class WishlistView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Wishlist', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Wishlist', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     '${items.length} saved items',
-                    style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
                   ),
                 ],
               ),
@@ -64,12 +64,12 @@ class WishlistView extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Nothing saved yet', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800)),
+                        Text('Nothing saved yet', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 8),
                         Text(
                           'Tap the heart on any product to keep it here.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                         ),
                       ],
                     ),
@@ -113,11 +113,11 @@ class _WishRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 3),
-                Text(product.pack, style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                 const SizedBox(height: 4),
-                Text(moneyLabel(product.price), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w800)),
+                Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -126,7 +126,7 @@ class _WishRow extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => cubit.removeFromWishlist(product.id),
-                child: Text('✕', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                child: Text('✕', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
               ),
               const SizedBox(height: 6),
               OutlinedButton(
@@ -138,7 +138,7 @@ class _WishRow extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onPressed: () => cubit.addToCart(product.id),
-                child: Text('ADD', style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.w800)),
+                child: Text('ADD', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w800)),
               ),
             ],
           ),
