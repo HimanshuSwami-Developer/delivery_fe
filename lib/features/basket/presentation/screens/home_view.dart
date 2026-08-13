@@ -74,14 +74,22 @@ class HomeView extends StatelessWidget {
                   child: _SectionHeader(title: 'Buy again', action: 'See all', onAction: () {}),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  height: 200,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    itemCount: buyAgain.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 10),
-                    itemBuilder: (context, i) => _BuyAgainCard(product: buyAgain[i]),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  // `IntrinsicHeight` (not a fixed-height `SizedBox`) so the
+                  // row's height comes from its tallest card's actual
+                  // content — a fixed height either clips a longer product
+                  // name/rows or leaves dead space under a shorter one.
+                  child: IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < buyAgain.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 10),
+                          _BuyAgainCard(product: buyAgain[i]),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
                 const Padding(
@@ -95,14 +103,18 @@ class HomeView extends StatelessWidget {
                 child: _SectionHeader(title: 'Under ₹99 store', action: 'See all', onAction: () {}),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 226,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  itemCount: under99.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 10),
-                  itemBuilder: (context, i) => _PriceCard(product: under99[i], width: 132),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < under99.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 10),
+                        _PriceCard(product: under99[i], width: 132),
+                      ],
+                    ],
+                  ),
                 ),
               ),
               const Padding(
@@ -121,17 +133,27 @@ class HomeView extends StatelessWidget {
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: recommended.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.66,
-                  ),
-                  itemBuilder: (context, i) => _RecommendedCard(product: recommended[i]),
+                // A `Wrap` of fixed-width cards, not a `GridView` with a
+                // fixed `childAspectRatio` — the aspect ratio forced every
+                // card into the same box regardless of how many lines its
+                // name/pack/rating actually needed, clipping longer content
+                // and leaving dead space under shorter content. Each card
+                // sizes to its own content height here (see
+                // `_RecommendedCard`'s `mainAxisSize: min`); rows aren't
+                // height-matched across the two columns, same as most
+                // grocery-app "recommended" grids.
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cardWidth = (constraints.maxWidth - 12) / 2;
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        for (final product in recommended)
+                          SizedBox(width: cardWidth, child: _RecommendedCard(product: product)),
+                      ],
+                    );
+                  },
                 ),
               ),
               if (bottomBanners.isNotEmpty) ...[
@@ -421,6 +443,7 @@ class _BuyAgainCard extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: productCardDecoration(radius: 16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductImage(height: 66, imageUrl: product.imageUrl),
@@ -644,6 +667,7 @@ class _PriceCard extends StatelessWidget {
         padding: const EdgeInsets.all(9),
         decoration: productCardDecoration(radius: 16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductImage(height: 84, imageUrl: product.imageUrl, discountPct: product.discountPct),
@@ -697,6 +721,7 @@ class _RecommendedCard extends StatelessWidget {
         padding: const EdgeInsets.all(9),
         decoration: productCardDecoration(radius: 16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductImage(height: 96, imageUrl: product.imageUrl, discountPct: product.discountPct),

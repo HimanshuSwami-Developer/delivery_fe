@@ -109,16 +109,29 @@ class CategoryListView extends StatelessWidget {
                     ),
                     Expanded(
                       child: view == CatalogView.grid
-                          ? GridView.builder(
+                          // A `Wrap` of fixed-width cards, not a `GridView`
+                          // with a fixed `childAspectRatio` — the aspect
+                          // ratio forced every card into the same box
+                          // regardless of how many lines its name actually
+                          // needed, clipping longer names or leaving dead
+                          // space under shorter ones. Each card sizes to
+                          // its own content height here (see `_GridCard`'s
+                          // `mainAxisSize: min`).
+                          ? SingleChildScrollView(
                               padding: const EdgeInsets.fromLTRB(12, 2, 12, 90),
-                              itemCount: items.length,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 9,
-                                crossAxisSpacing: 9,
-                                childAspectRatio: 0.72,
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final cardWidth = (constraints.maxWidth - 9) / 2;
+                                  return Wrap(
+                                    spacing: 9,
+                                    runSpacing: 9,
+                                    children: [
+                                      for (final product in items)
+                                        SizedBox(width: cardWidth, child: _GridCard(product: product)),
+                                    ],
+                                  );
+                                },
                               ),
-                              itemBuilder: (context, i) => _GridCard(product: items[i]),
                             )
                           : ListView.separated(
                               padding: const EdgeInsets.fromLTRB(12, 2, 12, 90),
@@ -237,6 +250,7 @@ class _GridCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: productCardDecoration(radius: 15),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ProductImage(height: 78, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11),
