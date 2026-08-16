@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "262502507472",
+    "project_id": "aapnobazar-6295d",
+    "storage_bucket": "aapnobazar-6295d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:262502507472:android:7c48bdd8d12df5c6748fd5",
+        "android_client_info": {
+          "package_name": "com.example.fastswipe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAObq-RuwwBMcg0VjLTnlh7L9Fvm2k2cpQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

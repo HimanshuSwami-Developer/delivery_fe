@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
@@ -62,6 +63,36 @@ List<BasketCategory> categoriesOf(BasketState state) =>
 BasketCategory categoryByKey(BasketState state, String key) {
   final cats = categoriesOf(state);
   return cats.firstWhere((c) => c.key == key, orElse: () => cats.isNotEmpty ? cats.first : const BasketCategory(key: '', name: '', subs: [], count: 0));
+}
+
+/// The address the "Home · <area>" header/dropdown should show — the one
+/// matching [BasketState.addressId], falling back to the first saved
+/// address, or `null` before any address has been added yet.
+ApiAddress? selectedAddress(BasketState state) {
+  if (state.apiAddresses.isEmpty) return null;
+  for (final a in state.apiAddresses) {
+    if (a.id == state.addressId) return a;
+  }
+  return state.apiAddresses.first;
+}
+
+/// "Home · Koramangala"-style short label for the header — [ApiAddress] has
+/// no dedicated locality field, so `city` is the closest structured stand-in
+/// for the area name.
+String? selectedAddressLabel(BasketState state) {
+  final address = selectedAddress(state);
+  if (address == null) return null;
+  final type = address.addressType.isEmpty ? 'Other' : address.addressType;
+  final label = type[0].toUpperCase() + type.substring(1);
+  return address.city.isEmpty ? label : '$label · ${address.city}';
+}
+
+/// The Home header's "Home · <area>" label — GPS (live device location)
+/// wins when available, falling back to the saved-address label, then to
+/// `null` (caller shows an "add an address" prompt) when there's neither.
+String? homeLocationLabel(BasketState state) {
+  if ((state.gpsAreaLabel ?? '').isNotEmpty) return 'Current location · ${state.gpsAreaLabel}';
+  return selectedAddressLabel(state);
 }
 
 List<BasketProduct> productsOf(BasketState state) => state.apiProducts.map(BasketProduct.fromApi).toList();

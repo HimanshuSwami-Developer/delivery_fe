@@ -3,13 +3,18 @@ import 'dart:async';
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
+import 'package:fastswipe/core/geo/nominatim_service.dart';
+import 'package:fastswipe/core/notifications/push_notifications.dart';
 import 'package:fastswipe/core/prefs/app_prefs.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Owns every action in the Basket app — navigation, cart/wishlist,
@@ -27,6 +32,9 @@ class BasketCubit extends Cubit<BasketState> {
   BasketCubit(this.api) : super(const BasketState()) {
     _splashTimer = Timer(const Duration(milliseconds: 1700), _leaveSplash);
     _bootstrap();
+    // Re-register whenever the OS/browser rotates the token — a no-op
+    // (401, swallowed) if nobody's signed in yet.
+    _tokenRefreshSub = PushNotifications.onTokenRefresh.listen((_) => _registerDevice());
   }
 
   final BasketApiBundle api;
@@ -37,12 +45,32 @@ class BasketCubit extends Cubit<BasketState> {
 
   Timer? _splashTimer;
   Timer? _paymentTimer;
+  StreamSubscription<String>? _tokenRefreshSub;
 
   @override
   Future<void> close() {
     _splashTimer?.cancel();
     _paymentTimer?.cancel();
+    _tokenRefreshSub?.cancel();
     return super.close();
+  }
+
+  /// Upserts this device's current FCM token against the signed-in user.
+  /// Best-effort: no session, no token yet (web without a VAPID key), or a
+  /// network hiccup all just mean this device stays un-registered until
+  /// the next call — never surfaced to the UI.
+  Future<void> _registerDevice() async {
+    final token = await PushNotifications.currentToken();
+    if (token == null) {
+      debugPrint('[push] _registerDevice: no token yet, skipping');
+      return;
+    }
+    try {
+      await api.auth.registerDevice(token: token, platform: PushNotifications.platformName);
+      debugPrint('[push] _registerDevice: registered ok');
+    } catch (e) {
+      debugPrint('[push] _registerDevice failed: $e');
+    }
   }
 
   /// If a token is already stored (from a previous run), skip straight past
@@ -58,6 +86,7 @@ class BasketCubit extends Cubit<BasketState> {
       _splashTimer?.cancel();
       goReset(BasketScreen.home);
       _loadHomeData();
+      _registerDevice();
     } catch (_) {
       // Stale/expired token with no network to refresh it — let the normal
       // splash -> onboarding -> login flow run instead.
@@ -72,6 +101,7 @@ class BasketCubit extends Cubit<BasketState> {
     loadCatalog();
     loadZones();
     loadAddresses();
+    loadGpsLocation();
     loadOrders();
     loadCoupons();
     loadNotifications();
@@ -115,6 +145,34 @@ class BasketCubit extends Cubit<BasketState> {
       }
       emit(state.copyWith(apiAddresses: addresses, addressId: addressId));
     } catch (_) {}
+  }
+
+  /// Best-effort, silent GPS lookup for the "Home · <area>" header — never
+  /// prompts beyond the OS's own permission dialog, never surfaces an
+  /// error, and simply leaves [BasketState.gpsAreaLabel] null (falling
+  /// back to the saved address — see `homeLocationLabel`) if location
+  /// services are off, permission is denied, or the device just can't get
+  /// a fix in time.
+  Future<void> loadGpsLocation() async {
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return;
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(timeLimit: Duration(seconds: 8)),
+      );
+      final result = await NominatimService().reverseGeocode(LatLng(position.latitude, position.longitude));
+      if (result != null && result.city.isNotEmpty) {
+        emit(state.copyWith(gpsAreaLabel: result.city));
+      }
+    } catch (_) {
+      // Best-effort — the saved-address fallback covers this.
+    }
   }
 
   Future<void> loadOrders() async {
@@ -300,6 +358,7 @@ class BasketCubit extends Cubit<BasketState> {
     emit(state.copyWith(authLoading: true, clearAuthError: true));
     try {
       final result = await api.auth.verifyOtp(mobileNumber: _fullPhone, otpCode: state.otp);
+      _registerDevice();
       if (result.isNewUser) {
         emit(state.copyWith(authLoading: false));
         go(BasketScreen.setup);

@@ -276,6 +276,7 @@ class _HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
+    final addressLabel = context.select((BasketCubit c) => homeLocationLabel(c.state));
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
       child: Container(
@@ -313,19 +314,22 @@ class _HomeHeader extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  'Home · Koramangala',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                          GestureDetector(
+                            onTap: cubit.goToAddress,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    addressLabel ?? 'Add a delivery address',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 5),
-                              Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Colors.white.withValues(alpha: 0.6)),
-                            ],
+                                const SizedBox(width: 5),
+                                Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Colors.white.withValues(alpha: 0.6)),
+                              ],
+                            ),
                           ),
                         ],
                       ),

@@ -88,15 +88,40 @@ class _BasketRoot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<BasketCubit>();
     final screen = context.select((BasketCubit c) => c.state.screen);
-    return switch (screen) {
-      BasketScreen.splash => const SplashView(),
-      BasketScreen.onboard => const OnboardingView(),
-      BasketScreen.login => const LoginView(),
-      BasketScreen.otp => const OtpView(),
-      BasketScreen.setup => const SetupView(),
-      _ => const _ShoppingShell(),
-    };
+    // `BasketApp` is mounted as a single go_router route with no nested
+    // Navigator stack of its own — every "screen" here is just cubit state,
+    // not a pushed route — so without this, the hardware/gesture back
+    // button has nothing to pop and exits the app immediately from
+    // anywhere. Only let that system-level pop through once we're already
+    // at a true root with nothing behind it (home once signed in; splash
+    // before that — `_leaveSplash` is the *only* place that ever moves off
+    // `splash` and it always uses `go()`, so splash is the one pre-auth
+    // screen `back()` can find with an empty history). Every other screen
+    // routes back through the same `cubit.back()` the on-screen back arrows
+    // use — critically, that also stops `back()`'s "nothing to pop -> go
+    // home" fallback from ever firing on a pre-auth screen and skipping
+    // login/OTP.
+    final atRoot = context.select(
+      (BasketCubit c) =>
+          c.state.history.isEmpty && (c.state.screen == BasketScreen.home || c.state.screen == BasketScreen.splash),
+    );
+    return PopScope(
+      canPop: atRoot,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        cubit.back();
+      },
+      child: switch (screen) {
+        BasketScreen.splash => const SplashView(),
+        BasketScreen.onboard => const OnboardingView(),
+        BasketScreen.login => const LoginView(),
+        BasketScreen.otp => const OtpView(),
+        BasketScreen.setup => const SetupView(),
+        _ => const _ShoppingShell(),
+      },
+    );
   }
 }
 

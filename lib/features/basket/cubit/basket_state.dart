@@ -43,6 +43,7 @@ class BasketState extends Equatable {
     this.couponMessage = 'Try FIRST50 on orders above ₹499.',
     this.selectedOrderId,
     this.addressId = 'home',
+    this.gpsAreaLabel,
     this.deliveryDay = 0,
     this.deliverySlotId = 'exp',
     this.paymentMethodId = 'upi',
@@ -109,6 +110,14 @@ class BasketState extends Equatable {
   final String? selectedOrderId;
 
   final String addressId;
+
+  /// Short area name (e.g. "Bengaluru") reverse-geocoded from the device's
+  /// current GPS position — the "Home · <area>" header prefers this over
+  /// [addressId]'s saved address when available (see `selectors.dart`'s
+  /// `homeLocationLabel`); null until [BasketCubit.loadGpsLocation]
+  /// resolves it (or fails/is denied — a silent, best-effort lookup).
+  final String? gpsAreaLabel;
+
   final int deliveryDay;
   final String deliverySlotId;
   final String paymentMethodId;
@@ -184,6 +193,7 @@ class BasketState extends Equatable {
     String? selectedOrderId,
     bool clearSelectedOrderId = false,
     String? addressId,
+    String? gpsAreaLabel,
     int? deliveryDay,
     String? deliverySlotId,
     String? paymentMethodId,
@@ -233,6 +243,7 @@ class BasketState extends Equatable {
       couponMessage: couponMessage ?? this.couponMessage,
       selectedOrderId: clearSelectedOrderId ? null : (selectedOrderId ?? this.selectedOrderId),
       addressId: addressId ?? this.addressId,
+      gpsAreaLabel: gpsAreaLabel ?? this.gpsAreaLabel,
       deliveryDay: deliveryDay ?? this.deliveryDay,
       deliverySlotId: deliverySlotId ?? this.deliverySlotId,
       paymentMethodId: paymentMethodId ?? this.paymentMethodId,
@@ -283,6 +294,7 @@ class BasketState extends Equatable {
         couponMessage,
         selectedOrderId,
         addressId,
+        gpsAreaLabel,
         deliveryDay,
         deliverySlotId,
         paymentMethodId,

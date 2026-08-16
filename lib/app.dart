@@ -24,6 +24,17 @@ class FastSwipeApp extends StatelessWidget {
               title: 'Aapno Bazar',
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
+              // Every screen (Basket + Basket Admin) is built entirely on
+              // hardcoded light-mode colors (BasketColors/AppColors), not a
+              // theme-aware palette — with no themeMode pin, MaterialApp
+              // defaults to ThemeMode.system, so a phone with system dark
+              // mode on switches to `AppTheme.dark`'s generic Material3
+              // scheme. That scheme's near-white default text color then
+              // lands on top of these screens' hardcoded white/light-grey
+              // cards, which is exactly the "light, barely visible text on
+              // some phones" bug. Pin to light until the UI is actually
+              // built to support both.
+              themeMode: ThemeMode.light,
               routerConfig: router,
             );
           },

@@ -28,6 +28,12 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Used to set your delivery pin and center the map on your current location.</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

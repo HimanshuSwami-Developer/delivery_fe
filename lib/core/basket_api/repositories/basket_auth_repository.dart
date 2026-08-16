@@ -59,6 +59,20 @@ class BasketAuthRepository {
     }
   }
 
+  /// Upserts this device's FCM token against the signed-in user — see
+  /// `accounts.RegisterDeviceView`. Safe to call repeatedly (e.g. on every
+  /// app start and whenever the OS rotates the token); failures are
+  /// swallowed by the caller since a missed registration just means this
+  /// device won't get pushes until the next successful call, not a
+  /// user-facing error.
+  Future<void> registerDevice({required String token, required String platform}) async {
+    try {
+      await _client.dio.post('/auth/device-token/', data: {'token': token, 'platform': platform});
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<ApiProfile?> fetchProfile() async {
     try {
       final response = await _client.dio.get('/auth/profile/');
