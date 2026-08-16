@@ -7,18 +7,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _otpLength = 6;
+const _otpLength = 4;
 const _resendWaitSeconds = 30;
 
 /// Matches the Claude Design "Aapno Bazar — Login with OTP" mockup: a navy
-/// header, per-digit boxes (6 here — this app's real OTP length, not the
-/// mockup's illustrative 4 — with auto-advance/backspace-back focus), a
-/// resend countdown, and a verify button whose color/label track fill
-/// state. "Continue as guest" and "Get a call instead" are shown for
-/// visual fidelity but wired inert (`onTap: null`) — there's no guest-mode
-/// or callback-OTP flow behind them, matching how this codebase already
-/// marks not-yet-built affordances (e.g. the PDP's share button) rather
-/// than faking one.
+/// header, per-digit boxes (this app's real OTP length, with
+/// auto-advance/backspace-back focus), a resend countdown, and a verify
+/// button whose color/label track fill state. "Get a call instead" is
+/// shown for visual fidelity but wired inert (`onTap: null`) — there's no
+/// callback-OTP flow behind it, matching how this codebase already marks
+/// not-yet-built affordances (e.g. the PDP's share button) rather than
+/// faking one.
 class OtpView extends StatefulWidget {
   const OtpView({super.key});
 
@@ -158,7 +157,7 @@ class _OtpViewState extends State<OtpView> {
                       text: TextSpan(
                         style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.62)),
                         children: [
-                          const TextSpan(text: 'We sent a 6-digit code to '),
+                          const TextSpan(text: 'We sent a 4-digit code to '),
                           TextSpan(
                             text: '+91 $phoneLabel',
                             style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700, color: AapnoBazar.gold),
@@ -246,37 +245,12 @@ class _OtpViewState extends State<OtpView> {
                                 child: authLoading
                                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                                     : Text(
-                                        full ? 'Verify & continue' : 'Enter 6-digit code',
+                                        full ? 'Verify & continue' : 'Enter 4-digit code',
                                         style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: full ? Colors.white : AapnoBazar.textDisabled),
                                       ),
                               ),
                             ),
-                            const SizedBox(height: 22),
-                            Row(
-                              children: [
-                                const Expanded(child: Divider(color: AapnoBazar.borderSoft, height: 1)),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('OR', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: AapnoBazar.textDisabled, letterSpacing: 1.54)),
-                                ),
-                                const Expanded(child: Divider(color: AapnoBazar.borderSoft, height: 1)),
-                              ],
-                            ),
-                            const SizedBox(height: 22),
-                            Container(
-                              height: 54,
-                              decoration: BoxDecoration(border: Border.all(color: AapnoBazar.borderIdle, width: 1.5), borderRadius: BorderRadius.circular(16)),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.person_outline_rounded, size: 18, color: AapnoBazar.navy),
-                                  const SizedBox(width: 10),
-                                  Text('Continue as guest', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: AapnoBazar.navy)),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 16),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 2),
                               child: Text(

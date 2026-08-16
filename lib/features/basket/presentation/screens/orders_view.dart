@@ -59,6 +59,7 @@ class OrdersView extends StatelessWidget {
         Expanded(
           child: Skeletonizer(
             enabled: showSkeleton,
+            effect: ShimmerEffect(baseColor: BasketColors.divider, highlightColor: BasketColors.surface),
             child: IgnorePointer(
               ignoring: showSkeleton,
               child: ListView(

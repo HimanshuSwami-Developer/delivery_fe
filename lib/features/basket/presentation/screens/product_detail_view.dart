@@ -128,7 +128,7 @@ class ProductDetailView extends StatelessWidget {
                           const SizedBox(width: 9),
                           Text(
                             moneyLabel(p.mrp),
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
                           ),
                           const SizedBox(width: 9),
                           Container(

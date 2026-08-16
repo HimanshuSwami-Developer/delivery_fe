@@ -293,8 +293,8 @@ class BasketCubit extends Cubit<BasketState> {
   void setOtp(String value) => emit(state.copyWith(otp: _digitsOnly(value), clearAuthError: true));
 
   Future<void> verifyOtp() async {
-    if (state.otp.length != 6) {
-      emit(state.copyWith(authError: 'Enter all 6 digits to continue.'));
+    if (state.otp.length != 4) {
+      emit(state.copyWith(authError: 'Enter all 4 digits to continue.'));
       return;
     }
     emit(state.copyWith(authLoading: true, clearAuthError: true));

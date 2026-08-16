@@ -327,7 +327,7 @@ class _RowCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           moneyLabel(product.mrp),
-                          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
                         ),
                         const Spacer(),
                         AddQtyControl(product: product),

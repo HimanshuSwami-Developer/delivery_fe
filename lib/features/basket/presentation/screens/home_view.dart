@@ -199,6 +199,7 @@ class _HomeSkeleton extends StatelessWidget {
         Expanded(
           child: IgnorePointer(
             child: Skeletonizer(
+              effect: ShimmerEffect(baseColor: BasketColors.divider, highlightColor: BasketColors.surface),
               child: ListView(
                 padding: const EdgeInsets.only(top: 18, bottom: 120),
                 children: [
@@ -694,7 +695,7 @@ class _PriceCard extends StatelessWidget {
                     if (product.mrp > product.price)
                       Text(
                         moneyLabel(product.mrp),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w500, color: BasketColors.faint, decoration: TextDecoration.lineThrough),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
                       ),
                   ],
                 ),
