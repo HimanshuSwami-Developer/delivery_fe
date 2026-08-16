@@ -147,12 +147,12 @@ class BasketCubit extends Cubit<BasketState> {
     } catch (_) {}
   }
 
-  /// Best-effort, silent GPS lookup for the "Home · <area>" header — never
-  /// prompts beyond the OS's own permission dialog, never surfaces an
-  /// error, and simply leaves [BasketState.gpsAreaLabel] null (falling
-  /// back to the saved address — see `homeLocationLabel`) if location
-  /// services are off, permission is denied, or the device just can't get
-  /// a fix in time.
+  /// Best-effort, silent GPS lookup for the Home header's address
+  /// subtitle — never prompts beyond the OS's own permission dialog, never
+  /// surfaces an error, and simply leaves [BasketState.gpsAddress] null
+  /// (falling back to the saved address — see `homeAddressSubtitle`) if
+  /// location services are off, permission is denied, or the device just
+  /// can't get a fix in time.
   Future<void> loadGpsLocation() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return;
@@ -167,8 +167,8 @@ class BasketCubit extends Cubit<BasketState> {
         locationSettings: const LocationSettings(timeLimit: Duration(seconds: 8)),
       );
       final result = await NominatimService().reverseGeocode(LatLng(position.latitude, position.longitude));
-      if (result != null && result.city.isNotEmpty) {
-        emit(state.copyWith(gpsAreaLabel: result.city));
+      if (result != null && result.displayName.isNotEmpty) {
+        emit(state.copyWith(gpsAddress: result.displayName));
       }
     } catch (_) {
       // Best-effort — the saved-address fallback covers this.

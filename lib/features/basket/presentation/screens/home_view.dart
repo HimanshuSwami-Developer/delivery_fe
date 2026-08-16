@@ -276,7 +276,7 @@ class _HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
-    final addressLabel = context.select((BasketCubit c) => homeLocationLabel(c.state));
+    final addressSubtitle = context.select((BasketCubit c) => homeAddressSubtitle(c.state));
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
       child: Container(
@@ -316,18 +316,25 @@ class _HomeHeader extends StatelessWidget {
                           const SizedBox(height: 5),
                           GestureDetector(
                             onTap: cubit.goToAddress,
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Flexible(
-                                  child: Text(
-                                    addressLabel ?? 'Add a delivery address',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Home',
+                                      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Colors.white.withValues(alpha: 0.6)),
+                                  ],
                                 ),
-                                const SizedBox(width: 5),
-                                Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Colors.white.withValues(alpha: 0.6)),
+                                Text(
+                                  addressSubtitle ?? 'Add a delivery address',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.65)),
+                                ),
                               ],
                             ),
                           ),
