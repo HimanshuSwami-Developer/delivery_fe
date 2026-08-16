@@ -1,4 +1,3 @@
-import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
@@ -65,27 +64,10 @@ BasketCategory categoryByKey(BasketState state, String key) {
   return cats.firstWhere((c) => c.key == key, orElse: () => cats.isNotEmpty ? cats.first : const BasketCategory(key: '', name: '', subs: [], count: 0));
 }
 
-/// The address the Home header's dropdown should show — the one matching
-/// [BasketState.addressId], falling back to the first saved address, or
-/// `null` before any address has been added yet.
-ApiAddress? selectedAddress(BasketState state) {
-  if (state.apiAddresses.isEmpty) return null;
-  for (final a in state.apiAddresses) {
-    if (a.id == state.addressId) return a;
-  }
-  return state.apiAddresses.first;
-}
-
 /// Full street-level address shown under the "Home" header line — GPS
-/// (live device location) wins when available, falling back to the full
-/// saved-address line, then to `null` (caller shows an "add an address"
-/// prompt) when there's neither.
-String? homeAddressSubtitle(BasketState state) {
-  if ((state.gpsAddress ?? '').isNotEmpty) return state.gpsAddress;
-  final address = selectedAddress(state);
-  if (address == null) return null;
-  return Address.fromApi(address).line;
-}
+/// (live device location) only; `null` (caller shows an "add an address"
+/// prompt) until it resolves.
+String? homeAddressSubtitle(BasketState state) => state.gpsAddress;
 
 List<BasketProduct> productsOf(BasketState state) => state.apiProducts.map(BasketProduct.fromApi).toList();
 
