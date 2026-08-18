@@ -178,10 +178,7 @@ class BasketCatalog {
       deliverySlots.firstWhere((s) => s.id == id, orElse: () => deliverySlots.first);
 
   static const paymentMethods = <PaymentMethod>[
-    PaymentMethod(id: 'upi', name: 'UPI', sub: 'GPay, PhonePe, Paytm & more', icon: '◈'),
-    PaymentMethod(id: 'card', name: 'Credit / debit card', sub: 'Visa, Mastercard, RuPay', icon: '▭'),
-    PaymentMethod(id: 'net', name: 'Net banking', sub: 'All major Indian banks', icon: '▤'),
-    PaymentMethod(id: 'wallet', name: 'Basket wallet', sub: 'Balance ₹250', icon: '◐'),
+    PaymentMethod(id: 'qr', name: 'UPI QR code', sub: 'Scan & pay with any UPI app', icon: '◈'),
     PaymentMethod(id: 'cod', name: 'Cash on delivery', sub: 'Pay the rider · no extra fee', icon: '₹'),
   ];
 

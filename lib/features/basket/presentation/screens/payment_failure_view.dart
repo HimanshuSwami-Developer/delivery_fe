@@ -66,7 +66,7 @@ class PaymentFailureView extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              onPressed: cubit.goToPay,
+              onPressed: cubit.goToPaymentChoice,
               child: Text('Retry payment', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
             ),
           ),

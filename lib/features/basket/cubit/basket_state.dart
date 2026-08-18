@@ -6,6 +6,22 @@ import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/basket_api/models/zone_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 
+/// A one-shot "tell the user what just happened" popup — set by
+/// [BasketCubit] the instant an order/payment attempt resolves (placed,
+/// paid, declined, cancelled, or errored) and cleared the moment the root
+/// [BasketApp] widget has shown it, so every outcome is guaranteed exactly
+/// one popup regardless of which screen is on top when it lands.
+class PaymentPopup extends Equatable {
+  const PaymentPopup({required this.title, required this.message, required this.success});
+
+  final String title;
+  final String message;
+  final bool success;
+
+  @override
+  List<Object?> get props => [title, message, success];
+}
+
 /// Single immutable state for the whole Basket app, mirroring the source
 /// design's one-component `state` object. It's deliberately one cohesive
 /// class rather than split per-screen: the source app is genuinely one
@@ -46,7 +62,7 @@ class BasketState extends Equatable {
     this.gpsAddress,
     this.deliveryDay = 0,
     this.deliverySlotId = 'exp',
-    this.paymentMethodId = 'upi',
+    this.paymentMethodId = 'qr',
     this.trackingStage = 0,
     this.newAddressTag = 'Home',
     this.addressSaving = false,
@@ -65,6 +81,7 @@ class BasketState extends Equatable {
     this.apiZones = const [],
     this.zoneId,
     this.apiBanners = const [],
+    this.paymentPopup,
   });
 
   final BasketScreen screen;
@@ -167,6 +184,11 @@ class BasketState extends Equatable {
   /// Home-carousel promo banners (`Banner.placement == 'home_carousel'`).
   final List<ApiBanner> apiBanners;
 
+  /// Set once per order/payment outcome; see [PaymentPopup]. Null the rest
+  /// of the time — [BasketCubit.clearPaymentPopup] resets it right after
+  /// the root widget shows it.
+  final PaymentPopup? paymentPopup;
+
   BasketState copyWith({
     BasketScreen? screen,
     List<BasketScreen>? history,
@@ -218,6 +240,8 @@ class BasketState extends Equatable {
     List<ApiZone>? apiZones,
     int? zoneId,
     List<ApiBanner>? apiBanners,
+    PaymentPopup? paymentPopup,
+    bool clearPaymentPopup = false,
   }) {
     return BasketState(
       screen: screen ?? this.screen,
@@ -266,6 +290,7 @@ class BasketState extends Equatable {
       apiZones: apiZones ?? this.apiZones,
       zoneId: zoneId ?? this.zoneId,
       apiBanners: apiBanners ?? this.apiBanners,
+      paymentPopup: clearPaymentPopup ? null : (paymentPopup ?? this.paymentPopup),
     );
   }
 
@@ -317,5 +342,6 @@ class BasketState extends Equatable {
         apiZones,
         zoneId,
         apiBanners,
+        paymentPopup,
       ];
 }

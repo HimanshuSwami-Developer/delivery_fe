@@ -7,7 +7,7 @@ import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/core/notifications/push_notifications.dart';
 import 'package:fastswipe/core/prefs/app_prefs.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
@@ -44,13 +44,11 @@ class BasketCubit extends Cubit<BasketState> {
   static const bool showBuyAgain = true;
 
   Timer? _splashTimer;
-  Timer? _paymentTimer;
   StreamSubscription<String>? _tokenRefreshSub;
 
   @override
   Future<void> close() {
     _splashTimer?.cancel();
-    _paymentTimer?.cancel();
     _tokenRefreshSub?.cancel();
     return super.close();
   }
@@ -642,53 +640,26 @@ class BasketCubit extends Cubit<BasketState> {
 
   // ── Checkout: payment ────────────────────────────────────────────────
 
-  void selectPaymentMethod(String methodId) => emit(state.copyWith(paymentMethodId: methodId));
-
-  /// Resets the back-stack to `[home, cart]` — used both from order
-  /// summary ("Choose payment") and from the failure screen ("Retry
-  /// payment"), so back always returns to the cart rather than replaying
-  /// the whole address/slot/summary chain.
-  void goToPay() {
+  /// From order summary's "Place order" — shows the QR-code-or-COD choice.
+  /// Resets the back-stack to `[home, cart]` so back always returns to the
+  /// cart rather than replaying address/slot/summary.
+  void goToPaymentChoice() {
     emit(state.copyWith(
-      screen: BasketScreen.pay,
+      screen: BasketScreen.payChoice,
       history: const [BasketScreen.home, BasketScreen.cart],
     ));
   }
 
-  /// Maps the UI's 5 payment options to what `Order.PaymentMode` actually
-  /// supports server-side — "Net banking" has no backend equivalent, so it
-  /// rides in as a card payment rather than growing its own enum value.
-  String _backendPaymentMode(String id) => switch (id) {
-        'upi' => 'upi',
-        'wallet' => 'wallet',
-        'cod' => 'cod',
-        _ => 'card',
-      };
-
-  Future<void> payNow() async {
+  /// From the payment-choice screen's "Pay via UPI QR code" — the QR image
+  /// itself is generated client-side from the cart's payable total, so no
+  /// backend call happens until the customer actually uploads a screenshot
+  /// (see [placeQrOrder]).
+  void chooseQrPayment() {
     emit(state.copyWith(
-      screen: BasketScreen.paying,
-      history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.pay],
-      trackingStage: 0,
+      paymentMethodId: 'qr',
+      screen: BasketScreen.qrPayment,
+      history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.payChoice],
     ));
-    await _placeRealOrder(minDelay: const Duration(milliseconds: 1700));
-  }
-
-  /// The source design had a dedicated "simulate failure" demo button —
-  /// with a real backend there's no payment gateway to fail, so this stays
-  /// a pure UI demo of the failure screen rather than calling the API.
-  void simulatePaymentFailure() {
-    emit(state.copyWith(
-      screen: BasketScreen.paying,
-      history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.pay],
-    ));
-    _paymentTimer?.cancel();
-    _paymentTimer = Timer(const Duration(milliseconds: 1500), () {
-      emit(state.copyWith(
-        screen: BasketScreen.failure,
-        history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.pay],
-      ));
-    });
   }
 
   Future<void> payCashOnDelivery() async {
@@ -700,30 +671,49 @@ class BasketCubit extends Cubit<BasketState> {
     await _placeRealOrder(minDelay: const Duration(milliseconds: 1200));
   }
 
-  /// For now: skips the payment-method screen entirely — checkout goes
-  /// straight from order summary to placing the order (COD) and into live
-  /// tracking, no "Choose payment"/processing-success detour.
-  /// `goToPay`/`payNow`/payment_method_view stay in place, unused, for
-  /// when a real payment method picker comes back.
-  Future<void> checkoutDirect() async {
+  /// From the QR screen, once the customer has picked their payment
+  /// screenshot — places the order with it attached as proof. The backend
+  /// uploads it to Cloudinary and leaves `payment_status` pending for an
+  /// admin to verify by hand; there's no gateway callback to trust here.
+  Future<void> placeQrOrder(List<int> screenshotBytes, String screenshotFilename) async {
     emit(state.copyWith(
-      paymentMethodId: 'cod',
       screen: BasketScreen.paying,
       history: const [BasketScreen.home, BasketScreen.cart],
       trackingStage: 0,
     ));
-    await _placeRealOrder(minDelay: const Duration(milliseconds: 1200), goToTrackOnSuccess: true);
+    await _placeRealOrder(
+      minDelay: const Duration(milliseconds: 1700),
+      screenshotBytes: screenshotBytes,
+      screenshotFilename: screenshotFilename,
+    );
   }
 
   /// Places the order from the customer's (already server-synced) cart,
-  /// keeping the "paying" screen up for at least [minDelay] even if the
-  /// API responds faster, so the processing animation doesn't just flash.
-  Future<void> _placeRealOrder({required Duration minDelay, bool goToTrackOnSuccess = false}) async {
-    final zoneId = state.zoneId;
+  /// keeping the "paying" screen up for at least [minDelay] even if the API
+  /// responds faster, so the processing animation doesn't just flash.
+  Future<void> _placeRealOrder({
+    required Duration minDelay,
+    List<int>? screenshotBytes,
+    String? screenshotFilename,
+  }) async {
+    var zoneId = state.zoneId;
+    if (zoneId == null) {
+      // `loadZones()` (fired once at login) may not have landed yet, or
+      // hit a transient network blip — its errors are swallowed silently,
+      // so give it one more shot before failing the checkout attempt over
+      // what's usually just a timing gap, not a real "no zones" outage.
+      await loadZones();
+      zoneId = state.zoneId;
+    }
     if (zoneId == null) {
       emit(state.copyWith(
         screen: BasketScreen.failure,
-        history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.pay],
+        history: const [BasketScreen.home, BasketScreen.cart],
+        paymentPopup: const PaymentPopup(
+          title: 'Could not place order',
+          message: "We couldn't find an open delivery zone for you. Please try again in a moment.",
+          success: false,
+        ),
       ));
       return;
     }
@@ -732,25 +722,37 @@ class BasketCubit extends Cubit<BasketState> {
       final order = await api.orders.placeOrder(
         addressId: state.addressId,
         zone: zoneId,
-        paymentMode: _backendPaymentMode(state.paymentMethodId),
+        paymentMode: state.paymentMethodId,
+        paymentScreenshotBytes: screenshotBytes,
+        paymentScreenshotFilename: screenshotFilename,
       );
       await delayFuture;
+
       emit(state.copyWith(
         currentOrder: order,
         cart: const {},
-        screen: goToTrackOnSuccess ? BasketScreen.track : BasketScreen.success,
+        screen: BasketScreen.success,
         history: const [BasketScreen.home],
+        paymentPopup: PaymentPopup(
+          title: 'Order placed',
+          message: order.paymentMode == 'qr'
+              ? "Your order ${order.orderNumber} has been placed — we'll confirm your payment shortly."
+              : 'Your order ${order.orderNumber} has been placed successfully.',
+          success: true,
+        ),
       ));
       loadOrders();
-      if (goToTrackOnSuccess) await refreshTracking();
-    } on ApiException catch (_) {
+    } on ApiException catch (e) {
       await delayFuture;
       emit(state.copyWith(
         screen: BasketScreen.failure,
-        history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.pay],
+        history: const [BasketScreen.home, BasketScreen.cart],
+        paymentPopup: PaymentPopup(title: 'Could not place order', message: e.message, success: false),
       ));
     }
   }
+
+  void clearPaymentPopup() => emit(state.copyWith(clearPaymentPopup: true));
 
   // ── Orders / tracking ────────────────────────────────────────────────
 

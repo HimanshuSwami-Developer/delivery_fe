@@ -4,13 +4,12 @@ import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/osm_map.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/app_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 const _tags = ['Home', 'Work', 'Other'];
 
@@ -32,7 +31,7 @@ class _AddressEditViewState extends State<AddressEditView> {
   final _stateController = TextEditingController(text: 'Karnataka');
   final _pincodeController = TextEditingController();
 
-  final _mapController = MapController();
+  final _mapController = AppMapController();
   final _geocoder = NominatimService();
   Timer? _geocodeDebounce;
 
@@ -83,7 +82,7 @@ class _AddressEditViewState extends State<AddressEditView> {
       }
       final position = await Geolocator.getCurrentPosition();
       final here = LatLng(position.latitude, position.longitude);
-      _mapController.move(here, 16);
+      await _mapController.move(here, 16);
       setState(() => _pinLocation = here);
       await _resolveAddress(here);
     } catch (_) {
@@ -110,7 +109,7 @@ class _AddressEditViewState extends State<AddressEditView> {
           child: Stack(
             children: [
               Positioned.fill(
-                child: OsmMap(
+                child: AppMap(
                   center: _pinLocation,
                   mapController: _mapController,
                   onPositionChanged: _onMapMoved,

@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
+import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
@@ -22,9 +23,10 @@ import 'package:fastswipe/features/basket/presentation/screens/order_tracking_vi
 import 'package:fastswipe/features/basket/presentation/screens/orders_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/otp_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/paying_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/payment_choice_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/payment_failure_view.dart';
-import 'package:fastswipe/features/basket/presentation/screens/payment_method_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/product_detail_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/qr_payment_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/search_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/setup_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/splash_view.dart';
@@ -34,6 +36,7 @@ import 'package:fastswipe/features/basket/presentation/widgets/bottom_nav.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/cancel_sheet.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/cart_bar.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/filter_sheet.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/payment_result_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -107,20 +110,27 @@ class _BasketRoot extends StatelessWidget {
       (BasketCubit c) =>
           c.state.history.isEmpty && (c.state.screen == BasketScreen.home || c.state.screen == BasketScreen.splash),
     );
-    return PopScope(
-      canPop: atRoot,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        cubit.back();
+    return BlocListener<BasketCubit, BasketState>(
+      listenWhen: (previous, current) => current.paymentPopup != null && previous.paymentPopup != current.paymentPopup,
+      listener: (context, state) async {
+        await showPaymentResultPopup(context, state.paymentPopup!);
+        if (context.mounted) cubit.clearPaymentPopup();
       },
-      child: switch (screen) {
-        BasketScreen.splash => const SplashView(),
-        BasketScreen.onboard => const OnboardingView(),
-        BasketScreen.login => const LoginView(),
-        BasketScreen.otp => const OtpView(),
-        BasketScreen.setup => const SetupView(),
-        _ => const _ShoppingShell(),
-      },
+      child: PopScope(
+        canPop: atRoot,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          cubit.back();
+        },
+        child: switch (screen) {
+          BasketScreen.splash => const SplashView(),
+          BasketScreen.onboard => const OnboardingView(),
+          BasketScreen.login => const LoginView(),
+          BasketScreen.otp => const OtpView(),
+          BasketScreen.setup => const SetupView(),
+          _ => const _ShoppingShell(),
+        },
+      ),
     );
   }
 }
@@ -167,7 +177,8 @@ class _ShoppingShell extends StatelessWidget {
       BasketScreen.addrEdit => const AddressEditView(),
       BasketScreen.slot => const DeliverySlotView(),
       BasketScreen.summary => const OrderSummaryView(),
-      BasketScreen.pay => const PaymentMethodView(),
+      BasketScreen.payChoice => const PaymentChoiceView(),
+      BasketScreen.qrPayment => const QrPaymentView(),
       BasketScreen.paying => const PayingView(),
       BasketScreen.success => const OrderSuccessView(),
       BasketScreen.failure => const PaymentFailureView(),

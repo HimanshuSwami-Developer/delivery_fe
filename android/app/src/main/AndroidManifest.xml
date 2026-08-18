@@ -6,7 +6,13 @@
     <application
         android:label="Aapno Bazar"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
+        <!-- Required by google_maps_flutter — replace with a real key
+             restricted to this app's package name + SHA-1 in Google Cloud
+             Console (Maps SDK for Android). -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_GOOGLE_MAPS_API_KEY" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -42,7 +48,7 @@
             android:value="high_importance_channel" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher" />
+            android:resource="@mipmap/launcher_icon" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

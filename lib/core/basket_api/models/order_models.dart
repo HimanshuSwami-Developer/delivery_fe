@@ -49,6 +49,8 @@ class ApiOrder {
     required this.total,
     required this.address,
     required this.createdAt,
+    this.paymentStatus = 'pending',
+    this.paymentScreenshotUrl,
     this.zoneId,
     this.zoneName,
     this.deliveryPartnerId,
@@ -86,6 +88,14 @@ class ApiOrder {
   final int total;
   final String address;
   final DateTime createdAt;
+
+  /// 'pending' | 'paid' | 'failed'.
+  final String paymentStatus;
+
+  /// Set only for a `payment_mode: 'qr'` order — the Cloudinary URL of the
+  /// screenshot the customer uploaded as proof of their UPI payment, kept
+  /// pending an admin's manual review.
+  final String? paymentScreenshotUrl;
 
   final int? zoneId;
   final String? zoneName;
@@ -125,6 +135,8 @@ class ApiOrder {
         total: json['total'] as int,
         address: json['address'] as String? ?? '',
         createdAt: DateTime.parse(json['created_at'] as String),
+        paymentStatus: json['payment_status'] as String? ?? 'pending',
+        paymentScreenshotUrl: json['payment_screenshot_url'] as String?,
         zoneId: json['zone'] as int?,
         zoneName: json['zone_name'] as String?,
         deliveryPartnerId: json['delivery_partner'] as int?,

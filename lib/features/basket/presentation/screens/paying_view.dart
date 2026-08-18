@@ -7,9 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Transient "processing payment" screen. Has no back button and no user
-/// actions — [BasketCubit.payNow]/[BasketCubit.simulatePaymentFailure]/
-/// [BasketCubit.payCashOnDelivery] land here and time out to success or
-/// failure on their own.
+/// actions — [BasketCubit.placeQrOrder]/[BasketCubit.payCashOnDelivery]
+/// land here and resolve to success or failure on their own.
 class PayingView extends StatefulWidget {
   const PayingView({super.key});
 

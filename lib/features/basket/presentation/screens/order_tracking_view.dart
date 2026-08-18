@@ -3,11 +3,11 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/osm_map.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/app_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// Fraction across the map width for the rider marker at each of the 4
 /// tracking stages, proportioned from the source design's fixed pixel
@@ -45,7 +45,7 @@ class OrderTrackingView extends StatelessWidget {
               final width = constraints.maxWidth;
               return Stack(
                 children: [
-                  const Positioned.fill(child: OsmMap(center: _mapCenter, zoom: 15, interactive: false)),
+                  const Positioned.fill(child: AppMap(center: _mapCenter, zoom: 15, interactive: false)),
                   Positioned(
                     left: 0,
                     right: 0,

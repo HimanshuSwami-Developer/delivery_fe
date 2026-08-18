@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fastswipe/core/api/api_client.dart';
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
@@ -34,6 +35,12 @@ class OrdersRepository {
     }
   }
 
+  /// [paymentScreenshotBytes]/[paymentScreenshotFilename] are QR checkout
+  /// only — proof of the UPI payment the customer already made, uploaded
+  /// to Cloudinary server-side and stored on the order for admin review
+  /// (`payment_status` stays 'pending' either way). Sending a file forces
+  /// this onto a multipart request; every other field rides along as a
+  /// plain form field.
   Future<ApiOrder> placeOrder({
     String? addressId,
     String? addressLine1,
@@ -45,9 +52,11 @@ class OrdersRepository {
     String? deliverySlotDate,
     String? deliverySlotLabel,
     String? gstin,
+    List<int>? paymentScreenshotBytes,
+    String? paymentScreenshotFilename,
   }) async {
     try {
-      final response = await _client.dio.post('/orders/place/', data: {
+      final fields = {
         'address_id': ?addressId,
         'address_line1': ?addressLine1,
         'city': ?city,
@@ -58,7 +67,17 @@ class OrdersRepository {
         'delivery_slot_date': ?deliverySlotDate,
         'delivery_slot_label': ?deliverySlotLabel,
         'gstin': ?gstin,
-      });
+      };
+      final data = paymentScreenshotBytes == null
+          ? fields
+          : FormData.fromMap({
+              ...fields,
+              'payment_screenshot': MultipartFile.fromBytes(
+                paymentScreenshotBytes,
+                filename: paymentScreenshotFilename ?? 'screenshot.jpg',
+              ),
+            });
+      final response = await _client.dio.post('/orders/place/', data: data);
       return ApiOrder.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiException.from(e);

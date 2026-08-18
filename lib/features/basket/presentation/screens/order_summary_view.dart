@@ -189,7 +189,7 @@ class OrderSummaryView extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   ),
-                  onPressed: cubit.checkoutDirect,
+                  onPressed: cubit.goToPaymentChoice,
                   child: Text('Place order', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
                 ),
               ],
