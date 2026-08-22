@@ -7,12 +7,11 @@
         android:label="Aapno Bazar"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
-        <!-- Required by google_maps_flutter — replace with a real key
-             restricted to this app's package name + SHA-1 in Google Cloud
-             Console (Maps SDK for Android). -->
+        <!-- Restrict this key to package name com.aapnobazar.app + the
+             debug/release SHA-1 in Google Cloud Console (Maps SDK for Android). -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+            android:value="AIzaSyDVDpKQUCsQYOz4cv_zvRO-doMzx0Eu2-8" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

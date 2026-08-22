@@ -7,15 +7,15 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:262502507472:android:7c48bdd8d12df5c6748fd5",
+        "mobilesdk_app_id": "1:262502507472:android:db120b40a26bf823748fd5",
         "android_client_info": {
-          "package_name": "com.example.fastswipe"
+          "package_name": "com.aapnobazar.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAObq-RuwwBMcg0VjLTnlh7L9Fvm2k2cpQ"
+          "current_key": "AIzaSyDVDpKQUCsQYOz4cv_zvRO-doMzx0Eu2-8"
         }
       ],
       "services": {

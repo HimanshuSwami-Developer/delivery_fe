@@ -1,4 +1,4 @@
-package com.example.fastswipe
+package com.aapnobazar.app
 
 import io.flutter.embedding.android.FlutterActivity
 

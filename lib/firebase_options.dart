@@ -25,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -57,15 +54,22 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAObq-RuwwBMcg0VjLTnlh7L9Fvm2k2cpQ',
-    appId: '1:262502507472:android:7c48bdd8d12df5c6748fd5',
+    apiKey: 'AIzaSyDVDpKQUCsQYOz4cv_zvRO-doMzx0Eu2-8',
+    appId: '1:262502507472:android:db120b40a26bf823748fd5',
     messagingSenderId: '262502507472',
     projectId: 'aapnobazar-6295d',
     storageBucket: 'aapnobazar-6295d.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyARsyy6tqTGiFg2FMJ5vfkHabQOF-K2CoI',
+    apiKey: 'AIzaSyDQ_Dkcfi4uNZsghrvT5o3LWH_WwqbBA-8',
+    appId: '1:262502507472:ios:e2f24ba8bdc08021748fd5',
+    messagingSenderId: '262502507472',
+    projectId: 'aapnobazar-6295d',
+    storageBucket: 'aapnobazar-6295d.firebasestorage.app',
+    iosBundleId: 'com.aapnobazar.app',
+  );
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDQ_Dkcfi4uNZsghrvT5o3LWH_WwqbBA-8',
     appId: '1:262502507472:ios:9e6e094c2309115b748fd5',
     messagingSenderId: '262502507472',
     projectId: 'aapnobazar-6295d',

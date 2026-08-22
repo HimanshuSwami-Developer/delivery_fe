@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyARsyy6tqTGiFg2FMJ5vfkHabQOF-K2CoI</string>
+	<string>AIzaSyDQ_Dkcfi4uNZsghrvT5o3LWH_WwqbBA-8</string>
 	<key>GCM_SENDER_ID</key>
 	<string>262502507472</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.fastswipe</string>
+	<string>com.aapnobazar.app</string>
 	<key>PROJECT_ID</key>
 	<string>aapnobazar-6295d</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:262502507472:ios:9e6e094c2309115b748fd5</string>
+	<string>1:262502507472:ios:e2f24ba8bdc08021748fd5</string>
 </dict>
 </plist>

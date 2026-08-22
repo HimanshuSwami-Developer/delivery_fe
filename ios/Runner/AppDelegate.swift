@@ -8,9 +8,9 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // Required by google_maps_flutter — replace with a real key restricted
-    // to this app's bundle ID in Google Cloud Console (Maps SDK for iOS).
-    GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY")
+    // Restrict this key to bundle ID com.aapnobazar.app in Google Cloud
+    // Console (Maps SDK for iOS).
+    GMSServices.provideAPIKey("AIzaSyDQ_Dkcfi4uNZsghrvT5o3LWH_WwqbBA-8")
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
