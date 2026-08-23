@@ -89,6 +89,12 @@ class BasketCubit extends Cubit<BasketState> {
       final profile = await api.auth.fetchProfile();
       if (profile != null) {
         emit(state.copyWith(name: profile.name, email: profile.email, myReferralCode: profile.referralCode, role: profile.role));
+      } else {
+        // No completed profile (e.g. an admin-provisioned delivery_boy
+        // account) — fall back to the role alone so tabs like "Deliveries"
+        // still show up for them.
+        final role = await api.auth.fetchRole();
+        if (role != null) emit(state.copyWith(role: role));
       }
     } catch (_) {
       // Best-effort — the session is still trusted either way; a failed
@@ -368,12 +374,16 @@ class BasketCubit extends Cubit<BasketState> {
         return;
       }
       final profile = await api.auth.fetchProfile();
+      // See `fetchRole` — an admin-provisioned delivery_boy/admin account
+      // never completes a customer profile, so `profile` is null forever
+      // and `role` must be recovered separately.
+      final role = profile?.role ?? await api.auth.fetchRole() ?? 'customer';
       emit(state.copyWith(
         authLoading: false,
         name: profile?.name ?? '',
         email: profile?.email ?? '',
         myReferralCode: profile?.referralCode,
-        role: profile?.role ?? 'customer',
+        role: role,
       ));
       goReset(BasketScreen.home);
       _loadHomeData();

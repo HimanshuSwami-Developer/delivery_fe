@@ -84,6 +84,23 @@ class BasketAuthRepository {
     }
   }
 
+  /// `role` lives on `User`, not `Profile` — accounts provisioned directly
+  /// as delivery partners/admins never complete a customer profile, so
+  /// [fetchProfile] 404s for them forever. The 404 body still carries
+  /// `role` (see `accounts.views.ProfileView.get`); this recovers it so
+  /// e.g. the "Deliveries" tab still shows up for such accounts. Returns
+  /// null only on a real failure (network error, not logged in, etc).
+  Future<String?> fetchRole() async {
+    try {
+      final response = await _client.dio.get('/auth/profile/');
+      return (response.data as Map<String, dynamic>)['role'] as String?;
+    } catch (e) {
+      final err = ApiException.from(e);
+      if (err.statusCode == 404) return err.data?['role'] as String?;
+      return null;
+    }
+  }
+
   Future<ApiProfile> completeProfile(String name, {String? email, String? referralCode}) async {
     try {
       final response = await _client.dio.post('/auth/profile/', data: {

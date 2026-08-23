@@ -268,9 +268,19 @@ class _MapPreviewState extends State<_MapPreview> {
   @override
   void initState() {
     super.initState();
+    final mapUrl = 'https://maps.google.com/maps?q=${widget.latitude},${widget.longitude}&z=16&output=embed';
+    // Google's embed endpoint now refuses to render ("must be used in an
+    // iframe") when loaded directly as the WebView's top-level document —
+    // it has to actually sit inside an <iframe> element.
+    final html = '''
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>html,body,iframe{margin:0;padding:0;width:100%;height:100%;border:0;}</style>
+</head><body><iframe src="$mapUrl" allowfullscreen></iframe></body></html>
+''';
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse('https://maps.google.com/maps?q=${widget.latitude},${widget.longitude}&z=16&output=embed'));
+      ..loadHtmlString(html, baseUrl: 'https://maps.google.com');
   }
 
   @override

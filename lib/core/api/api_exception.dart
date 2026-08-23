@@ -5,10 +5,15 @@ import 'package:dio/dio.dart';
 /// `{field: [errors]}`, or a validation-error map) to show something
 /// sensible in a snackbar.
 class ApiException implements Exception {
-  const ApiException(this.message, {this.statusCode});
+  const ApiException(this.message, {this.statusCode, this.data});
 
   final String message;
   final int? statusCode;
+
+  /// The raw DRF error body, when it's a JSON object — e.g. `/auth/profile/`
+  /// 404s bundle `role`/`mobile_number` alongside `detail` so callers can
+  /// still recover them even though the request "failed".
+  final Map<String, dynamic>? data;
 
   factory ApiException.from(Object error) {
     if (error is! DioException) {
@@ -16,10 +21,11 @@ class ApiException implements Exception {
     }
     final statusCode = error.response?.statusCode;
     final data = error.response?.data;
+    final dataMap = data is Map ? Map<String, dynamic>.from(data) : null;
 
     if (data is Map) {
       final detail = data['detail'];
-      if (detail is String) return ApiException(detail, statusCode: statusCode);
+      if (detail is String) return ApiException(detail, statusCode: statusCode, data: dataMap);
 
       // DRF field-error shape: {"field": ["msg1", "msg2"], ...}
       final firstError = data.values.firstWhere(
@@ -27,7 +33,7 @@ class ApiException implements Exception {
         orElse: () => null,
       );
       if (firstError is List && firstError.isNotEmpty) {
-        return ApiException(firstError.first.toString(), statusCode: statusCode);
+        return ApiException(firstError.first.toString(), statusCode: statusCode, data: dataMap);
       }
     }
 
@@ -35,7 +41,7 @@ class ApiException implements Exception {
       return const ApiException("Can't reach the server. Check your connection and try again.");
     }
 
-    return ApiException(error.message ?? 'Something went wrong.', statusCode: statusCode);
+    return ApiException(error.message ?? 'Something went wrong.', statusCode: statusCode, data: dataMap);
   }
 
   @override
