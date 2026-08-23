@@ -57,6 +57,8 @@ class ApiOrder {
     this.deliveryPartnerName,
     this.customerName,
     this.customerMobile,
+    this.latitude,
+    this.longitude,
     this.items = const [],
     this.couponCode,
     this.gstin,
@@ -104,6 +106,11 @@ class ApiOrder {
   final String? customerName;
   final String? customerMobile;
 
+  /// Drop-pin for the delivery partner's map view — null for orders placed
+  /// before this was captured, or without a saved address that had one.
+  final double? latitude;
+  final double? longitude;
+
   final List<ApiOrderItem> items;
   final String? couponCode;
   final String? gstin;
@@ -143,6 +150,8 @@ class ApiOrder {
         deliveryPartnerName: json['delivery_partner_name'] as String?,
         customerName: json['customer_name'] as String?,
         customerMobile: json['customer_mobile'] as String?,
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
         items: (json['items'] as List? ?? [])
             .map((e) => ApiOrderItem.fromJson(e as Map<String, dynamic>))
             .toList(),

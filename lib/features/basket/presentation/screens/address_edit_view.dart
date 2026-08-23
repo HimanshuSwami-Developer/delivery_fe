@@ -269,6 +269,8 @@ class _AddressEditViewState extends State<AddressEditView> {
                                 city: _cityController.text,
                                 stateName: _stateController.text,
                                 pincode: _pincodeController.text,
+                                latitude: _pinLocation.latitude,
+                                longitude: _pinLocation.longitude,
                               ),
                       child: saving
                           ? const SizedBox(

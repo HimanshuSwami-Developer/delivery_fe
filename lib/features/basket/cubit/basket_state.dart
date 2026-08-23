@@ -57,6 +57,7 @@ class BasketState extends Equatable {
     this.email = '',
     this.referralCodeInput = '',
     this.myReferralCode,
+    this.role = 'customer',
     this.couponInput = '',
     this.appliedCoupon,
     this.couponMessage = 'Try FIRST50 on orders above ₹499.',
@@ -70,6 +71,8 @@ class BasketState extends Equatable {
     this.newAddressTag = 'Home',
     this.addressSaving = false,
     this.addressFormError,
+    this.deliveryActionLoading = false,
+    this.deliveryActionError,
     this.cancelReason,
     this.cancelMode = CancelMode.cancel,
     this.apiCategories = const [],
@@ -133,6 +136,11 @@ class BasketState extends Equatable {
   /// returned on the profile — null until the profile has been fetched.
   final String? myReferralCode;
 
+  /// 'customer' | 'delivery_boy' | 'admin' — mirrors `Profile.role`. Only
+  /// used to decide whether the "Deliveries" tab shows; every other screen
+  /// in this (customer-facing) app is role-agnostic.
+  final String role;
+
   final String couponInput;
   final String? appliedCoupon;
   final String couponMessage;
@@ -167,6 +175,13 @@ class BasketState extends Equatable {
   /// Validation/API error from the last `submitNewAddress` attempt, shown
   /// inline on the address-edit form.
   final String? addressFormError;
+
+  /// True while a delivery-partner status update is in flight — disables
+  /// the action button on the delivery detail screen.
+  final bool deliveryActionLoading;
+
+  /// API error from the last delivery-status update attempt.
+  final String? deliveryActionError;
 
   final String? cancelReason;
   final CancelMode cancelMode;
@@ -228,6 +243,7 @@ class BasketState extends Equatable {
     String? email,
     String? referralCodeInput,
     String? myReferralCode,
+    String? role,
     String? couponInput,
     String? appliedCoupon,
     String? couponMessage,
@@ -243,6 +259,9 @@ class BasketState extends Equatable {
     bool? addressSaving,
     String? addressFormError,
     bool clearAddressFormError = false,
+    bool? deliveryActionLoading,
+    String? deliveryActionError,
+    bool clearDeliveryActionError = false,
     String? cancelReason,
     bool clearCancelReason = false,
     CancelMode? cancelMode,
@@ -284,6 +303,7 @@ class BasketState extends Equatable {
       email: email ?? this.email,
       referralCodeInput: referralCodeInput ?? this.referralCodeInput,
       myReferralCode: myReferralCode ?? this.myReferralCode,
+      role: role ?? this.role,
       couponInput: couponInput ?? this.couponInput,
       appliedCoupon: appliedCoupon ?? this.appliedCoupon,
       couponMessage: couponMessage ?? this.couponMessage,
@@ -297,6 +317,8 @@ class BasketState extends Equatable {
       newAddressTag: newAddressTag ?? this.newAddressTag,
       addressSaving: addressSaving ?? this.addressSaving,
       addressFormError: clearAddressFormError ? null : (addressFormError ?? this.addressFormError),
+      deliveryActionLoading: deliveryActionLoading ?? this.deliveryActionLoading,
+      deliveryActionError: clearDeliveryActionError ? null : (deliveryActionError ?? this.deliveryActionError),
       cancelReason: clearCancelReason ? null : (cancelReason ?? this.cancelReason),
       cancelMode: cancelMode ?? this.cancelMode,
       apiCategories: apiCategories ?? this.apiCategories,
@@ -339,6 +361,7 @@ class BasketState extends Equatable {
         email,
         referralCodeInput,
         myReferralCode,
+        role,
         couponInput,
         appliedCoupon,
         couponMessage,
@@ -352,6 +375,8 @@ class BasketState extends Equatable {
         newAddressTag,
         addressSaving,
         addressFormError,
+        deliveryActionLoading,
+        deliveryActionError,
         cancelReason,
         cancelMode,
         apiCategories,

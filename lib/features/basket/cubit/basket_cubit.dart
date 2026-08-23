@@ -88,7 +88,7 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final profile = await api.auth.fetchProfile();
       if (profile != null) {
-        emit(state.copyWith(name: profile.name, email: profile.email, myReferralCode: profile.referralCode));
+        emit(state.copyWith(name: profile.name, email: profile.email, myReferralCode: profile.referralCode, role: profile.role));
       }
     } catch (_) {
       // Best-effort — the session is still trusted either way; a failed
@@ -373,6 +373,7 @@ class BasketCubit extends Cubit<BasketState> {
         name: profile?.name ?? '',
         email: profile?.email ?? '',
         myReferralCode: profile?.referralCode,
+        role: profile?.role ?? 'customer',
       ));
       goReset(BasketScreen.home);
       _loadHomeData();
@@ -395,7 +396,7 @@ class BasketCubit extends Cubit<BasketState> {
         email: state.email.trim(),
         referralCode: state.referralCodeInput.trim(),
       );
-      emit(state.copyWith(authLoading: false, myReferralCode: profile.referralCode));
+      emit(state.copyWith(authLoading: false, myReferralCode: profile.referralCode, role: profile.role));
       goReset(BasketScreen.home);
       _loadHomeData();
     } on ApiException catch (e) {
@@ -606,6 +607,8 @@ class BasketCubit extends Cubit<BasketState> {
     required String city,
     required String stateName,
     required String pincode,
+    double? latitude,
+    double? longitude,
   }) async {
     if (houseNo.trim().isEmpty) {
       emit(state.copyWith(addressFormError: 'Flat / house no. is required.'));
@@ -628,6 +631,8 @@ class BasketCubit extends Cubit<BasketState> {
         country: 'India',
         pincode: pincode.trim(),
         isDefault: state.apiAddresses.isEmpty,
+        latitude: latitude,
+        longitude: longitude,
       ));
       final addresses = [...state.apiAddresses, saved];
       emit(state.copyWith(
@@ -791,6 +796,44 @@ class BasketCubit extends Cubit<BasketState> {
       final detail = await api.orders.fetchOrder(id);
       emit(state.copyWith(currentOrder: detail));
     } catch (_) {}
+  }
+
+  // ── Delivery partner ─────────────────────────────────────────────────
+
+  /// Opens a delivery's detail (map + customer + status action) — only
+  /// reachable from the "Deliveries" tab, itself only shown for
+  /// role='delivery_boy' accounts (see `kBottomNavScreens`/`BasketBottomNav`).
+  Future<void> openDeliveryDetail(String orderId) async {
+    emit(state.copyWith(
+      history: [...state.history, state.screen],
+      screen: BasketScreen.deliveryDetail,
+      selectedOrderId: orderId,
+      clearDeliveryActionError: true,
+      sheet: ActiveSheet.none,
+    ));
+    final id = int.tryParse(orderId);
+    if (id == null) return;
+    try {
+      final detail = await api.orders.fetchOrder(id);
+      emit(state.copyWith(currentOrder: detail));
+    } catch (_) {}
+  }
+
+  /// Advances the open delivery to [newStatus] (`out_for_delivery` or
+  /// `delivered` — see `DeliveryOrderDetailView`), then refreshes both the
+  /// open detail and the list behind it so "Deliveries" reflects it
+  /// immediately on back.
+  Future<void> updateDeliveryStatus(String newStatus) async {
+    final id = state.currentOrder?.id;
+    if (id == null) return;
+    emit(state.copyWith(deliveryActionLoading: true, clearDeliveryActionError: true));
+    try {
+      final updated = await api.orders.setStatus(id, newStatus);
+      emit(state.copyWith(deliveryActionLoading: false, currentOrder: updated));
+      loadOrders();
+    } on ApiException catch (e) {
+      emit(state.copyWith(deliveryActionLoading: false, deliveryActionError: e.message));
+    }
   }
 
   static const _statusToStage = {'new': 0, 'packed': 1, 'out_for_delivery': 2, 'delivered': 3};

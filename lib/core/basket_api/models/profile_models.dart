@@ -11,6 +11,8 @@ class ApiAddress {
     required this.country,
     required this.pincode,
     required this.isDefault,
+    this.latitude,
+    this.longitude,
   });
 
   final String id;
@@ -23,6 +25,11 @@ class ApiAddress {
   final String pincode;
   final bool isDefault;
 
+  /// Drop-pin captured when this address was saved (see `AddressEditView`'s
+  /// map) — null for addresses saved before this existed.
+  final double? latitude;
+  final double? longitude;
+
   factory ApiAddress.fromJson(Map<String, dynamic> json) => ApiAddress(
         id: json['id'] as String? ?? '',
         addressType: json['address_type'] as String? ?? 'home',
@@ -33,6 +40,8 @@ class ApiAddress {
         country: json['country'] as String? ?? 'India',
         pincode: json['pincode'] as String? ?? '',
         isDefault: json['is_default'] as bool? ?? false,
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +53,8 @@ class ApiAddress {
         'country': country,
         'pincode': pincode,
         'is_default': isDefault,
+        'latitude': latitude,
+        'longitude': longitude,
       };
 
   String get oneLine =>

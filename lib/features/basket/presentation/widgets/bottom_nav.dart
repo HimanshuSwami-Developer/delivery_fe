@@ -20,6 +20,8 @@ const _tabs = [
   _NavTab(BasketScreen.account, 'Account', Icons.person_rounded),
 ];
 
+const _deliveryTab = _NavTab(BasketScreen.deliveries, 'Deliveries', Icons.two_wheeler_rounded);
+
 /// Bottom nav shared across the shopping shell. Tapping a tab resets the
 /// internal back-stack (`prev: []`), matching the source design exactly —
 /// this is not `go_router` navigation.
@@ -30,6 +32,8 @@ class BasketBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final screen = context.select((BasketCubit c) => c.state.screen);
     final count = context.select((BasketCubit c) => cartTotals(c.state).itemCount);
+    final isDeliveryBoy = context.select((BasketCubit c) => c.state.role == 'delivery_boy');
+    final tabs = isDeliveryBoy ? [..._tabs, _deliveryTab] : _tabs;
 
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -42,7 +46,7 @@ class BasketBottomNav extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 11, 8, 10),
           child: Row(
             children: [
-              for (final tab in _tabs)
+              for (final tab in tabs)
                 Expanded(
                   child: _NavItem(
                     icon: tab.icon,

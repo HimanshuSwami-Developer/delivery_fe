@@ -30,6 +30,8 @@ enum BasketScreen {
   coupons,
   notifs,
   support,
+  deliveries,
+  deliveryDetail,
 }
 
 /// The 5 pre-auth screens render as their own full-bleed `Scaffold` (own
@@ -56,6 +58,7 @@ const kBottomNavScreens = {
   BasketScreen.list,
   BasketScreen.search,
   BasketScreen.account,
+  BasketScreen.deliveries,
 };
 
 const kCartBarScreens = {

@@ -11,6 +11,8 @@ import 'package:fastswipe/features/basket/presentation/screens/cart_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/categories_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/category_list_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/coupons_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/delivery_boy_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/delivery_order_detail_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/delivery_slot_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/home_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/login_view.dart';
@@ -188,6 +190,8 @@ class _ShoppingShell extends StatelessWidget {
       BasketScreen.coupons => const CouponsView(),
       BasketScreen.notifs => const NotificationsView(),
       BasketScreen.support => const SupportView(),
+      BasketScreen.deliveries => const DeliveryBoyView(),
+      BasketScreen.deliveryDetail => const DeliveryOrderDetailView(),
       BasketScreen.splash ||
       BasketScreen.onboard ||
       BasketScreen.login ||
