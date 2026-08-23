@@ -45,8 +45,8 @@ class ApiClient {
                   // emulators need `10.0.2.2` instead — pass
                   // `--dart-define=API_BASE_URL=http://10.0.2.2:8000/api` there.
                     // defaultValue: 'http://192.168.1.3:8000/api',
-                  // defaultValue:'http://192.168.9.153:8000/api',
-                   defaultValue:'https://deliverybe.vercel.app/api',
+                  defaultValue:'http://192.168.1.10:8000/api',
+                  //  defaultValue:'https://deliverybe.vercel.app/api',
                 ),
             contentType: 'application/json',
           ),

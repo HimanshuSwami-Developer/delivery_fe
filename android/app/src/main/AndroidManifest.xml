@@ -7,11 +7,6 @@
         android:label="Aapno Bazar"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
-        <!-- Restrict this key to package name com.aapnobazar.app + the
-             debug/release SHA-1 in Google Cloud Console (Maps SDK for Android). -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDVDpKQUCsQYOz4cv_zvRO-doMzx0Eu2-8" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

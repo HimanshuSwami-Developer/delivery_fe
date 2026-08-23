@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
-/// Real basemap (Google Maps, needs an API key configured per-platform —
-/// see android/ios/web setup) — replaces the old painted [MapGridPainter]
+/// Real basemap (OpenStreetMap via flutter_map — free, no API key or
+/// billing account needed) — replaces the old painted [MapGridPainter]
 /// placeholder everywhere the app shows a map: the address pin-drop screen
 /// and order tracking.
 ///
@@ -19,6 +18,9 @@ class AppMap extends StatelessWidget {
     this.mapController,
     this.interactive = true,
     this.onPositionChanged,
+    this.cameraFit,
+    this.markers = const [],
+    this.polylines = const [],
   });
 
   final LatLng center;
@@ -30,35 +32,65 @@ class AppMap extends StatelessWidget {
   /// reverse-geocode.
   final void Function(LatLng center)? onPositionChanged;
 
+  /// When set, overrides [center]/[zoom] to frame a set of points (e.g. the
+  /// store and the delivery point) instead of a single fixed camera.
+  final CameraFit? cameraFit;
+
+  final List<Marker> markers;
+  final List<Polyline> polylines;
+
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(target: center, zoom: zoom),
-      onMapCreated: mapController == null ? null : (controller) => mapController!._attach(controller),
-      onCameraMove: onPositionChanged == null ? null : (position) => onPositionChanged!(position.target),
-      zoomGesturesEnabled: interactive,
-      scrollGesturesEnabled: interactive,
-      rotateGesturesEnabled: interactive,
-      tiltGesturesEnabled: interactive,
-      zoomControlsEnabled: false,
-      myLocationButtonEnabled: false,
-      mapToolbarEnabled: false,
+    return FlutterMap(
+      mapController: mapController?._controller,
+      options: MapOptions(
+        initialCenter: center,
+        initialZoom: zoom,
+        initialCameraFit: cameraFit,
+        interactionOptions: InteractionOptions(
+          flags: interactive ? InteractiveFlag.all : InteractiveFlag.none,
+        ),
+        onPositionChanged: onPositionChanged == null
+            ? null
+            : (position, hasGesture) => onPositionChanged!(position.center),
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.aapnobazar.app',
+        ),
+        if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
+        if (markers.isNotEmpty) MarkerLayer(markers: markers),
+      ],
     );
   }
 }
 
-/// Thin wrapper around [GoogleMapController] exposing the "move camera to a
-/// point" operation the caller needs, without leaking the underlying
-/// Future-based controller-attachment dance into every screen.
+/// Thin wrapper around [MapController] exposing the "move camera to a
+/// point" operation the caller needs, without leaking flutter_map's own
+/// controller type into every screen.
 class AppMapController {
-  final Completer<GoogleMapController> _completer = Completer<GoogleMapController>();
-
-  void _attach(GoogleMapController controller) {
-    if (!_completer.isCompleted) _completer.complete(controller);
-  }
+  final MapController _controller = MapController();
 
   Future<void> move(LatLng target, double zoom) async {
-    final controller = await _completer.future;
-    await controller.animateCamera(CameraUpdate.newLatLngZoom(target, zoom));
+    _controller.move(target, zoom);
+  }
+
+  void zoomIn() {
+    final camera = _controller.camera;
+    _controller.move(camera.center, camera.zoom + 1);
+  }
+
+  void zoomOut() {
+    final camera = _controller.camera;
+    _controller.move(camera.center, camera.zoom - 1);
+  }
+
+  /// Explicitly re-frames the camera — unlike [AppMap.cameraFit], which
+  /// flutter_map only ever applies on the map's very first attach, this
+  /// takes effect immediately even if the map is already showing (e.g.
+  /// once an async GPS fix resolves after the map first rendered).
+  void fitCamera(CameraFit fit) {
+    _controller.fitCamera(fit);
   }
 }

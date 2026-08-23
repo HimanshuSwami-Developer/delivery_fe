@@ -7,7 +7,7 @@ import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/core/notifications/push_notifications.dart';
 import 'package:fastswipe/core/prefs/app_prefs.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
@@ -76,18 +76,23 @@ class BasketCubit extends Cubit<BasketState> {
   /// re-authenticate every launch.
   Future<void> _bootstrap() async {
     if (!await api.auth.hasSession()) return;
+    // `hasSession` is just a local secure-storage read — trust it and
+    // navigate immediately. Don't gate the redirect on `fetchProfile`
+    // succeeding: that's a network call, and if it's slow (loses the race
+    // against `_splashTimer`) or fails outright, an already-logged-in user
+    // would otherwise get dumped back on the login screen for no reason.
+    _splashTimer?.cancel();
+    goReset(BasketScreen.home);
+    _loadHomeData();
+    _registerDevice();
     try {
       final profile = await api.auth.fetchProfile();
       if (profile != null) {
         emit(state.copyWith(name: profile.name));
       }
-      _splashTimer?.cancel();
-      goReset(BasketScreen.home);
-      _loadHomeData();
-      _registerDevice();
     } catch (_) {
-      // Stale/expired token with no network to refresh it — let the normal
-      // splash -> onboarding -> login flow run instead.
+      // Best-effort — the session is still trusted either way; a failed
+      // profile fetch just leaves the name greeting blank for now.
     }
   }
 
