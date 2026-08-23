@@ -84,18 +84,25 @@ class BasketAuthRepository {
     }
   }
 
-  Future<ApiProfile> completeProfile(String name) async {
+  Future<ApiProfile> completeProfile(String name, {String? email, String? referralCode}) async {
     try {
-      final response = await _client.dio.post('/auth/profile/', data: {'name': name});
+      final response = await _client.dio.post('/auth/profile/', data: {
+        'name': name,
+        if (email != null && email.isNotEmpty) 'email': email,
+        if (referralCode != null && referralCode.isNotEmpty) 'referral_code_used': referralCode,
+      });
       return ApiProfile.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiException.from(e);
     }
   }
 
-  Future<ApiProfile> updateProfile(String name) async {
+  Future<ApiProfile> updateProfile(String name, {String? email}) async {
     try {
-      final response = await _client.dio.patch('/auth/profile/', data: {'name': name});
+      final response = await _client.dio.patch('/auth/profile/', data: {
+        'name': name,
+        'email': ?email,
+      });
       return ApiProfile.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiException.from(e);

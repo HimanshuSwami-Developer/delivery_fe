@@ -17,10 +17,14 @@ class SetupView extends StatefulWidget {
 
 class _SetupViewState extends State<SetupView> {
   final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _referralController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
+    _referralController.dispose();
     super.dispose();
   }
 
@@ -101,7 +105,13 @@ class _SetupViewState extends State<SetupView> {
                 hintText: 'Aarav Sharma',
               ),
               const SizedBox(height: 12),
-              const LabeledStaticField(label: 'Email', value: 'Optional', muted: true),
+              LabeledTextField(
+                label: 'Email',
+                controller: _emailController,
+                onChanged: cubit.setEmail,
+                keyboardType: TextInputType.emailAddress,
+                hintText: 'aarav@email.com (optional)',
+              ),
               const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.all(14),
@@ -110,6 +120,7 @@ class _SetupViewState extends State<SetupView> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 36,
@@ -124,20 +135,27 @@ class _SetupViewState extends State<SetupView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'REFERRAL CODE',
+                            'HAVE A REFERRAL CODE?',
                             style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700, color: BasketColors.primary, letterSpacing: 0.6),
                           ),
-                          const SizedBox(height: 2),
-                          Text('RAVI250', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: _referralController,
+                            onChanged: cubit.setReferralCodeInput,
+                            textCapitalization: TextCapitalization.characters,
+                            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.ink),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              filled: false,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                              hintText: 'e.g. RAVI250 (optional)',
+                              hintStyle: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: BasketColors.faint),
+                            ),
+                          ),
                         ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                      decoration: BoxDecoration(color: BasketColors.primary, borderRadius: BorderRadius.circular(99)),
-                      child: Text(
-                        '₹250 unlocked',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),
                   ],

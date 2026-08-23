@@ -54,6 +54,9 @@ class BasketState extends Equatable {
     this.authLoading = false,
     this.authError,
     this.name = '',
+    this.email = '',
+    this.referralCodeInput = '',
+    this.myReferralCode,
     this.couponInput = '',
     this.appliedCoupon,
     this.couponMessage = 'Try FIRST50 on orders above ₹499.',
@@ -117,6 +120,18 @@ class BasketState extends Equatable {
   /// Full name entered on the setup screen, sent as the profile name once
   /// OTP verification completes.
   final String name;
+
+  /// Email entered on the setup screen (or later from the account screen).
+  /// Optional, mirrors `Profile.email` server-side.
+  final String email;
+
+  /// Someone else's referral code typed on the setup screen — only
+  /// meaningful on first-time signup (see `BasketCubit.finishSetup`).
+  final String referralCodeInput;
+
+  /// This account's own shareable referral code, server-generated and
+  /// returned on the profile — null until the profile has been fetched.
+  final String? myReferralCode;
 
   final String couponInput;
   final String? appliedCoupon;
@@ -210,6 +225,9 @@ class BasketState extends Equatable {
     String? authError,
     bool clearAuthError = false,
     String? name,
+    String? email,
+    String? referralCodeInput,
+    String? myReferralCode,
     String? couponInput,
     String? appliedCoupon,
     String? couponMessage,
@@ -263,6 +281,9 @@ class BasketState extends Equatable {
       authLoading: authLoading ?? this.authLoading,
       authError: clearAuthError ? null : (authError ?? this.authError),
       name: name ?? this.name,
+      email: email ?? this.email,
+      referralCodeInput: referralCodeInput ?? this.referralCodeInput,
+      myReferralCode: myReferralCode ?? this.myReferralCode,
       couponInput: couponInput ?? this.couponInput,
       appliedCoupon: appliedCoupon ?? this.appliedCoupon,
       couponMessage: couponMessage ?? this.couponMessage,
@@ -315,6 +336,9 @@ class BasketState extends Equatable {
         authLoading,
         authError,
         name,
+        email,
+        referralCodeInput,
+        myReferralCode,
         couponInput,
         appliedCoupon,
         couponMessage,

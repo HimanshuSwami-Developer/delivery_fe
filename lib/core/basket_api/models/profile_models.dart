@@ -55,6 +55,8 @@ class ApiProfile {
   const ApiProfile({
     required this.id,
     required this.name,
+    required this.email,
+    required this.referralCode,
     required this.mobileNumber,
     required this.role,
     required this.addresses,
@@ -62,6 +64,8 @@ class ApiProfile {
 
   final int id;
   final String name;
+  final String email;
+  final String referralCode;
   final String mobileNumber;
   final String role;
   final List<ApiAddress> addresses;
@@ -71,6 +75,8 @@ class ApiProfile {
   factory ApiProfile.fromJson(Map<String, dynamic> json) => ApiProfile(
         id: json['id'] as int,
         name: json['name'] as String? ?? '',
+        email: json['email'] as String? ?? '',
+        referralCode: json['referral_code'] as String? ?? '',
         mobileNumber: json['mobile_number'] as String? ?? '',
         role: json['role'] as String? ?? 'customer',
         addresses: (json['addresses'] as List? ?? [])

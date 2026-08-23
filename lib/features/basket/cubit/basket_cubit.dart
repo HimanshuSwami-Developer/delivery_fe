@@ -88,7 +88,7 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final profile = await api.auth.fetchProfile();
       if (profile != null) {
-        emit(state.copyWith(name: profile.name));
+        emit(state.copyWith(name: profile.name, email: profile.email, myReferralCode: profile.referralCode));
       }
     } catch (_) {
       // Best-effort — the session is still trusted either way; a failed
@@ -368,7 +368,12 @@ class BasketCubit extends Cubit<BasketState> {
         return;
       }
       final profile = await api.auth.fetchProfile();
-      emit(state.copyWith(authLoading: false, name: profile?.name ?? ''));
+      emit(state.copyWith(
+        authLoading: false,
+        name: profile?.name ?? '',
+        email: profile?.email ?? '',
+        myReferralCode: profile?.referralCode,
+      ));
       goReset(BasketScreen.home);
       _loadHomeData();
     } on ApiException catch (e) {
@@ -378,11 +383,19 @@ class BasketCubit extends Cubit<BasketState> {
 
   void setName(String value) => emit(state.copyWith(name: value));
 
+  void setEmail(String value) => emit(state.copyWith(email: value));
+
+  void setReferralCodeInput(String value) => emit(state.copyWith(referralCodeInput: value));
+
   Future<void> finishSetup() async {
     emit(state.copyWith(authLoading: true, clearAuthError: true));
     try {
-      await api.auth.completeProfile(state.name.trim());
-      emit(state.copyWith(authLoading: false));
+      final profile = await api.auth.completeProfile(
+        state.name.trim(),
+        email: state.email.trim(),
+        referralCode: state.referralCodeInput.trim(),
+      );
+      emit(state.copyWith(authLoading: false, myReferralCode: profile.referralCode));
       goReset(BasketScreen.home);
       _loadHomeData();
     } on ApiException catch (e) {

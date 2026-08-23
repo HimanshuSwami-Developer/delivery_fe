@@ -6,6 +6,7 @@ import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AccountView extends StatelessWidget {
   const AccountView({super.key});
@@ -15,6 +16,9 @@ class AccountView extends StatelessWidget {
     final cubit = context.read<BasketCubit>();
     final phone = context.select((BasketCubit c) => c.state.phone);
     final phoneLabel = phone.isEmpty ? '98765 43210' : phone;
+    final name = context.select((BasketCubit c) => c.state.name);
+    final nameLabel = name.isEmpty ? 'Your account' : name;
+    final referralCode = context.select((BasketCubit c) => c.state.myReferralCode);
 
     return Column(
       children: [
@@ -32,7 +36,7 @@ class AccountView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Aarav Sharma', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text(nameLabel, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(height: 3),
                   Text(
                     '+91 $phoneLabel',
@@ -76,16 +80,26 @@ class AccountView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(11),
                             ),
                             child: Text(
-                              'AARAV250',
+                              referralCode ?? '···',
                               style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.3),
                             ),
                           ),
                         ),
                         const SizedBox(width: 9),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
-                          child: Text('Share', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(11),
+                          onTap: referralCode == null
+                              ? null
+                              : () => SharePlus.instance.share(
+                                    ShareParams(
+                                      text: 'Use my code $referralCode on Aapno Bazar and get ₹100 off your first order!',
+                                    ),
+                                  ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
+                            child: Text('Share', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
+                          ),
                         ),
                       ],
                     ),
