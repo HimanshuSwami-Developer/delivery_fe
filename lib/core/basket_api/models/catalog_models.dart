@@ -65,6 +65,7 @@ class ApiProduct {
     required this.rating,
     required this.ratingsCount,
     required this.isOutOfStock,
+    this.isActive = true,
     required this.mainImageUrl,
     this.description,
     this.hsnCode,
@@ -87,6 +88,9 @@ class ApiProduct {
   final double rating;
   final int ratingsCount;
   final bool isOutOfStock;
+  /// Live/Pause — a paused product (`is_active=false`) is hidden from the
+  /// customer-facing catalog server-side but stays visible/editable here.
+  final bool isActive;
   final String mainImageUrl;
   final String? description;
   final String? hsnCode;
@@ -109,6 +113,7 @@ class ApiProduct {
         rating: asDouble(json['rating']),
         ratingsCount: json['ratings_count'] as int? ?? 0,
         isOutOfStock: json['is_out_of_stock'] as bool? ?? false,
+        isActive: json['is_active'] as bool? ?? true,
         mainImageUrl: json['main_image_url'] as String? ?? '',
         description: json['description'] as String?,
         hsnCode: json['hsn_code'] as String?,

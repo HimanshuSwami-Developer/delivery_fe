@@ -99,6 +99,23 @@ class PromotionsRepository {
     }
   }
 
+  Future<ApiBanner> updateBanner(int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/banners/$id/', data: data);
+      return ApiBanner.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteBanner(int id) async {
+    try {
+      await _client.dio.delete('/banners/$id/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<ApiNotification>> fetchNotifications() async {
     try {
       final response = await _client.dio.get('/notifications/', queryParameters: {'page_size': 50});

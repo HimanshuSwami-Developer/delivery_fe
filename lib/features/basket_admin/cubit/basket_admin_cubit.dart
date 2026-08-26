@@ -251,6 +251,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         clearEditingPartner: true,
         clearEditingCategory: true,
         clearEditingCoupon: true,
+        clearEditingBanner: true,
       ));
 
   /// [category] null opens the form blank (create); non-null opens it
@@ -267,7 +268,11 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(state.copyWith(modal: AdminModal.addCoupon, editingCoupon: coupon, clearEditingCoupon: coupon == null));
   }
 
-  void openAddBanner() => emit(state.copyWith(modal: AdminModal.addBanner));
+  /// [banner] null opens the form blank (create); non-null opens it
+  /// prefilled (edit) — see `AddBannerModal`.
+  void openAddBanner({ApiBanner? banner}) {
+    emit(state.copyWith(modal: AdminModal.addBanner, editingBanner: banner, clearEditingBanner: banner == null));
+  }
 
   /// [partner] null opens the form blank (create); non-null opens it
   /// prefilled (edit) — see `PartnerFormModal`. That form's zone dropdown
@@ -371,6 +376,16 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> deleteProduct(int id) async {
     await api.catalog.deleteProduct(id);
     emit(state.copyWith(apiProducts: state.apiProducts.where((p) => p.id != id).toList()));
+  }
+
+  Future<void> toggleProduct(int id, bool isActive) async {
+    try {
+      final updated = await api.catalog.setProductActive(id, isActive);
+      final next = [
+        for (final p in state.apiProducts) if (p.id == id) updated else p,
+      ];
+      emit(state.copyWith(apiProducts: next));
+    } on ApiException catch (_) {}
   }
 
   // ── Inventory ─────────────────────────────────────────────────────────
@@ -489,6 +504,18 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       ];
       emit(state.copyWith(apiBanners: next));
     } on ApiException catch (_) {}
+  }
+
+  Future<ApiBanner> updateBanner(int id, Map<String, dynamic> data) async {
+    final updated = await api.promotions.updateBanner(id, data);
+    final next = [for (final b in state.apiBanners) if (b.id == id) updated else b];
+    emit(state.copyWith(apiBanners: next));
+    return updated;
+  }
+
+  Future<void> deleteBanner(int id) async {
+    await api.promotions.deleteBanner(id);
+    emit(state.copyWith(apiBanners: state.apiBanners.where((b) => b.id != id).toList()));
   }
 
   // ── Zones & stores ────────────────────────────────────────────────────

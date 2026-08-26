@@ -101,17 +101,23 @@ class AdminTableHeader extends StatelessWidget {
 
 /// A tappable, bottom-bordered table data row.
 class AdminTableRow extends StatelessWidget {
-  const AdminTableRow({super.key, required this.flex, required this.children, this.onTap});
+  const AdminTableRow({super.key, required this.flex, required this.children, this.onTap, this.backgroundColor});
 
   final List<double> flex;
   final List<Widget> children;
   final VoidCallback? onTap;
 
+  /// Row tint — e.g. a light red wash for a low/out-of-stock inventory row.
+  final Color? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
     final row = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.06)))),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.06))),
+      ),
       child: AdminGridRow(flex: flex, children: children),
     );
     if (onTap == null) return row;

@@ -274,10 +274,12 @@ class AddBannerModal extends StatefulWidget {
 }
 
 class _AddBannerModalState extends State<AddBannerModal> {
-  final _title = TextEditingController();
-  final _linkScreen = TextEditingController();
-  String _imageUrl = '';
-  String _placement = 'home_carousel';
+  late final ApiBanner? _editing = context.read<BasketAdminCubit>().state.editingBanner;
+
+  late final _title = TextEditingController(text: _editing?.title ?? '');
+  late final _linkScreen = TextEditingController(text: _editing?.linkScreen ?? '');
+  late String _imageUrl = _editing?.imageUrl ?? '';
+  late String _placement = _editing?.placement ?? 'home_carousel';
   bool _loading = false;
   String? _error;
 
@@ -299,12 +301,17 @@ class _AddBannerModalState extends State<AddBannerModal> {
       _error = null;
     });
     try {
-      await cubit.createBanner({
+      final data = {
         'title': title,
         'image_url': _imageUrl,
         'placement': _placement,
         'link_screen': _linkScreen.text.trim(),
-      });
+      };
+      if (_editing == null) {
+        await cubit.createBanner(data);
+      } else {
+        await cubit.updateBanner(_editing.id, data);
+      }
       if (mounted) cubit.closeModal();
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
@@ -317,13 +324,15 @@ class _AddBannerModalState extends State<AddBannerModal> {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     return AdminFormModal(
-      title: 'New banner',
-      subtitle: 'Goes live immediately in the placement you pick below.',
+      title: _editing == null ? 'New banner' : 'Edit ${_editing.title}',
+      subtitle: _editing == null
+          ? 'Goes live immediately in the placement you pick below.'
+          : 'Changes apply immediately to a banner that\'s already live.',
       loading: _loading,
       error: _error,
       onCancel: cubit.closeModal,
       onSubmit: () => _submit(cubit),
-      submitLabel: 'Create banner',
+      submitLabel: _editing == null ? 'Create banner' : 'Save changes',
       fields: [
         AdminEditField(label: 'Title', controller: _title, hint: 'Fresh fruit, up to 30% off'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),

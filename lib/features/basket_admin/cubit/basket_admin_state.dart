@@ -53,6 +53,7 @@ class BasketAdminState extends Equatable {
     this.editingCoupon,
     this.editingCategory,
     this.apiBanners = const [],
+    this.editingBanner,
     this.apiNotifications = const [],
     this.dashboardReport,
     this.dashboardLoading = false,
@@ -155,6 +156,11 @@ class BasketAdminState extends Equatable {
   final ApiCategory? editingCategory;
 
   final List<ApiBanner> apiBanners;
+
+  /// The banner shown on [AdminModal.addBanner] — null means the modal is
+  /// creating a new one, non-null means it's editing this one.
+  final ApiBanner? editingBanner;
+
   final List<ApiNotification> apiNotifications;
 
   final DashboardReport? dashboardReport;
@@ -207,6 +213,8 @@ class BasketAdminState extends Equatable {
     ApiCategory? editingCategory,
     bool clearEditingCategory = false,
     List<ApiBanner>? apiBanners,
+    ApiBanner? editingBanner,
+    bool clearEditingBanner = false,
     List<ApiNotification>? apiNotifications,
     DashboardReport? dashboardReport,
     bool? dashboardLoading,
@@ -252,6 +260,7 @@ class BasketAdminState extends Equatable {
       editingCoupon: clearEditingCoupon ? null : (editingCoupon ?? this.editingCoupon),
       editingCategory: clearEditingCategory ? null : (editingCategory ?? this.editingCategory),
       apiBanners: apiBanners ?? this.apiBanners,
+      editingBanner: clearEditingBanner ? null : (editingBanner ?? this.editingBanner),
       apiNotifications: apiNotifications ?? this.apiNotifications,
       dashboardReport: dashboardReport ?? this.dashboardReport,
       dashboardLoading: dashboardLoading ?? this.dashboardLoading,
@@ -300,6 +309,7 @@ class BasketAdminState extends Equatable {
         editingCoupon,
         editingCategory,
         apiBanners,
+        editingBanner,
         apiNotifications,
         dashboardReport,
         dashboardLoading,

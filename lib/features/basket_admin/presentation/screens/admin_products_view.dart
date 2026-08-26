@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kFlex = [2.3, 1.0, 1.0, 0.9, 0.9, 0.8, 0.5];
+const _kFlex = [2.1, 1.0, 1.0, 0.9, 0.9, 1.0, 0.7];
 
 /// Product catalog: category tabs (built from the real catalog, not a
 /// hardcoded list) + a table (image/name, category, SKU, MRP, price,
@@ -90,8 +90,9 @@ class AdminProductsView extends StatelessWidget {
                       _ProductRow(
                         p: p,
                         categoryName: categoryNameByKey[p.cat] ?? p.cat,
-                        onTap: () => cubit.goProductNew(product: p),
+                        onEdit: () => cubit.goProductNew(product: p),
                         onDelete: () => _confirmDelete(context, cubit, p),
+                        onToggleActive: () => cubit.toggleProduct(p.id, !p.isActive),
                       ),
                   ],
                 ),
@@ -105,18 +106,24 @@ class AdminProductsView extends StatelessWidget {
 }
 
 class _ProductRow extends StatelessWidget {
-  const _ProductRow({required this.p, required this.categoryName, required this.onTap, required this.onDelete});
+  const _ProductRow({
+    required this.p,
+    required this.categoryName,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onToggleActive,
+  });
   final ApiProduct p;
   final String categoryName;
-  final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onToggleActive;
 
   @override
   Widget build(BuildContext context) {
-    final state = p.isOutOfStock ? 'Out of stock' : 'Live';
     return AdminTableRow(
       flex: _kFlex,
-      onTap: onTap,
+      onTap: onEdit,
       children: [
         Row(
           children: [
@@ -129,8 +136,19 @@ class _ProductRow extends StatelessWidget {
                 children: [
                   Text(p.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text('${p.pack} · ${p.brand}',
-                      overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text('${p.pack} · ${p.brand}',
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+                      ),
+                      if (p.isOutOfStock) ...[
+                        const SizedBox(width: 6),
+                        AdminChipBadge('Out of stock'),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -140,14 +158,39 @@ class _ProductRow extends StatelessWidget {
         Text(p.sku, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text(adminMoney(p.mrp), style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text(adminMoney(p.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
-        Align(alignment: Alignment.centerLeft, child: AdminChipBadge(state)),
         InkWell(
-          onTap: onDelete,
-          borderRadius: BorderRadius.circular(8),
-          child: const Padding(
-            padding: EdgeInsets.all(6),
-            child: Icon(Icons.delete_outline, size: 17, color: AdminColors.faint),
+          onTap: onToggleActive,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AdminToggle(on: p.isActive, onTap: onToggleActive),
+              const SizedBox(width: 7),
+              Text(p.isActive ? 'Live' : 'Paused',
+                  style: GoogleFonts.manrope(
+                      fontSize: 11.5, fontWeight: FontWeight.w700, color: p.isActive ? AdminColors.ink : AdminColors.faint)),
+            ],
           ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: onEdit,
+              borderRadius: BorderRadius.circular(8),
+              child: const Padding(
+                padding: EdgeInsets.all(6),
+                child: Icon(Icons.edit_outlined, size: 17, color: AdminColors.faint),
+              ),
+            ),
+            InkWell(
+              onTap: onDelete,
+              borderRadius: BorderRadius.circular(8),
+              child: const Padding(
+                padding: EdgeInsets.all(6),
+                child: Icon(Icons.delete_outline, size: 17, color: AdminColors.faint),
+              ),
+            ),
+          ],
         ),
       ],
     );

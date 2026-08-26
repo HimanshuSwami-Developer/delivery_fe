@@ -123,6 +123,15 @@ class CatalogRepository {
     }
   }
 
+  Future<ApiProduct> setProductActive(int id, bool isActive) async {
+    try {
+      final response = await _client.dio.patch('/products/$id/', data: {'is_active': isActive});
+      return ApiProduct.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<void> deleteProduct(int id) async {
     try {
       await _client.dio.delete('/products/$id/');

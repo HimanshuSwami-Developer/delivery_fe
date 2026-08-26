@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
@@ -27,7 +28,7 @@ class AdminBannersView extends StatelessWidget {
             children: [
               const Expanded(child: AdminSectionTitle('Home banners')),
               FilledButton(
-                onPressed: cubit.openAddBanner,
+                onPressed: () => cubit.openAddBanner(),
                 style: FilledButton.styleFrom(
                   backgroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -53,7 +54,13 @@ class AdminBannersView extends StatelessWidget {
               crossAxisSpacing: 14,
               childAspectRatio: 0.92,
               children: [
-                for (final b in banners) _BannerCard(banner: b, onToggle: () => cubit.toggleBanner(b.id, !b.isActive)),
+                for (final b in banners)
+                  _BannerCard(
+                    banner: b,
+                    onToggle: () => cubit.toggleBanner(b.id, !b.isActive),
+                    onEdit: () => cubit.openAddBanner(banner: b),
+                    onDelete: () => _confirmDelete(context, cubit, b),
+                  ),
               ],
             );
           }),
@@ -64,10 +71,12 @@ class AdminBannersView extends StatelessWidget {
 }
 
 class _BannerCard extends StatelessWidget {
-  const _BannerCard({required this.banner, required this.onToggle});
+  const _BannerCard({required this.banner, required this.onToggle, required this.onEdit, required this.onDelete});
 
   final ApiBanner banner;
   final VoidCallback onToggle;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +104,10 @@ class _BannerCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: null,
+                  onPressed: onEdit,
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                    disabledForegroundColor: AdminColors.ink,
+                    foregroundColor: AdminColors.ink,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -120,8 +129,50 @@ class _BannerCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onDelete,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
+                foregroundColor: const Color(0xFFC0392B),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+            ),
+          ),
         ],
       ),
     );
+  }
+}
+
+Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiBanner banner) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('Delete "${banner.title}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+      content: Text('This can\'t be undone.', style: GoogleFonts.manrope(fontSize: 13)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  try {
+    await cubit.deleteBanner(banner.id);
+  } on ApiException catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }

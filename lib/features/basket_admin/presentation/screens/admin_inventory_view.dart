@@ -12,6 +12,15 @@ const _kFlex = [2.3, 1.0, 1.0, 1.0, 1.4];
 
 const _kStateLabels = {'healthy': 'Healthy', 'low': 'Below reorder', 'out_of_stock': 'Out of stock'};
 
+/// Light red row wash for stock that needs attention — a touch stronger
+/// once it's actually hit zero than while it's merely below reorder level.
+const _kDanger = Color(0xFFC0392B);
+Color? _stockRowTint(String state) => switch (state) {
+      'out_of_stock' => _kDanger.withValues(alpha: 0.10),
+      'low' => _kDanger.withValues(alpha: 0.055),
+      _ => null,
+    };
+
 /// Inventory: 4 summary stats + a stock table (per current zone) with
 /// inline +/- adjust controls per SKU, calling the real stock-adjust API.
 class AdminInventoryView extends StatelessWidget {
@@ -112,10 +121,11 @@ class _StockRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stockFg = stock.state == 'healthy' ? AdminColors.ink : AdminColors.muted;
+    final stockFg = stock.state == 'out_of_stock' ? _kDanger : (stock.state == 'healthy' ? AdminColors.ink : AdminColors.muted);
 
     return AdminTableRow(
       flex: _kFlex,
+      backgroundColor: _stockRowTint(stock.state),
       children: [
         Row(
           children: [
@@ -140,7 +150,8 @@ class _StockRow extends StatelessWidget {
           children: [
             Text('${stock.onHand} u', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: stockFg)),
             const SizedBox(height: 2),
-            Text(_kStateLabels[stock.state] ?? stock.state, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+            Text(_kStateLabels[stock.state] ?? stock.state,
+                style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: stock.state == 'healthy' ? AdminColors.faint : stockFg)),
           ],
         ),
         Text('${stock.reserved} u', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
