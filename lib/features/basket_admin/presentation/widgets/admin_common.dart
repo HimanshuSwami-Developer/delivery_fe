@@ -101,7 +101,7 @@ class AdminTableHeader extends StatelessWidget {
 
 /// A tappable, bottom-bordered table data row.
 class AdminTableRow extends StatelessWidget {
-  const AdminTableRow({super.key, required this.flex, required this.children, this.onTap, this.backgroundColor});
+  const AdminTableRow({super.key, required this.flex, required this.children, this.onTap, this.backgroundColor, this.boundHeight = false});
 
   final List<double> flex;
   final List<Widget> children;
@@ -110,18 +110,60 @@ class AdminTableRow extends StatelessWidget {
   /// Row tint — e.g. a light red wash for a low/out-of-stock inventory row.
   final Color? backgroundColor;
 
+  /// When a cell holds its own tappable control (e.g. a live/pause toggle)
+  /// that only wraps its own content, the rest of that cell's height — up
+  /// to whatever the tallest cell in the row needs — falls through to
+  /// [onTap] instead, so a tap just off the control fires the wrong action.
+  /// Set true to measure the row's real (intrinsic) height and give every
+  /// cell that constraint, so a cell can fill it (e.g. via
+  /// `SizedBox(height: double.infinity)`) and claim its whole area. Opt-in
+  /// (not the default) since `IntrinsicHeight` requires every cell to
+  /// support computing intrinsic height.
+  final bool boundHeight;
+
   @override
   Widget build(BuildContext context) {
+    final grid = AdminGridRow(flex: flex, children: children);
     final row = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
       decoration: BoxDecoration(
         color: backgroundColor,
         border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.06))),
       ),
-      child: AdminGridRow(flex: flex, children: children),
+      child: boundHeight ? IntrinsicHeight(child: grid) : grid,
     );
     if (onTap == null) return row;
     return InkWell(onTap: onTap, child: row);
+  }
+}
+
+/// A small square bordered icon button for row-level actions (edit,
+/// delete) — a fixed, proper touch target with the same border/radius
+/// language as the topbar's menu button, instead of a bare unbounded icon.
+class AdminIconActionButton extends StatelessWidget {
+  const AdminIconActionButton({super.key, required this.icon, required this.onTap, this.color = AdminColors.faint, this.size = 32});
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(9),
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)),
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Icon(icon, size: 16, color: color),
+      ),
+    );
   }
 }
 

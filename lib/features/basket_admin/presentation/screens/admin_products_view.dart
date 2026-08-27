@@ -92,7 +92,7 @@ class AdminProductsView extends StatelessWidget {
                         categoryName: categoryNameByKey[p.cat] ?? p.cat,
                         onEdit: () => cubit.goProductNew(product: p),
                         onDelete: () => _confirmDelete(context, cubit, p),
-                        onToggleActive: () => cubit.toggleProduct(p.id, !p.isActive),
+                        onToggleActive: () => _toggleActive(context, cubit, p),
                       ),
                   ],
                 ),
@@ -124,6 +124,7 @@ class _ProductRow extends StatelessWidget {
     return AdminTableRow(
       flex: _kFlex,
       onTap: onEdit,
+      boundHeight: true,
       children: [
         Row(
           children: [
@@ -160,8 +161,13 @@ class _ProductRow extends StatelessWidget {
         Text(adminMoney(p.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
         InkWell(
           onTap: onToggleActive,
+          // Fills the whole cell (both axes) — with `boundHeight` on the
+          // parent row this is now a concrete size, not unbounded, so a tap
+          // anywhere in the Status column hits the toggle, never the row's
+          // own `onEdit` underneath it.
           child: SizedBox(
             width: double.infinity,
+            height: double.infinity,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Row(
@@ -180,26 +186,23 @@ class _ProductRow extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            InkWell(
-              onTap: onEdit,
-              borderRadius: BorderRadius.circular(8),
-              child: const Padding(
-                padding: EdgeInsets.all(6),
-                child: Icon(Icons.edit_outlined, size: 17, color: AdminColors.faint),
-              ),
-            ),
-            InkWell(
-              onTap: onDelete,
-              borderRadius: BorderRadius.circular(8),
-              child: const Padding(
-                padding: EdgeInsets.all(6),
-                child: Icon(Icons.delete_outline, size: 17, color: AdminColors.faint),
-              ),
-            ),
+            AdminIconActionButton(icon: Icons.edit_outlined, onTap: onEdit),
+            const SizedBox(width: 8),
+            AdminIconActionButton(icon: Icons.delete_outline, onTap: onDelete, color: const Color(0xFFC0392B)),
           ],
         ),
       ],
     );
+  }
+}
+
+Future<void> _toggleActive(BuildContext context, BasketAdminCubit cubit, ApiProduct p) async {
+  try {
+    await cubit.toggleProduct(p.id, !p.isActive);
+  } on ApiException catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }
 

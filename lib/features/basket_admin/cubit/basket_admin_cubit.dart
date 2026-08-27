@@ -378,14 +378,15 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(state.copyWith(apiProducts: state.apiProducts.where((p) => p.id != id).toList()));
   }
 
+  /// Rethrows [ApiException] (unlike the fire-and-forget toggles below) so
+  /// the row can surface *why* a toggle failed instead of just silently
+  /// staying on its old state.
   Future<void> toggleProduct(int id, bool isActive) async {
-    try {
-      final updated = await api.catalog.setProductActive(id, isActive);
-      final next = [
-        for (final p in state.apiProducts) if (p.id == id) updated else p,
-      ];
-      emit(state.copyWith(apiProducts: next));
-    } on ApiException catch (_) {}
+    final updated = await api.catalog.setProductActive(id, isActive);
+    final next = [
+      for (final p in state.apiProducts) if (p.id == id) updated else p,
+    ];
+    emit(state.copyWith(apiProducts: next));
   }
 
   // ── Inventory ─────────────────────────────────────────────────────────
