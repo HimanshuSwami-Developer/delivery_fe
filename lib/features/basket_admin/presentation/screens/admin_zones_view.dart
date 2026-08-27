@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Multi-location settings: dark-store cards with a real open/closed
-/// toggle, 4 operational stats, and served pincodes.
+/// Store settings: the one dark store's open/closed toggle, 4 operational
+/// stats, and served pincodes. There's a single store serving the whole
+/// city, so this is a settings panel, not a multi-location list — no
+/// "add another store" affordance.
 class AdminZonesView extends StatelessWidget {
   const AdminZonesView({super.key});
 
@@ -20,26 +22,27 @@ class AdminZonesView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(child: AdminSectionTitle('Dark stores & delivery zones')),
-              FilledButton(
-                onPressed: cubit.openAddZone,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('+ Add location', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-              ),
-            ],
-          ),
+          const AdminSectionTitle('Your store'),
           const SizedBox(height: 14),
-          if (zones.isEmpty)
+          // Only offered when there's no store yet — bootstraps the single
+          // store record. Once one exists there's nowhere for a second one
+          // to go, so the CTA disappears rather than inviting a duplicate.
+          if (zones.isEmpty) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
-              child: Text('No zones configured yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text('Store not configured yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
+            FilledButton(
+              onPressed: cubit.openAddZone,
+              style: FilledButton.styleFrom(
+                backgroundColor: AdminColors.ink,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+              ),
+              child: Text('+ Set up store', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+            ),
+            const SizedBox(height: 14),
+          ],
           AdminResponsiveGrid(
             minTileWidth: 380,
             children: [

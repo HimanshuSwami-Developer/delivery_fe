@@ -101,7 +101,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(const BasketAdminState());
   }
 
-  // ── Shell-wide data (zone switcher) ─────────────────────────────────────
+  // ── Shell-wide data (store) ──────────────────────────────────────────────
 
   void _loadShellData() {
     loadZones();
@@ -173,12 +173,6 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   void goCategories() => go(AdminPage.categories);
   void goInventory() => go(AdminPage.inventory);
-
-  void cycleZone() {
-    if (state.apiZones.isEmpty) return;
-    emit(state.copyWith(zone: (state.zone + 1) % state.apiZones.length));
-    if (state.page == AdminPage.inventory) loadStocks();
-  }
 
   // ── Dashboard ─────────────────────────────────────────────────────────
 
@@ -275,9 +269,10 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   }
 
   /// [partner] null opens the form blank (create); non-null opens it
-  /// prefilled (edit) — see `PartnerFormModal`. That form's zone dropdown
-  /// needs [BasketAdminState.apiZones], which the Partners page itself
-  /// never loads (only Zones/Inventory do), so fetch it here if missing.
+  /// prefilled (edit) — see `PartnerFormModal`. That form auto-assigns the
+  /// single store to the partner and needs [BasketAdminState.apiZones] for
+  /// that, which the Partners page itself never loads (only Zones/Inventory
+  /// do), so fetch it here if missing.
   void openPartnerForm({ApiDeliveryPartner? partner}) {
     if (state.apiZones.isEmpty) loadZones();
     emit(state.copyWith(modal: AdminModal.partnerForm, editingPartner: partner, clearEditingPartner: partner == null));

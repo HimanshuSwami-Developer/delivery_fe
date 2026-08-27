@@ -18,11 +18,6 @@ class AssignPartnerModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     final orderNumber = context.select((BasketAdminCubit c) => c.state.currentOrder?.orderNumber ?? c.state.sel);
-    final zoneLabel = context.select(
-      (BasketAdminCubit c) => c.state.apiZones.isNotEmpty && c.state.zone < c.state.apiZones.length
-          ? c.state.apiZones[c.state.zone].name
-          : '—',
-    );
     final assign = context.select((BasketAdminCubit c) => c.state.assign);
     final available = context.select((BasketAdminCubit c) => c.state.apiPartners.where((p) => p.status != 'off_duty').toList());
 
@@ -59,7 +54,7 @@ class AssignPartnerModal extends StatelessWidget {
                             Text('Assign delivery partner', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                             const SizedBox(height: 6),
                             Text(
-                              '$orderNumber · $zoneLabel · pickup bay 3',
+                              '$orderNumber · pickup bay 3',
                               style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted),
                             ),
                           ],
@@ -78,7 +73,7 @@ class AssignPartnerModal extends StatelessWidget {
                             if (i > 0) const SizedBox(height: 9),
                             _PartnerRow(
                               name: available[i].name,
-                              meta: '${available[i].partnerCode} · ${available[i].zoneName} · ★ ${available[i].rating}',
+                              meta: '${available[i].partnerCode} · ★ ${available[i].rating}',
                               distance: '${_kDistances[i % _kDistances.length]} km',
                               load: available[i].status == 'on_trip' ? '1 active trip' : 'Free now',
                               selected: assign?.id == available[i].id,

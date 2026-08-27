@@ -83,7 +83,9 @@ class BasketAdminState extends Equatable {
   final String? adminName;
   final String? adminMobile;
 
-  /// Index into [apiZones] for the header's zone switcher.
+  /// Index into [apiZones] — there's a single store, so this is always the
+  /// one entry (kept as an index rather than the zone id directly since
+  /// Inventory/dashboard already read it that way).
   final int zone;
 
   /// Dashboard sales-chart range pill: `'7d' | '14d' | '30d'` (cosmetic

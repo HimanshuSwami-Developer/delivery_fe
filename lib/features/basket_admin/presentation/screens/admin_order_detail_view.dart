@@ -62,7 +62,7 @@ class AdminOrderDetailView extends StatelessWidget {
                               children: [
                                 Text(order.orderNumber, style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                                 const SizedBox(height: 6),
-                                Text('${_timeOf(order.createdAt)} · ${order.paymentMode.toUpperCase()} · ${order.zoneName ?? '—'}',
+                                Text('${_timeOf(order.createdAt)} · ${order.paymentMode.toUpperCase()}',
                                     style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                               ],
                             ),

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kFlex = [1.8, 1.0, 0.8, 0.9, 0.9, 1.0, 1.1];
+const _kFlex = [1.8, 0.8, 0.9, 0.9, 1.0, 1.1];
 
 /// Delivery-partner roster: 4 fleet stats + a table with a status chip and
 /// an inline "Assign" action for partners who are currently available.
@@ -66,7 +66,7 @@ class AdminPartnersView extends StatelessWidget {
                 width: 980,
                 child: Column(
                   children: [
-                    const AdminTableHeader(flex: _kFlex, labels: ['Partner', 'Zone', 'Rating', 'Trips today', 'On time', 'Earnings (mo)', 'Status']),
+                    const AdminTableHeader(flex: _kFlex, labels: ['Partner', 'Rating', 'Trips today', 'On time', 'Earnings (mo)', 'Status']),
                     if (partners.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -114,7 +114,6 @@ class _PartnerRow extends StatelessWidget {
             ),
           ],
         ),
-        Text(p.zoneName, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text('★ ${p.rating.toStringAsFixed(1)}', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
         Text('${p.tripsToday}', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
         Text(p.onTimePct == null ? '—' : '${p.onTimePct!.round()}%', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),

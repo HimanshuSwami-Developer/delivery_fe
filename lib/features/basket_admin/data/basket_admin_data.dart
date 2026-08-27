@@ -67,7 +67,7 @@ const List<AdminNavEntry> kAdminNav = [
   AdminNavEntry.heading('Reports'),
   AdminNavEntry.link('Sales reports', '◐', AdminPage.sales),
   AdminNavEntry.link('GST reports', '₹', AdminPage.gst),
-  AdminNavEntry.link('Zones & stores', '◎', AdminPage.zones),
+  AdminNavEntry.link('Store settings', '◎', AdminPage.zones),
 ];
 
 /// The nav entry (if any) that should show as "active" for [page] — folds
@@ -86,7 +86,7 @@ class AdminTitle {
 }
 
 const Map<AdminPage, AdminTitle> kAdminTitles = {
-  AdminPage.dash: AdminTitle('Dashboard', 'Live operations across all zones'),
+  AdminPage.dash: AdminTitle('Dashboard', 'Live operations overview'),
   AdminPage.orders: AdminTitle('Order management', 'Route, assign and track every order'),
   AdminPage.orderDet: AdminTitle('Order detail', 'Assign a partner, update status, issue the invoice'),
   AdminPage.products: AdminTitle('Products', '5,142 SKUs across 6 categories'),
@@ -94,13 +94,13 @@ const Map<AdminPage, AdminTitle> kAdminTitles = {
   AdminPage.categories: AdminTitle('Category management', 'Structure, order and visibility'),
   AdminPage.inventory: AdminTitle('Inventory & stock', 'On-hand, reserved and reorder levels'),
   AdminPage.customers: AdminTitle('Customers', '12,480 registered accounts'),
-  AdminPage.partners: AdminTitle('Delivery partners', '48 partners across 4 zones'),
+  AdminPage.partners: AdminTitle('Delivery partners', '48 partners on the roster'),
   AdminPage.coupons: AdminTitle('Coupon management', 'Campaigns, limits and redemption'),
   AdminPage.banners: AdminTitle('Banner management', 'Home carousel and category strips'),
   AdminPage.notifs: AdminTitle('Notification management', 'Push campaigns and audiences'),
   AdminPage.sales: AdminTitle('Sales reports', 'Revenue, orders and category mix'),
   AdminPage.gst: AdminTitle('GST reports', 'Slab-wise tax liability and filings'),
-  AdminPage.zones: AdminTitle('Multi-location settings', 'Dark stores, zones and coverage'),
+  AdminPage.zones: AdminTitle('Store settings', 'Store details, coverage and hours'),
 };
 
 /// Formats an integer with Indian-style digit grouping, e.g. `1240` ->

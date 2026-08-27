@@ -20,7 +20,7 @@ class AdminSalesView extends StatelessWidget {
     }
 
     final stats = [
-      ('Revenue this month', adminMoney(report.revenueThisMonth), 'GMV, all zones'),
+      ('Revenue this month', adminMoney(report.revenueThisMonth), 'Gross merchandise value'),
       ('Orders this month', indianGroup(report.ordersThisMonth), 'Delivered + in transit'),
       ('Avg basket', adminMoney(report.avgBasket), 'Per order'),
       ('Repeat rate', report.repeatRatePct == null ? '—' : '${report.repeatRatePct!.toStringAsFixed(1)}%', 'Within 30 days'),

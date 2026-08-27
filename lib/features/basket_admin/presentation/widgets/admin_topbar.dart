@@ -5,26 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Sticky header: page title/subtitle, a decorative search field, the zone
-/// switcher (cycles through the real dark stores on tap), and a theme button.
+/// Sticky header: page title/subtitle, a decorative search field, and a
+/// theme button.
 ///
 /// [narrow] (screen width < 900, matching `AdminLoginView`'s own threshold)
 /// drops the sidebar into a `Drawer` — see `_AdminRoot` — so this bar grows
 /// a hamburger button to open it, and sheds everything else it doesn't have
 /// room for: the search box (decorative — never wired to an actual search)
-/// disappears, and the zone switcher collapses to an icon-only button. On
-/// the desktop width this was built for, none of that changes.
+/// disappears. On the desktop width this was built for, none of that changes.
 class AdminTopBar extends StatelessWidget {
   const AdminTopBar({super.key, required this.narrow});
   final bool narrow;
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<BasketAdminCubit>();
     final page = context.select((BasketAdminCubit c) => c.state.page);
-    final zone = context.select((BasketAdminCubit c) => c.state.zone);
-    final zones = context.select((BasketAdminCubit c) => c.state.apiZones);
-    final zoneLabel = zones.isNotEmpty && zone < zones.length ? zones[zone].name : 'All zones';
     final title = kAdminTitles[page]!;
 
     return Container(
@@ -91,36 +86,7 @@ class AdminTopBar extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 9),
-            InkWell(
-              onTap: cubit.cycleZone,
-              borderRadius: BorderRadius.circular(11),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Text('◈ $zoneLabel ▾', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-              ),
-            ),
-          ] else
-            InkWell(
-              onTap: cubit.cycleZone,
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Text('◈', style: TextStyle(fontSize: 13, color: AdminColors.ink)),
-              ),
-            ),
+          ],
           const SizedBox(width: 9),
           Container(
             width: narrow ? 36 : 38,

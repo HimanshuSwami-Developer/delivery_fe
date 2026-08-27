@@ -144,13 +144,13 @@ class _AddZoneModalState extends State<AddZoneModal> {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     return AdminFormModal(
-      title: 'Add dark store / zone',
-      subtitle: 'A new delivery zone the header switcher and inventory page can target.',
+      title: 'Set up your store',
+      subtitle: 'The single dark store the inventory page and delivery flow target.',
       loading: _loading,
       error: _error,
       onCancel: cubit.closeModal,
       onSubmit: () => _submit(cubit),
-      submitLabel: 'Add zone',
+      submitLabel: 'Save store',
       fields: [
         AdminEditField(label: 'Name', controller: _name, hint: 'Koramangala dark store'),
         AdminEditField(label: 'Address (optional)', controller: _address, hint: '4th Block, Koramangala'),

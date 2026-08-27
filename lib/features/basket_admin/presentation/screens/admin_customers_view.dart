@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kFlex = [1.8, 1.1, 0.9, 1.0, 1.0, 1.0, 0.8];
+const _kFlex = [1.8, 1.1, 0.9, 1.0, 1.0, 0.8];
 
 /// Customer directory: avatar/name/mobile, order count, lifetime value,
-/// last order, zone, and a tier chip — all from the real customer report.
+/// last order, and a tier chip — all from the real customer report.
 class AdminCustomersView extends StatelessWidget {
   const AdminCustomersView({super.key});
 
@@ -34,7 +34,7 @@ class AdminCustomersView extends StatelessWidget {
             width: 980,
             child: Column(
               children: [
-                const AdminTableHeader(flex: _kFlex, labels: ['Customer', 'Phone', 'Orders', 'Lifetime value', 'Last order', 'Zone', 'Tier']),
+                const AdminTableHeader(flex: _kFlex, labels: ['Customer', 'Phone', 'Orders', 'Lifetime value', 'Last order', 'Tier']),
                 if (customers.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -80,7 +80,6 @@ class _CustomerRow extends StatelessWidget {
         Text('${c.ordersCount}', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
         Text(adminMoney(c.ltv), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
         Text(c.lastOrderAt == null ? '—' : _dateLabel(c.lastOrderAt!), style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-        Text(c.zone ?? '—', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Align(alignment: Alignment.centerLeft, child: AdminChipBadge(c.tier)),
       ],
     );

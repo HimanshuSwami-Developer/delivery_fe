@@ -61,8 +61,8 @@ class _AdminRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     final screen = context.select((BasketAdminCubit c) => c.state.screen);
     // This console was built desktop-first — a fixed 238px sidebar plus a
-    // topbar with several fixed-width controls (search box, zone switcher)
-    // that together need ~900px to lay out at all. Below that (any phone,
+    // topbar with a fixed-width search box that together need ~900px to
+    // lay out at all. Below that (any phone,
     // or a narrow browser window) it used to overflow outright. Narrow
     // screens now get the sidebar as a `Drawer` (opened via a hamburger
     // button in `AdminTopBar`) instead of pinned inline, same threshold

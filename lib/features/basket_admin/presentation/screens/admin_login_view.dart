@@ -78,7 +78,7 @@ class _BrandPanel extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Text(
-              'Live inventory across dark stores, order routing, delivery partners, GST-ready reporting.',
+              'Live inventory, order routing, delivery partners, GST-ready reporting.',
               style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w500, height: 1.6, color: Colors.white.withValues(alpha: 0.5)),
             ),
           ),
@@ -87,7 +87,7 @@ class _BrandPanel extends StatelessWidget {
             spacing: 34,
             runSpacing: 18,
             children: [
-              _BrandStat(value: '4', label: 'Zones live'),
+              _BrandStat(value: '24×7', label: 'Fast delivery'),
               _BrandStat(value: '5,142', label: 'SKUs'),
               _BrandStat(value: '98.2%', label: 'On-time'),
             ],

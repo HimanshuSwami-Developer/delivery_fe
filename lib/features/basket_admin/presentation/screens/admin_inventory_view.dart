@@ -21,7 +21,7 @@ Color? _stockRowTint(String state) => switch (state) {
       _ => null,
     };
 
-/// Inventory: 4 summary stats + a stock table (per current zone) with
+/// Inventory: 4 summary stats + a stock table (per your store) with
 /// inline +/- adjust controls per SKU, calling the real stock-adjust API.
 class AdminInventoryView extends StatelessWidget {
   const AdminInventoryView({super.key});
@@ -29,9 +29,6 @@ class AdminInventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
-    final zones = context.select((BasketAdminCubit c) => c.state.apiZones);
-    final zone = context.select((BasketAdminCubit c) => c.state.zone);
-    final zoneLabel = zones.isNotEmpty && zone < zones.length ? zones[zone].name : 'All zones';
     final stocks = context.select((BasketAdminCubit c) => c.state.apiStocks);
     final loading = context.select((BasketAdminCubit c) => c.state.stocksLoading);
 
@@ -40,7 +37,7 @@ class AdminInventoryView extends StatelessWidget {
     final outOfStock = stocks.where((s) => s.state == 'out_of_stock').length;
     final onHandTotal = stocks.fold<int>(0, (a, s) => a + s.onHand);
     final stats = [
-      ('SKUs tracked', '$tracked', 'In $zoneLabel'),
+      ('SKUs tracked', '$tracked', 'In your store'),
       ('Below reorder', '$belowReorder', 'Restock today'),
       ('Out of stock', '$outOfStock', outOfStock == 0 ? 'All clear' : 'Needs attention'),
       ('Units on hand', indianGroup(onHandTotal), 'Across tracked SKUs'),
@@ -70,7 +67,7 @@ class AdminInventoryView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(10, 16, 10, 12),
                       child: Row(
                         children: [
-                          Expanded(child: AdminSectionTitle('Stock by SKU · $zoneLabel')),
+                          const Expanded(child: AdminSectionTitle('Stock by SKU')),
                           OutlinedButton(
                             onPressed: null,
                             style: OutlinedButton.styleFrom(
@@ -100,7 +97,7 @@ class AdminInventoryView extends StatelessWidget {
                     if (stocks.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text('No stock records for this zone yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                        child: Text('No stock records yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                       ),
                     for (final s in stocks) _StockRow(stock: s, cubit: cubit),
                   ],

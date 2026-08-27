@@ -17,11 +17,6 @@ class AdminDashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
-    final zoneLabel = context.select(
-      (BasketAdminCubit c) => c.state.apiZones.isNotEmpty && c.state.zone < c.state.apiZones.length
-          ? c.state.apiZones[c.state.zone].name
-          : 'All zones',
-    );
     final range = context.select((BasketAdminCubit c) => c.state.range);
     final report = context.select((BasketAdminCubit c) => c.state.dashboardReport);
     final loading = context.select((BasketAdminCubit c) => c.state.dashboardLoading);
@@ -94,7 +89,7 @@ class AdminDashboardView extends StatelessWidget {
                           children: [
                             const AdminSectionTitle('Sales · last 14 days'),
                             const SizedBox(height: 5),
-                            Text('Gross merchandise value, $zoneLabel',
+                            Text('Gross merchandise value',
                                 style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                           ],
                         ),
@@ -190,7 +185,7 @@ class AdminDashboardView extends StatelessWidget {
                                 children: [
                                   Text(l.product, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
                                   const SizedBox(height: 3),
-                                  Text(l.zone, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.45))),
+                                  Text(l.sku, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.45))),
                                 ],
                               ),
                             ),

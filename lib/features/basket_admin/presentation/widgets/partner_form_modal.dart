@@ -94,8 +94,8 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
     final cubit = context.read<BasketAdminCubit>();
     final zones = context.select((BasketAdminCubit c) => c.state.apiZones);
 
-    // Zone list loads async — seed the dropdown from the partner being
-    // edited (or the first zone) the first time it's non-empty.
+    // Zone list loads async — seed [_zoneId] from the partner being edited
+    // (or the single store's zone) the first time it's non-empty.
     if (!_zoneInitialized && zones.isNotEmpty) {
       _zoneId = _editing?.zoneId ?? zones.first.id;
       _zoneInitialized = true;
@@ -121,16 +121,8 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
         ),
         AdminEditField(label: 'Partner code', controller: _partnerCode, hint: 'BSK-DP-2210'),
         AdminEditField(label: 'Name', controller: _name, hint: 'Ravi Kumar'),
-        if (zones.isEmpty)
-          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Loading zones…'))
-        else
-          AdminEditDropdown<int>(
-            label: 'Zone',
-            value: _zoneId,
-            items: [for (final z in zones) z.id],
-            itemLabel: (id) => zones.firstWhere((z) => z.id == id).name,
-            onChanged: (v) => setState(() => _zoneId = v),
-          ),
+        // No zone picker — there's a single store, so [_zoneId] is just
+        // auto-seeded from it above rather than asked of the admin.
         AdminEditDropdown<String>(
           label: 'Vehicle',
           value: _vehicle,
