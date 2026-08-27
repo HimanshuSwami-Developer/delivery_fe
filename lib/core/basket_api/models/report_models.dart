@@ -9,16 +9,14 @@ class ChartPoint {
 }
 
 class LowStockRow {
-  const LowStockRow({required this.product, required this.sku, required this.zone, required this.onHand});
+  const LowStockRow({required this.product, required this.sku, required this.onHand});
   final String product;
   final String sku;
-  final String zone;
   final int onHand;
 
   factory LowStockRow.fromJson(Map<String, dynamic> json) => LowStockRow(
         product: json['product'] as String,
         sku: json['sku'] as String,
-        zone: json['zone'] as String,
         onHand: json['on_hand'] as int,
       );
 }
@@ -208,7 +206,6 @@ class AdminCustomerRow {
     required this.ordersCount,
     required this.ltv,
     this.lastOrderAt,
-    this.zone,
     required this.tier,
   });
 
@@ -218,7 +215,6 @@ class AdminCustomerRow {
   final int ordersCount;
   final int ltv;
   final DateTime? lastOrderAt;
-  final String? zone;
   final String tier;
 
   factory AdminCustomerRow.fromJson(Map<String, dynamic> json) => AdminCustomerRow(
@@ -228,7 +224,6 @@ class AdminCustomerRow {
         ordersCount: json['orders_count'] as int,
         ltv: json['ltv'] as int,
         lastOrderAt: json['last_order_at'] == null ? null : DateTime.parse(json['last_order_at'] as String),
-        zone: json['zone'] as String?,
         tier: json['tier'] as String,
       );
 }

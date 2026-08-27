@@ -9,10 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The simple "one card's worth of fields" add/edit forms — category,
-/// zone, coupon, banner — each a thin [AdminFormModal] wrapper around its
-/// own local controllers and a direct call into [BasketAdminCubit]'s
+/// coupon, banner — each a thin [AdminFormModal] wrapper around its own
+/// local controllers and a direct call into [BasketAdminCubit]'s
 /// create/update method. (Delivery partner has its own file since it
-/// carries a bit more state — a zone dropdown fed by a separate fetch.)
+/// carries a bit more state.)
 
 class AddCategoryModal extends StatefulWidget {
   const AddCategoryModal({super.key});
@@ -85,77 +85,6 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
         ),
         AdminEditField(label: 'Name', controller: _name, hint: 'Atta, Rice & Dal'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
-      ],
-    );
-  }
-}
-
-class AddZoneModal extends StatefulWidget {
-  const AddZoneModal({super.key});
-
-  @override
-  State<AddZoneModal> createState() => _AddZoneModalState();
-}
-
-class _AddZoneModalState extends State<AddZoneModal> {
-  final _name = TextEditingController();
-  final _address = TextEditingController();
-  final _pincodes = TextEditingController();
-  final _eta = TextEditingController(text: '12');
-  bool _loading = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _address.dispose();
-    _pincodes.dispose();
-    _eta.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit(BasketAdminCubit cubit) async {
-    final name = _name.text.trim();
-    if (name.isEmpty) {
-      setState(() => _error = 'Name is required.');
-      return;
-    }
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final pincodes = _pincodes.text.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
-      await cubit.createZone({
-        'name': name,
-        'address': _address.text.trim(),
-        'pincodes': pincodes,
-        'avg_eta_minutes': int.tryParse(_eta.text.trim()) ?? 12,
-      });
-      if (mounted) cubit.closeModal();
-    } on ApiException catch (e) {
-      if (mounted) setState(() => _error = e.message);
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<BasketAdminCubit>();
-    return AdminFormModal(
-      title: 'Set up your store',
-      subtitle: 'The single dark store the inventory page and delivery flow target.',
-      loading: _loading,
-      error: _error,
-      onCancel: cubit.closeModal,
-      onSubmit: () => _submit(cubit),
-      submitLabel: 'Save store',
-      fields: [
-        AdminEditField(label: 'Name', controller: _name, hint: 'Koramangala dark store'),
-        AdminEditField(label: 'Address (optional)', controller: _address, hint: '4th Block, Koramangala'),
-        AdminEditField(label: 'Pincodes (comma-separated, optional)', controller: _pincodes, hint: '560034, 560095'),
-        AdminEditField(label: 'Avg ETA (minutes)', controller: _eta, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
       ],
     );
   }

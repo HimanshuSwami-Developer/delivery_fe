@@ -13,11 +13,10 @@ class OrdersRepository {
 
   final ApiClient _client;
 
-  Future<List<ApiOrder>> fetchOrders({String? status, int? zone}) async {
+  Future<List<ApiOrder>> fetchOrders({String? status}) async {
     try {
       final response = await _client.dio.get('/orders/', queryParameters: {
         'status': ?status,
-        'zone': ?zone,
         'page_size': 100,
       });
       return extractResults(response.data).map((e) => ApiOrder.fromJson(e as Map<String, dynamic>)).toList();
@@ -47,7 +46,6 @@ class OrdersRepository {
     String? city,
     String? state,
     String? pincode,
-    required int zone,
     required String paymentMode,
     String? deliverySlotDate,
     String? deliverySlotLabel,
@@ -62,7 +60,6 @@ class OrdersRepository {
         'city': ?city,
         'state': ?state,
         'pincode': ?pincode,
-        'zone': zone,
         'payment_mode': paymentMode,
         'delivery_slot_date': ?deliverySlotDate,
         'delivery_slot_label': ?deliverySlotLabel,

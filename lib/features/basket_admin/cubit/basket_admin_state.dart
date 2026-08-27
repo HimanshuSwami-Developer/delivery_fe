@@ -4,7 +4,6 @@ import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/basket_api/models/report_models.dart';
-import 'package:fastswipe/core/basket_api/models/zone_models.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
 
 /// Single immutable state for the whole Basket Admin console, mirroring the
@@ -24,7 +23,6 @@ class BasketAdminState extends Equatable {
     this.authError,
     this.adminName,
     this.adminMobile,
-    this.zone = 0,
     this.range = '14d',
     this.catTab = 'All',
     this.status = 'All',
@@ -34,7 +32,6 @@ class BasketAdminState extends Equatable {
     this.orderStatus = 'new',
     this.month = 'aug',
     this.audience = 'All users',
-    this.apiZones = const [],
     this.apiOrders = const [],
     this.ordersLoading = false,
     this.currentOrder,
@@ -83,11 +80,6 @@ class BasketAdminState extends Equatable {
   final String? adminName;
   final String? adminMobile;
 
-  /// Index into [apiZones] — there's a single store, so this is always the
-  /// one entry (kept as an index rather than the zone id directly since
-  /// Inventory/dashboard already read it that way).
-  final int zone;
-
   /// Dashboard sales-chart range pill: `'7d' | '14d' | '30d'` (cosmetic
   /// only — the chart values don't actually change, matching the source).
   final String range;
@@ -117,9 +109,6 @@ class BasketAdminState extends Equatable {
   final String audience;
 
   // ── Live backend data (fetched via BasketAdminApi; see BasketAdminCubit) ──
-
-  /// Real dark stores/zones — [zone] indexes into this.
-  final List<ApiZone> apiZones;
 
   final List<ApiOrder> apiOrders;
   final bool ordersLoading;
@@ -181,7 +170,6 @@ class BasketAdminState extends Equatable {
     bool clearAuthError = false,
     String? adminName,
     String? adminMobile,
-    int? zone,
     String? range,
     String? catTab,
     String? status,
@@ -192,7 +180,6 @@ class BasketAdminState extends Equatable {
     String? orderStatus,
     String? month,
     String? audience,
-    List<ApiZone>? apiZones,
     List<ApiOrder>? apiOrders,
     bool? ordersLoading,
     ApiOrder? currentOrder,
@@ -233,7 +220,6 @@ class BasketAdminState extends Equatable {
       authError: clearAuthError ? null : (authError ?? this.authError),
       adminName: adminName ?? this.adminName,
       adminMobile: adminMobile ?? this.adminMobile,
-      zone: zone ?? this.zone,
       range: range ?? this.range,
       catTab: catTab ?? this.catTab,
       status: status ?? this.status,
@@ -243,7 +229,6 @@ class BasketAdminState extends Equatable {
       orderStatus: orderStatus ?? this.orderStatus,
       month: month ?? this.month,
       audience: audience ?? this.audience,
-      apiZones: apiZones ?? this.apiZones,
       apiOrders: apiOrders ?? this.apiOrders,
       ordersLoading: ordersLoading ?? this.ordersLoading,
       currentOrder: currentOrder ?? this.currentOrder,
@@ -282,7 +267,6 @@ class BasketAdminState extends Equatable {
         authError,
         adminName,
         adminMobile,
-        zone,
         range,
         catTab,
         status,
@@ -292,7 +276,6 @@ class BasketAdminState extends Equatable {
         orderStatus,
         month,
         audience,
-        apiZones,
         apiOrders,
         ordersLoading,
         currentOrder,

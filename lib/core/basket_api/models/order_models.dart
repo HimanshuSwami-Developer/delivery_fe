@@ -51,8 +51,6 @@ class ApiOrder {
     required this.createdAt,
     this.paymentStatus = 'pending',
     this.paymentScreenshotUrl,
-    this.zoneId,
-    this.zoneName,
     this.deliveryPartnerId,
     this.deliveryPartnerName,
     this.customerName,
@@ -99,8 +97,6 @@ class ApiOrder {
   /// pending an admin's manual review.
   final String? paymentScreenshotUrl;
 
-  final int? zoneId;
-  final String? zoneName;
   final int? deliveryPartnerId;
   final String? deliveryPartnerName;
   final String? customerName;
@@ -144,8 +140,6 @@ class ApiOrder {
         createdAt: DateTime.parse(json['created_at'] as String),
         paymentStatus: json['payment_status'] as String? ?? 'pending',
         paymentScreenshotUrl: json['payment_screenshot_url'] as String?,
-        zoneId: json['zone'] as int?,
-        zoneName: json['zone_name'] as String?,
         deliveryPartnerId: json['delivery_partner'] as int?,
         deliveryPartnerName: json['delivery_partner_name'] as String?,
         customerName: json['customer_name'] as String?,

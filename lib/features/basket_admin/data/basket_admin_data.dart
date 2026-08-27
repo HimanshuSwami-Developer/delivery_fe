@@ -27,7 +27,7 @@ const kPartnerStatusFromCode = {'available': 'Available', 'on_trip': 'On trip', 
 /// Static content for the Basket Admin console, ported from
 /// `Basket Admin.dc.html`'s `NAV`/`TITLES` top-level consts and its
 /// `toLocaleString`-style money formatting helpers. The screens' own
-/// per-domain data (orders/products/customers/partners/zones/etc.) now
+/// per-domain data (orders/products/customers/partners/etc.) now
 /// comes from the live API — see [BasketAdminCubit] — so only the
 /// still-static navigation/title scaffolding and formatting helpers
 /// remain here.
@@ -67,7 +67,6 @@ const List<AdminNavEntry> kAdminNav = [
   AdminNavEntry.heading('Reports'),
   AdminNavEntry.link('Sales reports', '◐', AdminPage.sales),
   AdminNavEntry.link('GST reports', '₹', AdminPage.gst),
-  AdminNavEntry.link('Store settings', '◎', AdminPage.zones),
 ];
 
 /// The nav entry (if any) that should show as "active" for [page] — folds
@@ -100,7 +99,6 @@ const Map<AdminPage, AdminTitle> kAdminTitles = {
   AdminPage.notifs: AdminTitle('Notification management', 'Push campaigns and audiences'),
   AdminPage.sales: AdminTitle('Sales reports', 'Revenue, orders and category mix'),
   AdminPage.gst: AdminTitle('GST reports', 'Slab-wise tax liability and filings'),
-  AdminPage.zones: AdminTitle('Store settings', 'Store details, coverage and hours'),
 };
 
 /// Formats an integer with Indian-style digit grouping, e.g. `1240` ->

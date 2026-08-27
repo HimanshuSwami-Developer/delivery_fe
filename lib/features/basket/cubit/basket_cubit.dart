@@ -108,7 +108,6 @@ class BasketCubit extends Cubit<BasketState> {
   /// login, post-setup), not on every `goReset(home)`.
   void _loadHomeData() {
     loadCatalog();
-    loadZones();
     loadAddresses();
     loadGpsLocation();
     loadOrders();
@@ -132,15 +131,6 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final banners = await api.promotions.fetchBanners(placement: 'home_carousel', isActive: true);
       emit(state.copyWith(apiBanners: banners));
-    } catch (_) {}
-  }
-
-  Future<void> loadZones() async {
-    try {
-      final zones = await api.zones.fetchZones();
-      final open = zones.where((z) => z.isOpen);
-      final chosen = open.isNotEmpty ? open.first : (zones.isNotEmpty ? zones.first : null);
-      emit(state.copyWith(apiZones: zones, zoneId: chosen?.id));
     } catch (_) {}
   }
 
@@ -729,32 +719,10 @@ class BasketCubit extends Cubit<BasketState> {
     List<int>? screenshotBytes,
     String? screenshotFilename,
   }) async {
-    var zoneId = state.zoneId;
-    if (zoneId == null) {
-      // `loadZones()` (fired once at login) may not have landed yet, or
-      // hit a transient network blip — its errors are swallowed silently,
-      // so give it one more shot before failing the checkout attempt over
-      // what's usually just a timing gap, not a real "no zones" outage.
-      await loadZones();
-      zoneId = state.zoneId;
-    }
-    if (zoneId == null) {
-      emit(state.copyWith(
-        screen: BasketScreen.failure,
-        history: const [BasketScreen.home, BasketScreen.cart],
-        paymentPopup: const PaymentPopup(
-          title: 'Could not place order',
-          message: "We couldn't find an open delivery zone for you. Please try again in a moment.",
-          success: false,
-        ),
-      ));
-      return;
-    }
     final delayFuture = Future<void>.delayed(minDelay);
     try {
       final order = await api.orders.placeOrder(
         addressId: state.addressId,
-        zone: zoneId,
         paymentMode: state.paymentMethodId,
         paymentScreenshotBytes: screenshotBytes,
         paymentScreenshotFilename: screenshotFilename,

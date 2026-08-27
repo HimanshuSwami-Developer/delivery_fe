@@ -297,8 +297,8 @@ class AdminStatCard extends StatelessWidget {
   }
 }
 
-/// The track/knob toggle switch used for coupon/banner/zone live-paused
-/// states and per-zone SKU availability.
+/// The track/knob toggle switch used for coupon/banner/product live-paused
+/// states.
 class AdminToggle extends StatelessWidget {
   const AdminToggle({super.key, required this.on, required this.onTap, this.width = 34, this.height = 18});
 
@@ -328,8 +328,8 @@ class AdminToggle extends StatelessWidget {
   }
 }
 
-/// A labeled tile used for the small "Order/Redeemed/Ends"-style metric
-/// groups inside coupon/zone cards.
+/// A labeled tile used for the small "Redeemed/Discount given/Ends"-style
+/// metric groups inside coupon cards.
 class AdminMiniStat extends StatelessWidget {
   const AdminMiniStat({super.key, required this.label, required this.value});
   final String label;
@@ -398,7 +398,7 @@ class AdminSectionTitle extends StatelessWidget {
 
 /// The editable twin of [AdminFieldBox] — same boxed "LABEL above value"
 /// shape, but a real [TextField] instead of static text. Used by every
-/// add/edit form in the console (product, category, zone, partner, coupon,
+/// add/edit form in the console (product, category, partner, coupon,
 /// banner) so they all share one input look.
 class AdminEditField extends StatelessWidget {
   const AdminEditField({
@@ -465,8 +465,8 @@ class AdminEditField extends StatelessWidget {
 }
 
 /// A labeled dropdown in the same boxed shape as [AdminEditField], for the
-/// handful of form fields that pick from a fixed/loaded set (zone,
-/// vehicle, status) instead of free text.
+/// handful of form fields that pick from a fixed set (vehicle, status)
+/// instead of free text.
 class AdminEditDropdown<T> extends StatelessWidget {
   const AdminEditDropdown({
     super.key,
@@ -521,7 +521,7 @@ class AdminEditDropdown<T> extends StatelessWidget {
 }
 
 /// Shared backdrop + centered white card shell for every add/edit form
-/// dialog (category, zone, partner, coupon, banner) — the same shape as
+/// dialog (category, partner, coupon, banner) — the same shape as
 /// `AssignPartnerModal`, factored out so each form only supplies its own
 /// fields instead of re-building the backdrop/header/footer each time.
 class AdminFormModal extends StatelessWidget {

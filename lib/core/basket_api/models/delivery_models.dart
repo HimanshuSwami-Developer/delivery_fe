@@ -8,8 +8,6 @@ class ApiDeliveryPartner {
     required this.partnerCode,
     required this.name,
     required this.vehicle,
-    required this.zoneId,
-    required this.zoneName,
     required this.rating,
     required this.status,
     required this.tripsToday,
@@ -22,8 +20,6 @@ class ApiDeliveryPartner {
   final String partnerCode;
   final String name;
   final String vehicle;
-  final int zoneId;
-  final String zoneName;
   final double rating;
 
   /// 'available' | 'on_trip' | 'off_duty'
@@ -40,8 +36,6 @@ class ApiDeliveryPartner {
         partnerCode: json['partner_code'] as String,
         name: json['name'] as String,
         vehicle: json['vehicle'] as String,
-        zoneId: json['zone'] as int,
-        zoneName: json['zone_name'] as String,
         rating: asDouble(json['rating'], fallback: 5),
         status: json['status'] as String,
         tripsToday: json['trips_today'] as int? ?? 0,

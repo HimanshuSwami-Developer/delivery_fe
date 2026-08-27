@@ -32,8 +32,6 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
 
   late String _vehicle = _editing?.vehicle ?? 'bike';
   late String _status = _editing?.status ?? 'off_duty';
-  int? _zoneId;
-  bool _zoneInitialized = false;
 
   bool _loading = false;
   String? _error;
@@ -59,10 +57,6 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
       setState(() => _error = 'Partner code and name are required.');
       return;
     }
-    if (_zoneId == null) {
-      setState(() => _error = 'Pick a zone.');
-      return;
-    }
     setState(() {
       _loading = true;
       _error = null;
@@ -72,7 +66,6 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
         'partner_code': partnerCode,
         'name': name,
         'vehicle': _vehicle,
-        'zone': _zoneId,
         'status': _status,
         if (_photoUrl.text.trim().isNotEmpty) 'photo_url': _photoUrl.text.trim(),
       };
@@ -92,14 +85,6 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
-    final zones = context.select((BasketAdminCubit c) => c.state.apiZones);
-
-    // Zone list loads async — seed [_zoneId] from the partner being edited
-    // (or the single store's zone) the first time it's non-empty.
-    if (!_zoneInitialized && zones.isNotEmpty) {
-      _zoneId = _editing?.zoneId ?? zones.first.id;
-      _zoneInitialized = true;
-    }
 
     return AdminFormModal(
       title: _editing == null ? 'Add delivery partner' : 'Edit ${_editing.name}',
@@ -109,7 +94,7 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
       loading: _loading,
       error: _error,
       onCancel: cubit.closeModal,
-      onSubmit: zones.isEmpty ? null : () => _submit(cubit),
+      onSubmit: () => _submit(cubit),
       submitLabel: _editing == null ? 'Add partner' : 'Save changes',
       fields: [
         AdminEditField(
@@ -121,8 +106,6 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
         ),
         AdminEditField(label: 'Partner code', controller: _partnerCode, hint: 'BSK-DP-2210'),
         AdminEditField(label: 'Name', controller: _name, hint: 'Ravi Kumar'),
-        // No zone picker — there's a single store, so [_zoneId] is just
-        // auto-seeded from it above rather than asked of the admin.
         AdminEditDropdown<String>(
           label: 'Vehicle',
           value: _vehicle,

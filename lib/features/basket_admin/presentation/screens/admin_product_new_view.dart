@@ -296,7 +296,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Per-zone stock levels are managed on the Inventory page once the product exists.',
+                        'Stock levels are managed on the Inventory page once the product exists.',
                         style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
                       ),
                     ],

@@ -5,7 +5,6 @@ import 'package:fastswipe/core/basket_api/repositories/catalog_repository.dart';
 import 'package:fastswipe/core/basket_api/repositories/orders_repository.dart';
 import 'package:fastswipe/core/basket_api/repositories/promotions_repository.dart';
 import 'package:fastswipe/core/basket_api/repositories/support_repository.dart';
-import 'package:fastswipe/core/basket_api/repositories/zones_repository.dart';
 
 /// Every repository the customer app needs, bundled behind one object so
 /// [BasketCubit] takes a single constructor param. Owns its own [ApiClient]
@@ -18,7 +17,6 @@ class BasketApiBundle {
     cart = CartRepository(this.client);
     orders = OrdersRepository(this.client);
     promotions = PromotionsRepository(this.client);
-    zones = ZonesRepository(this.client);
     support = SupportRepository(this.client);
   }
 
@@ -28,6 +26,5 @@ class BasketApiBundle {
   late final CartRepository cart;
   late final OrdersRepository orders;
   late final PromotionsRepository promotions;
-  late final ZonesRepository zones;
   late final SupportRepository support;
 }

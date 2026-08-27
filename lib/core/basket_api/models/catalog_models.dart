@@ -132,8 +132,6 @@ class ApiProductStock {
     required this.productName,
     required this.sku,
     required this.pack,
-    required this.zoneId,
-    required this.zoneName,
     required this.onHand,
     required this.reserved,
     required this.reorderLevel,
@@ -146,8 +144,6 @@ class ApiProductStock {
   final String productName;
   final String sku;
   final String pack;
-  final int zoneId;
-  final String zoneName;
   final int onHand;
   final int reserved;
   final int reorderLevel;
@@ -162,8 +158,6 @@ class ApiProductStock {
         productName: json['product_name'] as String,
         sku: json['sku'] as String,
         pack: json['pack'] as String? ?? '',
-        zoneId: json['zone'] as int,
-        zoneName: json['zone_name'] as String,
         onHand: json['on_hand'] as int,
         reserved: json['reserved'] as int,
         reorderLevel: json['reorder_level'] as int,

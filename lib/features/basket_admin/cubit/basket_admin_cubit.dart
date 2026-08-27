@@ -2,7 +2,6 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
-import 'package:fastswipe/core/basket_api/models/zone_models.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
@@ -11,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Owns every action in the Basket Admin console — sign in/out, sidebar
 /// navigation + the data fetch each page needs, the order status/
-/// assign-partner flow, and the coupon/banner/zone toggles — ported from
+/// assign-partner flow, and the coupon/banner toggles — ported from
 /// `Basket Admin.dc.html`'s `Component` class, with every page's mock
 /// tables swapped for live calls through [BasketAdminApi].
 class BasketAdminCubit extends Cubit<BasketAdminState> {
@@ -104,15 +103,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   // ── Shell-wide data (store) ──────────────────────────────────────────────
 
   void _loadShellData() {
-    loadZones();
     loadDashboard();
-  }
-
-  Future<void> loadZones() async {
-    try {
-      final zones = await api.zones.fetchZones();
-      emit(state.copyWith(apiZones: zones));
-    } catch (_) {}
   }
 
   // ── Navigation ────────────────────────────────────────────────────────
@@ -149,8 +140,6 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadSales();
       case AdminPage.gst:
         loadGst();
-      case AdminPage.zones:
-        loadZones();
       case AdminPage.orderDet:
       case AdminPage.productNew:
         break;
@@ -254,8 +243,6 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(state.copyWith(modal: AdminModal.addCategory, editingCategory: category, clearEditingCategory: category == null));
   }
 
-  void openAddZone() => emit(state.copyWith(modal: AdminModal.addZone));
-
   /// [coupon] null opens the form blank (create); non-null opens it
   /// prefilled (edit) — see `AddCouponModal`.
   void openAddCoupon({ApiCoupon? coupon}) {
@@ -269,12 +256,8 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   }
 
   /// [partner] null opens the form blank (create); non-null opens it
-  /// prefilled (edit) — see `PartnerFormModal`. That form auto-assigns the
-  /// single store to the partner and needs [BasketAdminState.apiZones] for
-  /// that, which the Partners page itself never loads (only Zones/Inventory
-  /// do), so fetch it here if missing.
+  /// prefilled (edit) — see `PartnerFormModal`.
   void openPartnerForm({ApiDeliveryPartner? partner}) {
-    if (state.apiZones.isEmpty) loadZones();
     emit(state.copyWith(modal: AdminModal.partnerForm, editingPartner: partner, clearEditingPartner: partner == null));
   }
 
@@ -389,8 +372,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> loadStocks() async {
     emit(state.copyWith(stocksLoading: true));
     try {
-      final zoneId = state.apiZones.isNotEmpty && state.zone < state.apiZones.length ? state.apiZones[state.zone].id : null;
-      final stocks = await api.catalog.fetchStocks(zone: zoneId);
+      final stocks = await api.catalog.fetchStocks();
       emit(state.copyWith(stocksLoading: false, apiStocks: stocks));
     } catch (_) {
       emit(state.copyWith(stocksLoading: false));
@@ -512,24 +494,6 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> deleteBanner(int id) async {
     await api.promotions.deleteBanner(id);
     emit(state.copyWith(apiBanners: state.apiBanners.where((b) => b.id != id).toList()));
-  }
-
-  // ── Zones & stores ────────────────────────────────────────────────────
-
-  Future<ApiZone> createZone(Map<String, dynamic> data) async {
-    final created = await api.zones.createZone(data);
-    emit(state.copyWith(apiZones: [...state.apiZones, created]));
-    return created;
-  }
-
-  Future<void> toggleZoneStore(int id, bool isOpen) async {
-    try {
-      final updated = await api.zones.setZoneOpen(id, isOpen);
-      final next = [
-        for (final z in state.apiZones) if (z.id == id) updated else z,
-      ];
-      emit(state.copyWith(apiZones: next));
-    } on ApiException catch (_) {}
   }
 
   // ── Notifications ─────────────────────────────────────────────────────

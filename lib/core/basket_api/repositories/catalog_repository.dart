@@ -164,10 +164,9 @@ class CatalogRepository {
     }
   }
 
-  Future<List<ApiProductStock>> fetchStocks({int? zone, int? product}) async {
+  Future<List<ApiProductStock>> fetchStocks({int? product}) async {
     try {
       final response = await _client.dio.get('/stocks/', queryParameters: {
-        'zone': ?zone,
         'product': ?product,
         'page_size': 200,
       });

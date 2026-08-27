@@ -20,11 +20,10 @@ enum AdminPage {
   notifs,
   sales,
   gst,
-  zones,
 }
 
 /// Every modal the console can show: the delivery-partner assignment sheet
 /// (opened from order detail or a partner row on the Partners page), and
 /// one simple add-form dialog per entity that only needs a couple of
 /// fields (product has its own full page instead — see `AdminPage.productNew`).
-enum AdminModal { none, assign, addCategory, addZone, partnerForm, addCoupon, addBanner }
+enum AdminModal { none, assign, addCategory, partnerForm, addCoupon, addBanner }

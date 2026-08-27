@@ -17,7 +17,6 @@ import 'package:fastswipe/features/basket_admin/presentation/screens/admin_partn
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_product_new_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_products_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_sales_view.dart';
-import 'package:fastswipe/features/basket_admin/presentation/screens/admin_zones_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_form_modals.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_sidebar.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_topbar.dart';
@@ -113,7 +112,6 @@ class _AdminShell extends StatelessWidget {
           ),
           if (modal == AdminModal.assign) const AssignPartnerModal(),
           if (modal == AdminModal.addCategory) const AddCategoryModal(),
-          if (modal == AdminModal.addZone) const AddZoneModal(),
           if (modal == AdminModal.partnerForm) const PartnerFormModal(),
           if (modal == AdminModal.addCoupon) const AddCouponModal(),
           if (modal == AdminModal.addBanner) const AddBannerModal(),
@@ -144,7 +142,6 @@ class _AdminPage extends StatelessWidget {
       AdminPage.notifs => const AdminNotificationsView(),
       AdminPage.sales => const AdminSalesView(),
       AdminPage.gst => const AdminGstView(),
-      AdminPage.zones => const AdminZonesView(),
     };
   }
 }

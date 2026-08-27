@@ -3,7 +3,6 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
-import 'package:fastswipe/core/basket_api/models/zone_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 
 /// A one-shot "tell the user what just happened" popup — set by
@@ -84,8 +83,6 @@ class BasketState extends Equatable {
     this.currentOrder,
     this.apiCoupons = const [],
     this.apiNotifications = const [],
-    this.apiZones = const [],
-    this.zoneId,
     this.apiBanners = const [],
     this.paymentPopup,
   });
@@ -205,12 +202,6 @@ class BasketState extends Equatable {
   final List<ApiCoupon> apiCoupons;
   final List<ApiNotification> apiNotifications;
 
-  final List<ApiZone> apiZones;
-
-  /// Zone orders are placed against — the app has no "pick your dark
-  /// store" UI, so this is just the first open zone once [apiZones] loads.
-  final int? zoneId;
-
   /// Home-carousel promo banners (`Banner.placement == 'home_carousel'`).
   final List<ApiBanner> apiBanners;
 
@@ -274,8 +265,6 @@ class BasketState extends Equatable {
     ApiOrder? currentOrder,
     List<ApiCoupon>? apiCoupons,
     List<ApiNotification>? apiNotifications,
-    List<ApiZone>? apiZones,
-    int? zoneId,
     List<ApiBanner>? apiBanners,
     PaymentPopup? paymentPopup,
     bool clearPaymentPopup = false,
@@ -330,8 +319,6 @@ class BasketState extends Equatable {
       currentOrder: currentOrder ?? this.currentOrder,
       apiCoupons: apiCoupons ?? this.apiCoupons,
       apiNotifications: apiNotifications ?? this.apiNotifications,
-      apiZones: apiZones ?? this.apiZones,
-      zoneId: zoneId ?? this.zoneId,
       apiBanners: apiBanners ?? this.apiBanners,
       paymentPopup: clearPaymentPopup ? null : (paymentPopup ?? this.paymentPopup),
     );
@@ -388,8 +375,6 @@ class BasketState extends Equatable {
         currentOrder,
         apiCoupons,
         apiNotifications,
-        apiZones,
-        zoneId,
         apiBanners,
         paymentPopup,
       ];

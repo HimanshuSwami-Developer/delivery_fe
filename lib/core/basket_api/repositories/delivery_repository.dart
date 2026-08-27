@@ -9,10 +9,9 @@ class DeliveryRepository {
 
   final ApiClient _client;
 
-  Future<List<ApiDeliveryPartner>> fetchPartners({int? zone, String? status}) async {
+  Future<List<ApiDeliveryPartner>> fetchPartners({String? status}) async {
     try {
       final response = await _client.dio.get('/partners/', queryParameters: {
-        'zone': ?zone,
         'status': ?status,
         'page_size': 100,
       });
