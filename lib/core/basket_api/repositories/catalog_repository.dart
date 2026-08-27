@@ -164,13 +164,39 @@ class CatalogRepository {
     }
   }
 
-  Future<List<ApiProductStock>> fetchStocks({int? product}) async {
+  /// [state] is 'healthy' | 'low' | 'out_of_stock'. [ordering] is any of
+  /// `ProductStockViewSet.ordering_fields` (prefix with '-' to reverse),
+  /// e.g. 'on_hand' or '-on_hand'.
+  Future<PagedResult<ApiProductStock>> fetchStocks({
+    String? category,
+    String? state,
+    String? search,
+    String? ordering,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final response = await _client.dio.get('/stocks/', queryParameters: {
-        'product': ?product,
-        'page_size': 200,
+        'category': ?category,
+        'state': ?state,
+        if (search != null && search.isNotEmpty) 'search': search,
+        'ordering': ?ordering,
+        'page': page,
+        'page_size': pageSize,
       });
-      return extractResults(response.data).map((e) => ApiProductStock.fromJson(e as Map<String, dynamic>)).toList();
+      return extractPaged(response.data, (e) => ApiProductStock.fromJson(e));
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Totals across *every* stock row, ignoring whatever category/state/
+  /// search filter and page the table itself is currently showing — see
+  /// `ProductStockViewSet.summary`.
+  Future<StockSummary> fetchStocksSummary() async {
+    try {
+      final response = await _client.dio.get('/stocks/summary/');
+      return StockSummary.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiException.from(e);
     }

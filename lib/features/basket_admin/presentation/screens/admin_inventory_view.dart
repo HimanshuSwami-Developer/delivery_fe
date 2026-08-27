@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
@@ -12,6 +13,13 @@ const _kFlex = [2.3, 1.0, 1.0, 1.0, 1.4];
 
 const _kStateLabels = {'healthy': 'Healthy', 'low': 'Below reorder', 'out_of_stock': 'Out of stock'};
 
+const _kStateChips = [
+  (null, 'All states'),
+  ('healthy', 'Healthy'),
+  ('low', 'Below reorder'),
+  ('out_of_stock', 'Out of stock'),
+];
+
 /// Light red row wash for stock that needs attention — a touch stronger
 /// once it's actually hit zero than while it's merely below reorder level.
 const _kDanger = Color(0xFFC0392B);
@@ -21,37 +29,81 @@ Color? _stockRowTint(String state) => switch (state) {
       _ => null,
     };
 
-/// Inventory: 4 summary stats + a stock table (per your store) with
-/// inline +/- adjust controls per SKU, calling the real stock-adjust API.
-class AdminInventoryView extends StatelessWidget {
+/// Inventory: 4 store-wide summary stats (independent of whatever's
+/// filtered/paginated below), category tabs + a stock-state filter + search,
+/// and a paginated stock table with inline +/- adjust controls calling the
+/// real stock-adjust API.
+class AdminInventoryView extends StatefulWidget {
   const AdminInventoryView({super.key});
+
+  @override
+  State<AdminInventoryView> createState() => _AdminInventoryViewState();
+}
+
+class _AdminInventoryViewState extends State<AdminInventoryView> {
+  late final _search = TextEditingController(text: context.read<BasketAdminCubit>().state.stockSearch);
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
+    final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
+    final catTab = context.select((BasketAdminCubit c) => c.state.stockCatTab);
+    final stateFilter = context.select((BasketAdminCubit c) => c.state.stockState);
     final stocks = context.select((BasketAdminCubit c) => c.state.apiStocks);
     final loading = context.select((BasketAdminCubit c) => c.state.stocksLoading);
+    final summary = context.select((BasketAdminCubit c) => c.state.stockSummary);
+    final page = context.select((BasketAdminCubit c) => c.state.stockPage);
+    final count = context.select((BasketAdminCubit c) => c.state.stockCount);
 
-    final tracked = stocks.length;
-    final belowReorder = stocks.where((s) => s.state == 'low').length;
-    final outOfStock = stocks.where((s) => s.state == 'out_of_stock').length;
-    final onHandTotal = stocks.fold<int>(0, (a, s) => a + s.onHand);
     final stats = [
-      ('SKUs tracked', '$tracked', 'In your store'),
-      ('Below reorder', '$belowReorder', 'Restock today'),
-      ('Out of stock', '$outOfStock', outOfStock == 0 ? 'All clear' : 'Needs attention'),
-      ('Units on hand', indianGroup(onHandTotal), 'Across tracked SKUs'),
+      ('SKUs tracked', summary == null ? '—' : '${summary.tracked}', 'In your store'),
+      ('Below reorder', summary == null ? '—' : '${summary.belowReorder}', 'Restock today'),
+      (
+        'Out of stock',
+        summary == null ? '—' : '${summary.outOfStock}',
+        summary != null && summary.outOfStock == 0 ? 'All clear' : 'Needs attention',
+      ),
+      ('Units on hand', summary == null ? '—' : indianGroup(summary.onHandTotal), 'Across tracked SKUs'),
     ];
-
-    if (loading && stocks.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
+          const SizedBox(height: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 9,
+                  runSpacing: 9,
+                  children: [
+                    AdminPillButton(label: 'All', selected: catTab == 'All', onTap: () => cubit.setStockCatTab('All')),
+                    for (final c in categories) AdminPillButton(label: c.name, selected: catTab == c.key, onTap: () => cubit.setStockCatTab(c.key)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 9),
+              SizedBox(width: 220, child: _SearchField(controller: _search, onChanged: cubit.setStockSearch)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final chip in _kStateChips)
+                AdminPillButton(label: chip.$2, selected: stateFilter == chip.$1, onTap: () => cubit.setStockStateFilter(chip.$1)),
+            ],
+          ),
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
@@ -94,12 +146,19 @@ class AdminInventoryView extends StatelessWidget {
                       ),
                     ),
                     const AdminTableHeader(flex: _kFlex, labels: ['Product', 'On hand', 'Reserved', 'Reorder at', 'Adjust']),
-                    if (stocks.isEmpty)
+                    if (loading && stocks.isEmpty)
+                      const Padding(padding: EdgeInsets.symmetric(vertical: 30), child: Center(child: CircularProgressIndicator()))
+                    else if (stocks.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text('No stock records yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                      ),
-                    for (final s in stocks) _StockRow(stock: s, cubit: cubit),
+                        child: Text('No stock records match your filters.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                      )
+                    else
+                      for (final s in stocks) _StockRow(stock: s),
+                    if (count > 0) ...[
+                      const SizedBox(height: 4),
+                      _PaginationBar(page: page, count: count, onPageChanged: cubit.goToStockPage),
+                    ],
                   ],
                 ),
               ),
@@ -111,10 +170,90 @@ class AdminInventoryView extends StatelessWidget {
   }
 }
 
+class _SearchField extends StatelessWidget {
+  const _SearchField({required this.controller, required this.onChanged});
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(11),
+      ),
+      child: Row(
+        children: [
+          const Text('⌕', style: TextStyle(fontSize: 12, color: AdminColors.faint)),
+          const SizedBox(width: 9),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                hintText: 'Search name or SKU',
+                hintStyle: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.faint),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaginationBar extends StatelessWidget {
+  const _PaginationBar({required this.page, required this.count, required this.onPageChanged});
+  final int page;
+  final int count;
+  final ValueChanged<int> onPageChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final totalPages = ((count - 1) ~/ BasketAdminCubit.stockPageSize) + 1;
+    final start = (page - 1) * BasketAdminCubit.stockPageSize + 1;
+    final end = (page * BasketAdminCubit.stockPageSize).clamp(0, count);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Showing $start–$end of $count',
+              style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminColors.muted),
+            ),
+          ),
+          AdminIconActionButton(icon: Icons.chevron_left, onTap: page > 1 ? () => onPageChanged(page - 1) : null),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text('Page $page of $totalPages', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700)),
+          ),
+          AdminIconActionButton(icon: Icons.chevron_right, onTap: page < totalPages ? () => onPageChanged(page + 1) : null),
+        ],
+      ),
+    );
+  }
+}
+
 class _StockRow extends StatelessWidget {
-  const _StockRow({required this.stock, required this.cubit});
+  const _StockRow({required this.stock});
   final ApiProductStock stock;
-  final BasketAdminCubit cubit;
+
+  Future<void> _adjust(BuildContext context, int delta) async {
+    try {
+      await context.read<BasketAdminCubit>().adjustStock(stock.id, delta);
+    } on ApiException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +265,21 @@ class _StockRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            const SizedBox(width: 36, height: 36, child: ImageSlot(shape: ImageSlotShape.rounded, radius: 9, mini: true)),
+            SizedBox(
+              width: 36,
+              height: 36,
+              child: stock.mainImageUrl.isEmpty
+                  ? const ImageSlot(shape: ImageSlotShape.rounded, radius: 9, mini: true)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: Image.network(
+                        stock.mainImageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const ImageSlot(shape: ImageSlotShape.rounded, radius: 9, mini: true),
+                      ),
+                    ),
+            ),
             const SizedBox(width: 11),
             Expanded(
               child: Column(
@@ -162,7 +315,7 @@ class _StockRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InkWell(
-                    onTap: () => cubit.adjustStock(stock.id, -1),
+                    onTap: () => _adjust(context, -1),
                     borderRadius: const BorderRadius.horizontal(left: Radius.circular(9)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -178,7 +331,7 @@ class _StockRow extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () => cubit.adjustStock(stock.id, 1),
+                    onTap: () => _adjust(context, 1),
                     borderRadius: const BorderRadius.horizontal(right: Radius.circular(9)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

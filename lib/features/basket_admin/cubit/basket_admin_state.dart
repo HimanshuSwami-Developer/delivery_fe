@@ -41,6 +41,12 @@ class BasketAdminState extends Equatable {
     this.currentProduct,
     this.apiStocks = const [],
     this.stocksLoading = false,
+    this.stockCatTab = 'All',
+    this.stockState,
+    this.stockSearch = '',
+    this.stockPage = 1,
+    this.stockCount = 0,
+    this.stockSummary,
     this.apiCustomers = const [],
     this.customersLoading = false,
     this.apiPartners = const [],
@@ -128,6 +134,27 @@ class BasketAdminState extends Equatable {
   final List<ApiProductStock> apiStocks;
   final bool stocksLoading;
 
+  /// Inventory screen's category-tab filter — a category key, or 'All'.
+  final String stockCatTab;
+
+  /// Inventory screen's stock-state chip filter — 'healthy' | 'low' |
+  /// 'out_of_stock', or null for "All states".
+  final String? stockState;
+
+  /// Inventory screen's search box text.
+  final String stockSearch;
+
+  /// Inventory screen's current page (1-indexed) and the total matching
+  /// row count from the last fetch's pagination envelope, used together to
+  /// render page controls (`loadStocks` in the cubit does the actual
+  /// page-size math).
+  final int stockPage;
+  final int stockCount;
+
+  /// True totals across all inventory, independent of [stockPage]/filters —
+  /// see [BasketAdminCubit.loadStocksSummary].
+  final StockSummary? stockSummary;
+
   final List<AdminCustomerRow> apiCustomers;
   final bool customersLoading;
 
@@ -198,6 +225,13 @@ class BasketAdminState extends Equatable {
     bool clearCurrentProduct = false,
     List<ApiProductStock>? apiStocks,
     bool? stocksLoading,
+    String? stockCatTab,
+    String? stockState,
+    bool clearStockState = false,
+    String? stockSearch,
+    int? stockPage,
+    int? stockCount,
+    StockSummary? stockSummary,
     List<AdminCustomerRow>? apiCustomers,
     bool? customersLoading,
     List<ApiDeliveryPartner>? apiPartners,
@@ -250,6 +284,12 @@ class BasketAdminState extends Equatable {
       currentProduct: clearCurrentProduct ? null : (currentProduct ?? this.currentProduct),
       apiStocks: apiStocks ?? this.apiStocks,
       stocksLoading: stocksLoading ?? this.stocksLoading,
+      stockCatTab: stockCatTab ?? this.stockCatTab,
+      stockState: clearStockState ? null : (stockState ?? this.stockState),
+      stockSearch: stockSearch ?? this.stockSearch,
+      stockPage: stockPage ?? this.stockPage,
+      stockCount: stockCount ?? this.stockCount,
+      stockSummary: stockSummary ?? this.stockSummary,
       apiCustomers: apiCustomers ?? this.apiCustomers,
       customersLoading: customersLoading ?? this.customersLoading,
       apiPartners: apiPartners ?? this.apiPartners,
@@ -299,6 +339,12 @@ class BasketAdminState extends Equatable {
         currentProduct,
         apiStocks,
         stocksLoading,
+        stockCatTab,
+        stockState,
+        stockSearch,
+        stockPage,
+        stockCount,
+        stockSummary,
         apiCustomers,
         customersLoading,
         apiPartners,

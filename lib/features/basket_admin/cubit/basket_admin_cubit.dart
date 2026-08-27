@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
@@ -126,6 +128,8 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadCategories();
       case AdminPage.inventory:
         loadStocks();
+        loadStocksSummary();
+        if (state.apiCategories.isEmpty) loadCategories();
       case AdminPage.customers:
         loadCustomers();
       case AdminPage.partners:
@@ -369,24 +373,74 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   // ── Inventory ─────────────────────────────────────────────────────────
 
+  static const stockPageSize = 20;
+
   Future<void> loadStocks() async {
     emit(state.copyWith(stocksLoading: true));
     try {
-      final stocks = await api.catalog.fetchStocks();
-      emit(state.copyWith(stocksLoading: false, apiStocks: stocks));
+      final page = await api.catalog.fetchStocks(
+        category: state.stockCatTab == 'All' ? null : state.stockCatTab,
+        state: state.stockState,
+        search: state.stockSearch,
+        page: state.stockPage,
+        pageSize: stockPageSize,
+      );
+      emit(state.copyWith(stocksLoading: false, apiStocks: page.items, stockCount: page.count));
     } catch (_) {
       emit(state.copyWith(stocksLoading: false));
     }
   }
 
-  Future<void> adjustStock(int stockId, int delta) async {
+  /// The 4 stat cards need true totals across all inventory — the table
+  /// itself only ever holds one filtered/paginated page, which is never
+  /// the right source for "how many SKUs are out of stock overall".
+  Future<void> loadStocksSummary() async {
     try {
-      final updated = await api.catalog.adjustStock(stockId, delta);
-      final next = [
-        for (final s in state.apiStocks) if (s.id == stockId) updated else s,
-      ];
-      emit(state.copyWith(apiStocks: next));
-    } on ApiException catch (_) {}
+      final summary = await api.catalog.fetchStocksSummary();
+      emit(state.copyWith(stockSummary: summary));
+    } catch (_) {}
+  }
+
+  void setStockCatTab(String key) {
+    emit(state.copyWith(stockCatTab: key, stockPage: 1));
+    loadStocks();
+  }
+
+  /// [stateFilter] null means "All states".
+  void setStockStateFilter(String? stateFilter) {
+    emit(state.copyWith(stockState: stateFilter, clearStockState: stateFilter == null, stockPage: 1));
+    loadStocks();
+  }
+
+  Timer? _stockSearchDebounce;
+
+  void setStockSearch(String query) {
+    emit(state.copyWith(stockSearch: query, stockPage: 1));
+    _stockSearchDebounce?.cancel();
+    _stockSearchDebounce = Timer(const Duration(milliseconds: 400), loadStocks);
+  }
+
+  void goToStockPage(int page) {
+    emit(state.copyWith(stockPage: page));
+    loadStocks();
+  }
+
+  Future<void> adjustStock(int stockId, int delta) async {
+    final updated = await api.catalog.adjustStock(stockId, delta);
+    final next = [
+      for (final s in state.apiStocks) if (s.id == stockId) updated else s,
+    ];
+    emit(state.copyWith(apiStocks: next));
+    // A single row's on_hand crossing the reorder threshold (or hitting
+    // zero) changes the global low/out-of-stock counts, so the summary
+    // cards need a refresh too — not just the row that moved.
+    loadStocksSummary();
+  }
+
+  @override
+  Future<void> close() {
+    _stockSearchDebounce?.cancel();
+    return super.close();
   }
 
   // ── Customers / Partners ─────────────────────────────────────────────

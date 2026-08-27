@@ -132,6 +132,9 @@ class ApiProductStock {
     required this.productName,
     required this.sku,
     required this.pack,
+    required this.mainImageUrl,
+    required this.categoryKey,
+    required this.categoryName,
     required this.onHand,
     required this.reserved,
     required this.reorderLevel,
@@ -144,6 +147,9 @@ class ApiProductStock {
   final String productName;
   final String sku;
   final String pack;
+  final String mainImageUrl;
+  final String categoryKey;
+  final String categoryName;
   final int onHand;
   final int reserved;
   final int reorderLevel;
@@ -158,10 +164,31 @@ class ApiProductStock {
         productName: json['product_name'] as String,
         sku: json['sku'] as String,
         pack: json['pack'] as String? ?? '',
+        mainImageUrl: json['main_image_url'] as String? ?? '',
+        categoryKey: json['category'] as String? ?? '',
+        categoryName: json['category_name'] as String? ?? '',
         onHand: json['on_hand'] as int,
         reserved: json['reserved'] as int,
         reorderLevel: json['reorder_level'] as int,
         maxStock: json['max_stock'] as int,
         state: json['state'] as String,
+      );
+}
+
+/// Mirrors `ProductStockViewSet.summary` — totals across *every* stock row,
+/// independent of whatever filter/page the table is currently showing.
+class StockSummary {
+  const StockSummary({required this.tracked, required this.belowReorder, required this.outOfStock, required this.onHandTotal});
+
+  final int tracked;
+  final int belowReorder;
+  final int outOfStock;
+  final int onHandTotal;
+
+  factory StockSummary.fromJson(Map<String, dynamic> json) => StockSummary(
+        tracked: json['tracked'] as int,
+        belowReorder: json['below_reorder'] as int,
+        outOfStock: json['out_of_stock'] as int,
+        onHandTotal: json['on_hand_total'] as int,
       );
 }
