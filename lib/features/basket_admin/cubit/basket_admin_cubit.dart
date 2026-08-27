@@ -529,8 +529,13 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> loadSales() async {
     try {
       final report = await api.reports.fetchSales();
-      emit(state.copyWith(salesReport: report));
-    } catch (_) {}
+      emit(state.copyWith(salesReport: report, clearSalesError: true));
+    } on ApiException catch (e) {
+      // Without this, a failure left `salesReport` null forever with no
+      // way to tell "still loading" from "failed" — the screen just spun
+      // indefinitely instead of showing what actually went wrong.
+      emit(state.copyWith(salesError: e.message));
+    }
   }
 
   static const _gstMonthCodes = {'aug': '2026-08', 'jul': '2026-07', 'jun': '2026-06'};
@@ -543,7 +548,9 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> loadGst() async {
     try {
       final report = await api.reports.fetchGst(month: _gstMonthCodes[state.month]);
-      emit(state.copyWith(gstReport: report));
-    } catch (_) {}
+      emit(state.copyWith(gstReport: report, clearGstError: true));
+    } on ApiException catch (e) {
+      emit(state.copyWith(gstError: e.message));
+    }
   }
 }

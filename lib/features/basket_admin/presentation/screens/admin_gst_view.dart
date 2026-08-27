@@ -23,6 +23,7 @@ class AdminGstView extends StatelessWidget {
     final cubit = context.read<BasketAdminCubit>();
     final month = context.select((BasketAdminCubit c) => c.state.month);
     final report = context.select((BasketAdminCubit c) => c.state.gstReport);
+    final error = context.select((BasketAdminCubit c) => c.state.gstError);
     final monthLabel = _kGstMonths[month] ?? month;
     final dueMonth = month == 'aug' ? 'Sep' : (month == 'jul' ? 'Aug' : 'Jul');
 
@@ -69,7 +70,26 @@ class AdminGstView extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           if (report == null)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: error == null
+                    ? const CircularProgressIndicator()
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Couldn\'t load the GST report', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 6),
+                          Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+                          const SizedBox(height: 14),
+                          OutlinedButton(
+                            onPressed: cubit.loadGst,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+              ),
+            )
           else ...[
             AdminResponsiveGrid(
               children: [

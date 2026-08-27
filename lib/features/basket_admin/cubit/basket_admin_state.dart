@@ -55,7 +55,9 @@ class BasketAdminState extends Equatable {
     this.dashboardReport,
     this.dashboardLoading = false,
     this.salesReport,
+    this.salesError,
     this.gstReport,
+    this.gstError,
   });
 
   final AdminScreen screen;
@@ -157,7 +159,13 @@ class BasketAdminState extends Equatable {
   final DashboardReport? dashboardReport;
   final bool dashboardLoading;
   final SalesReport? salesReport;
+
+  /// Set when [BasketAdminCubit.loadSales] fails — without this, a failure
+  /// left `salesReport` null forever with no way to tell "still loading"
+  /// from "failed", so the screen just spun indefinitely.
+  final String? salesError;
   final GstReport? gstReport;
+  final String? gstError;
 
   BasketAdminState copyWith({
     AdminScreen? screen,
@@ -208,7 +216,11 @@ class BasketAdminState extends Equatable {
     DashboardReport? dashboardReport,
     bool? dashboardLoading,
     SalesReport? salesReport,
+    String? salesError,
+    bool clearSalesError = false,
     GstReport? gstReport,
+    String? gstError,
+    bool clearGstError = false,
   }) {
     return BasketAdminState(
       screen: screen ?? this.screen,
@@ -252,7 +264,9 @@ class BasketAdminState extends Equatable {
       dashboardReport: dashboardReport ?? this.dashboardReport,
       dashboardLoading: dashboardLoading ?? this.dashboardLoading,
       salesReport: salesReport ?? this.salesReport,
+      salesError: clearSalesError ? null : (salesError ?? this.salesError),
       gstReport: gstReport ?? this.gstReport,
+      gstError: clearGstError ? null : (gstError ?? this.gstError),
     );
   }
 
@@ -299,6 +313,8 @@ class BasketAdminState extends Equatable {
         dashboardReport,
         dashboardLoading,
         salesReport,
+        salesError,
         gstReport,
+        gstError,
       ];
 }

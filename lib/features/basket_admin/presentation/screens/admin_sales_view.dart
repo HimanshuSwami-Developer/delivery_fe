@@ -14,9 +14,26 @@ class AdminSalesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final report = context.select((BasketAdminCubit c) => c.state.salesReport);
+    final error = context.select((BasketAdminCubit c) => c.state.salesError);
 
     if (report == null) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: error == null
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Couldn\'t load sales reports', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 6),
+                  Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+                  const SizedBox(height: 14),
+                  OutlinedButton(
+                    onPressed: context.read<BasketAdminCubit>().loadSales,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+      );
     }
 
     final stats = [
