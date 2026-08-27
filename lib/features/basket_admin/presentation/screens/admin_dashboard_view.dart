@@ -223,15 +223,13 @@ class AdminDashboardView extends StatelessWidget {
 
             return narrow
                 ? Column(children: [chartCard, const SizedBox(height: 14), lowStockCard])
-                : IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(flex: 165, child: chartCard),
-                        const SizedBox(width: 14),
-                        Expanded(flex: 100, child: lowStockCard),
-                      ],
-                    ),
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 165, child: chartCard),
+                      const SizedBox(width: 14),
+                      Expanded(flex: 100, child: lowStockCard),
+                    ],
                   );
           }),
           const SizedBox(height: 14),

@@ -40,20 +40,12 @@ class AdminZonesView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: Text('No zones configured yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
-          LayoutBuilder(builder: (context, constraints) {
-            final cols = constraints.maxWidth < 760 ? 1 : 2;
-            return GridView.count(
-              crossAxisCount: cols,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 1.5,
-              children: [
-                for (final z in zones) _ZoneCard(zone: z, onToggle: () => cubit.toggleZoneStore(z.id, !z.isOpen)),
-              ],
-            );
-          }),
+          AdminResponsiveGrid(
+            minTileWidth: 380,
+            children: [
+              for (final z in zones) _ZoneCard(zone: z, onToggle: () => cubit.toggleZoneStore(z.id, !z.isOpen)),
+            ],
+          ),
         ],
       ),
     );

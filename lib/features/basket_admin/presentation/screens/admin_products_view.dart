@@ -160,15 +160,21 @@ class _ProductRow extends StatelessWidget {
         Text(adminMoney(p.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
         InkWell(
           onTap: onToggleActive,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AdminToggle(on: p.isActive, onTap: onToggleActive),
-              const SizedBox(width: 7),
-              Text(p.isActive ? 'Live' : 'Paused',
-                  style: GoogleFonts.manrope(
-                      fontSize: 11.5, fontWeight: FontWeight.w700, color: p.isActive ? AdminColors.ink : AdminColors.faint)),
-            ],
+          child: SizedBox(
+            width: double.infinity,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdminToggle(on: p.isActive, onTap: onToggleActive),
+                  const SizedBox(width: 7),
+                  Text(p.isActive ? 'Live' : 'Paused',
+                      style: GoogleFonts.manrope(
+                          fontSize: 11.5, fontWeight: FontWeight.w700, color: p.isActive ? AdminColors.ink : AdminColors.faint)),
+                ],
+              ),
+            ),
           ),
         ),
         Row(

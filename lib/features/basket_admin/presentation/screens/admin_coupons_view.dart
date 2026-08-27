@@ -42,28 +42,18 @@ class AdminCouponsView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: Text('No coupons yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
-          LayoutBuilder(builder: (context, constraints) {
-            final cols = constraints.maxWidth < 700 ? 1 : 2;
-            return GridView.count(
-              crossAxisCount: cols,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              // Shorter than before (was 1.75) — the card grew an Edit/Delete
-              // row, so it needs more height for the same width.
-              childAspectRatio: 1.4,
-              children: [
-                for (final c in coupons)
-                  _CouponCard(
-                    coupon: c,
-                    onToggle: () => cubit.toggleCoupon(c.code, !c.isActive),
-                    onEdit: () => cubit.openAddCoupon(coupon: c),
-                    onDelete: () => _confirmDelete(context, cubit, c),
-                  ),
-              ],
-            );
-          }),
+          AdminResponsiveGrid(
+            minTileWidth: 340,
+            children: [
+              for (final c in coupons)
+                _CouponCard(
+                  coupon: c,
+                  onToggle: () => cubit.toggleCoupon(c.code, !c.isActive),
+                  onEdit: () => cubit.openAddCoupon(coupon: c),
+                  onDelete: () => _confirmDelete(context, cubit, c),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -126,7 +116,7 @@ class _CouponCard extends StatelessWidget {
           const SizedBox(height: 15),
           Text('Min order ${adminMoney(coupon.minOrderValue)} · $discountLabel${coupon.maxDiscount != null ? ' · max ${adminMoney(coupon.maxDiscount!)}' : ''}',
               style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.muted)),
-          const Spacer(),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(

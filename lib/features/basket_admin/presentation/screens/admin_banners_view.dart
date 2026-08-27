@@ -44,26 +44,18 @@ class AdminBannersView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: Text('No banners yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
-          LayoutBuilder(builder: (context, constraints) {
-            final cols = constraints.maxWidth < 640 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
-            return GridView.count(
-              crossAxisCount: cols,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 0.92,
-              children: [
-                for (final b in banners)
-                  _BannerCard(
-                    banner: b,
-                    onToggle: () => cubit.toggleBanner(b.id, !b.isActive),
-                    onEdit: () => cubit.openAddBanner(banner: b),
-                    onDelete: () => _confirmDelete(context, cubit, b),
-                  ),
-              ],
-            );
-          }),
+          AdminResponsiveGrid(
+            minTileWidth: 300,
+            children: [
+              for (final b in banners)
+                _BannerCard(
+                  banner: b,
+                  onToggle: () => cubit.toggleBanner(b.id, !b.isActive),
+                  onEdit: () => cubit.openAddBanner(banner: b),
+                  onDelete: () => _confirmDelete(context, cubit, b),
+                ),
+            ],
+          ),
         ],
       ),
     );

@@ -40,18 +40,10 @@ class AdminCategoriesView extends StatelessWidget {
           if (categories.isEmpty)
             const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
           else
-            LayoutBuilder(builder: (context, constraints) {
-              final cols = constraints.maxWidth < 640 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
-              return GridView.count(
-                crossAxisCount: cols,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 1.15,
-                children: [for (final c in categories) _CategoryCard(category: c, cubit: cubit)],
-              );
-            }),
+            AdminResponsiveGrid(
+              minTileWidth: 300,
+              children: [for (final c in categories) _CategoryCard(category: c, cubit: cubit)],
+            ),
         ],
       ),
     );
@@ -106,22 +98,21 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 13),
-          Expanded(
-            child: Wrap(
-              spacing: 7,
-              runSpacing: 7,
-              children: [
-                for (final s in category.subs)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                    decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
-                    child: Text(s, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
-                  ),
-                if (category.subs.isEmpty)
-                  Text('No subcategories yet', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
-              ],
-            ),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: [
+              for (final s in category.subs)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                  decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
+                  child: Text(s, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
+                ),
+              if (category.subs.isEmpty)
+                Text('No subcategories yet', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+            ],
           ),
+          const SizedBox(height: 13),
           Row(
             children: [
               Expanded(
