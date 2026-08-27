@@ -144,12 +144,16 @@ class AdminIconActionButton extends StatelessWidget {
   const AdminIconActionButton({super.key, required this.icon, required this.onTap, this.color = AdminColors.faint, this.size = 32});
 
   final IconData icon;
-  final VoidCallback onTap;
+  /// Nullable like any other Material button's `onPressed` — pass null to
+  /// render it disabled (e.g. while a modal is submitting) instead of just
+  /// swapping in a no-op that would still show tap feedback.
+  final VoidCallback? onTap;
   final Color color;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    final disabled = onTap == null;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(9),
@@ -158,10 +162,10 @@ class AdminIconActionButton extends StatelessWidget {
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)),
+          border: Border.all(color: AdminColors.ink.withValues(alpha: disabled ? 0.06 : 0.12)),
           borderRadius: BorderRadius.circular(9),
         ),
-        child: Icon(icon, size: 16, color: color),
+        child: Icon(icon, size: 16, color: disabled ? color.withValues(alpha: 0.4) : color),
       ),
     );
   }
@@ -588,10 +592,7 @@ class AdminFormModal extends StatelessWidget {
                           ],
                         ),
                       ),
-                      InkWell(
-                        onTap: loading ? null : onCancel,
-                        child: const Text('✕', style: TextStyle(fontSize: 15, color: AdminColors.faint)),
-                      ),
+                      AdminIconActionButton(icon: Icons.close, onTap: loading ? null : onCancel, size: 30),
                     ],
                   ),
                   const SizedBox(height: 18),

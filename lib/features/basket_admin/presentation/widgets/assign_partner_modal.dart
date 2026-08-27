@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,7 +65,7 @@ class AssignPartnerModal extends StatelessWidget {
                           ],
                         ),
                       ),
-                      InkWell(onTap: cubit.closeModal, child: const Text('✕', style: TextStyle(fontSize: 15, color: AdminColors.faint))),
+                      AdminIconActionButton(icon: Icons.close, onTap: cubit.closeModal, size: 30),
                     ],
                   ),
                   const SizedBox(height: 18),

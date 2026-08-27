@@ -125,8 +125,8 @@ class _CouponCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AdminColors.ink, width: 1.3),
                     foregroundColor: AdminColors.ink,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                   ),
                   child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
                 ),
@@ -138,8 +138,8 @@ class _CouponCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
                     foregroundColor: AdminColors.muted,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                   ),
                   child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                 ),

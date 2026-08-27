@@ -92,7 +92,7 @@ class _AdminImagePickerState extends State<AdminImagePicker> {
                       side: const BorderSide(color: AdminColors.ink, width: 1.3),
                       foregroundColor: AdminColors.ink,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                     ),
                     child: _uploading
                         ? const SizedBox(

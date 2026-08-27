@@ -77,7 +77,7 @@ class AdminInventoryView extends StatelessWidget {
                               side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
                               backgroundColor: Colors.white,
                               disabledForegroundColor: AdminColors.ink,
-                              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                             ),
                             child: Text('⤓ Stock sheet', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
@@ -88,7 +88,7 @@ class AdminInventoryView extends StatelessWidget {
                             style: FilledButton.styleFrom(
                               backgroundColor: AdminColors.ink,
                               disabledBackgroundColor: AdminColors.ink,
-                              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                             ),
                             child: Text('Bulk restock', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -159,14 +159,16 @@ class _StockRow extends StatelessWidget {
         Row(
           children: [
             Container(
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(border: Border.all(color: AdminColors.ink, width: 1.3), borderRadius: BorderRadius.circular(10)),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InkWell(
                     onTap: () => cubit.adjustStock(stock.id, -1),
+                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(9)),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text('−', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800)),
                     ),
                   ),
@@ -180,8 +182,9 @@ class _StockRow extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () => cubit.adjustStock(stock.id, 1),
+                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(9)),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text('+', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800)),
                     ),
                   ),

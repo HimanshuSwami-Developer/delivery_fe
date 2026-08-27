@@ -128,7 +128,12 @@ class _PartnerRow extends StatelessWidget {
             if (p.status == 'available')
               InkWell(
                 onTap: () => cubit.assignPartnerFromRow(p),
-                child: Text('Assign', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: AdminColors.muted)),
+                borderRadius: BorderRadius.circular(99),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.16)), borderRadius: BorderRadius.circular(99)),
+                  child: Text('Assign', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: AdminColors.ink)),
+                ),
               ),
           ],
         ),
