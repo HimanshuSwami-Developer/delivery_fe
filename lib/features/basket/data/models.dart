@@ -167,9 +167,8 @@ class Address {
   final String line;
   final int eta;
 
-  /// [eta] has no per-address backend equivalent (delivery ETA is a
-  /// per-zone figure) — pass the current zone's average, or a reasonable
-  /// generic default while zones haven't loaded yet.
+  /// [eta] has no per-address backend equivalent — pass a reasonable
+  /// generic default.
   factory Address.fromApi(ApiAddress a, {int eta = 15}) {
     final type = a.addressType.isEmpty ? 'other' : a.addressType;
     final label = type[0].toUpperCase() + type.substring(1);
