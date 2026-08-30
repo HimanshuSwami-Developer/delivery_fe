@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 class AdminColors {
   AdminColors._();
 
-  /// Page backdrop behind the console card (`#DEDEE2`, radial-gradiented in
-  /// the source; approximated with a flat fill here).
-  static const backdrop = Color(0xFFDEDEE2);
+  /// Page backdrop behind the console card (`#DEDEE2` warmed to ivory,
+  /// radial-gradiented in the source; approximated with a flat fill here).
+  static const backdrop = Color(0xFFE3DAC4);
 
   static const ink = Color(0xFF20222C);
   static const card = BasketColors.page;
@@ -34,8 +34,8 @@ class AdminPillStyle {
 }
 
 AdminPillStyle adminPillStyle(bool selected) => selected
-    ? const AdminPillStyle(border: AdminColors.ink, bg: AdminColors.ink, fg: Colors.white)
-    : AdminPillStyle(border: AdminColors.ink.withValues(alpha: 0.14), bg: Colors.white, fg: AdminColors.ink);
+    ? const AdminPillStyle(border: AdminColors.ink, bg: AdminColors.ink, fg: Color(0xFFFFFBF2))
+    : AdminPillStyle(border: AdminColors.ink.withValues(alpha: 0.14), bg: Color(0xFFFFFBF2), fg: AdminColors.ink);
 
 /// Background/foreground/border for the small status/state chips (order
 /// status, product stock state, customer tier, partner status, category &
@@ -53,7 +53,7 @@ const _ghostChipKinds = {'Cancelled', 'Off duty', 'Paused', 'Out of stock'};
 
 AdminChipStyle adminChipStyle(String kind) {
   if (_darkChipKinds.contains(kind)) {
-    return const AdminChipStyle(bg: AdminColors.ink, fg: Colors.white, border: AdminColors.ink);
+    return const AdminChipStyle(bg: AdminColors.ink, fg: Color(0xFFFFFBF2), border: AdminColors.ink);
   }
   if (_ghostChipKinds.contains(kind)) {
     return AdminChipStyle(bg: Colors.transparent, fg: AdminColors.faint, border: AdminColors.ink.withValues(alpha: 0.16));
@@ -67,8 +67,8 @@ AdminChipStyle adminChipStyle(String kind) {
 /// matching the admin design's slightly airier cards.
 BoxDecoration adminGlassCard({double radius = 18}) {
   return BoxDecoration(
-    color: Colors.white.withValues(alpha: 0.72),
-    border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+    color: Color(0xFFFFFBF2).withValues(alpha: 0.72),
+    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.9)),
     borderRadius: BorderRadius.circular(radius),
     boxShadow: [
       BoxShadow(color: AdminColors.ink.withValues(alpha: 0.12), blurRadius: 24, offset: const Offset(0, 10)),

@@ -79,21 +79,21 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Scan & pay', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Scan & pay', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
-                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -107,7 +107,7 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFFFFFBF2),
                     border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
                     borderRadius: BorderRadius.circular(18),
                   ),
@@ -126,7 +126,7 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.68),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
                     border: Border.all(color: _screenshotBytes == null ? BasketColors.divider : BasketColors.ink, width: 1.5),
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -163,7 +163,7 @@ class _QrPaymentViewState extends State<QrPaymentView> {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
             border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
           ),
           child: SafeArea(
@@ -177,7 +177,7 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: _screenshotBytes == null ? null : () => _placeOrder(cubit),
-                child: Text("I've paid — place order", style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                child: Text("I've paid — place order", style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
               ),
             ),
           ),

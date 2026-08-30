@@ -14,6 +14,7 @@ import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
+import 'package:fastswipe/features/basket/presentation/festival_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -114,6 +115,7 @@ class BasketCubit extends Cubit<BasketState> {
     loadCoupons();
     loadNotifications();
     loadBanners();
+    loadFestivalSettings();
   }
 
   Future<void> loadCatalog() async {
@@ -133,6 +135,33 @@ class BasketCubit extends Cubit<BasketState> {
       emit(state.copyWith(apiBanners: banners));
     } catch (_) {}
   }
+
+  Future<void> loadFestivalSettings() async {
+    try {
+      final settings = await api.promotions.fetchFestivalSettings();
+      emit(state.copyWith(apiFestivalSettings: settings));
+      await _maybeShowFestivalPopup(settings);
+    } catch (_) {
+      // Best-effort — falls back to the app's built-in festival defaults
+      // (see FestivalCalendar), so a failed fetch just means today's
+      // festival (if any) can't be admin-overridden this session.
+      await _maybeShowFestivalPopup(state.apiFestivalSettings);
+    }
+  }
+
+  /// Shows the festival popup at most once per day per festival — tracked
+  /// on-device via [AppPrefs], not per session, so it doesn't nag on every
+  /// app reopen but does reappear for a new festival or the next day.
+  Future<void> _maybeShowFestivalPopup(List<ApiFestivalSetting> settings) async {
+    final festival = FestivalCalendar.activeToday(settings: settings);
+    if (festival == null || !festival.popupEnabled) return;
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    if (await AppPrefs.hasShownFestivalPopupToday(festival.id, today)) return;
+    await AppPrefs.markFestivalPopupShown(festival.id, today);
+    emit(state.copyWith(festivalPopup: festival));
+  }
+
+  void clearFestivalPopup() => emit(state.copyWith(clearFestivalPopup: true));
 
   Future<void> loadAddresses() async {
     try {

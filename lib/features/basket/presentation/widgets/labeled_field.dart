@@ -40,7 +40,7 @@ class LabeledTextField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
         border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
         borderRadius: BorderRadius.circular(14),
       ),
@@ -107,7 +107,7 @@ class LabeledStaticField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
         border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
         borderRadius: BorderRadius.circular(14),
       ),

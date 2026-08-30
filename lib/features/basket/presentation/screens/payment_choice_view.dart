@@ -33,21 +33,21 @@ class PaymentChoiceView extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('How would you like to pay?', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('How would you like to pay?', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
-                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text('Paying ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -74,12 +74,12 @@ class PaymentChoiceView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(13),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.68),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+                  border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Text(
-                  'A GST invoice is emailed once the order is delivered.',
+                  'A GST invoice is available to download from your order details as soon as it\'s placed.',
                   style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 ),
               ),
@@ -106,8 +106,8 @@ class _PaymentChoiceCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.68),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+          color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -117,7 +117,7 @@ class _PaymentChoiceCard extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(12)),
               alignment: Alignment.center,
-              child: Text(icon, style: const TextStyle(fontSize: 17, color: Colors.white)),
+              child: Text(icon, style: const TextStyle(fontSize: 17, color: Color(0xFFFFFBF2))),
             ),
             const SizedBox(width: 13),
             Expanded(

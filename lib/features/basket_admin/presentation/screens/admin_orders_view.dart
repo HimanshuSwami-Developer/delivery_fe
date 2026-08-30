@@ -45,7 +45,7 @@ class AdminOrdersView extends StatelessWidget {
                 onPressed: null,
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: Colors.white,
+                  backgroundColor: Color(0xFFFFFBF2),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                   disabledForegroundColor: AdminColors.ink,
@@ -61,7 +61,7 @@ class AdminOrdersView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
-                child: Text('Bulk assign', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                child: Text('Bulk assign', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
               ),
             ],
           ),

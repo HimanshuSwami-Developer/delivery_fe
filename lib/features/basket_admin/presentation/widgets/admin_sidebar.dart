@@ -32,13 +32,13 @@ class AdminSidebar extends StatelessWidget {
                     'Aapno Bazar',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                    style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                   ),
                 ),
                 const SizedBox(width: 9),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(99)),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
                   child: Text(
                     'ADMIN',
                     style: GoogleFonts.manrope(fontSize: 9, fontWeight: FontWeight.w700, color: AdminColors.ink, letterSpacing: 1.4),
@@ -59,7 +59,7 @@ class AdminSidebar extends StatelessWidget {
                             style: GoogleFonts.manrope(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white.withValues(alpha: 0.32),
+                              color: Color(0xFFFFFBF2).withValues(alpha: 0.32),
                               letterSpacing: 1.1,
                             ),
                           ),
@@ -70,7 +70,7 @@ class AdminSidebar extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.fromLTRB(8, 14, 8, 2),
-            decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.1)))),
+            decoration: BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFFFFBF2).withValues(alpha: 0.1)))),
             child: Row(
               children: [
                 const SizedBox(
@@ -89,10 +89,10 @@ class AdminSidebar extends StatelessWidget {
                         Text(
                           (name != null && name.isNotEmpty) ? name : (mobile ?? 'Admin'),
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                          style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                         ),
                         const SizedBox(height: 2),
-                        Text('Ops lead', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.45))),
+                        Text('Ops lead', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.45))),
                       ],
                     );
                   }),
@@ -100,7 +100,7 @@ class AdminSidebar extends StatelessWidget {
                 TextButton(
                   onPressed: cubit.signOut,
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  child: Text('Exit', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.5))),
+                  child: Text('Exit', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ),
               ],
             ),
@@ -120,11 +120,11 @@ class _NavLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = active ? Colors.white : Colors.white.withValues(alpha: 0.62);
+    final fg = active ? Color(0xFFFFFBF2) : Color(0xFFFFFBF2).withValues(alpha: 0.62);
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
-        color: active ? Colors.white.withValues(alpha: 0.14) : Colors.transparent,
+        color: active ? Color(0xFFFFFBF2).withValues(alpha: 0.14) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () {
@@ -152,7 +152,7 @@ class _NavLink extends StatelessWidget {
                 if (entry.badge != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(99)),
+                    decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
                     child: Text(
                       entry.badge!,
                       style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w800, color: AdminColors.ink),

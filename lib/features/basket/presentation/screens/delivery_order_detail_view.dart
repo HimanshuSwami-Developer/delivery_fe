@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
@@ -47,16 +48,16 @@ class DeliveryOrderDetailView extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
-              Text(order.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              Text(order.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
         ),
@@ -143,7 +144,7 @@ class DeliveryOrderDetailView extends StatelessWidget {
                               height: 38,
                               decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.call_outlined, color: Colors.white, size: 16),
+                              child: const Icon(Icons.call_outlined, color: Color(0xFFFFFBF2), size: 16),
                             ),
                           ),
                       ],
@@ -184,6 +185,23 @@ class DeliveryOrderDetailView extends StatelessWidget {
                   ],
                 ),
               ),
+              if (order.status != 'cancelled') ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
+                    icon: const Icon(Icons.receipt_long_outlined, size: 16),
+                    label: Text('GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: BasketColors.ink, width: 1.4),
+                      foregroundColor: BasketColors.ink,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 18),
               if (done)
                 Container(
@@ -212,11 +230,11 @@ class DeliveryOrderDetailView extends StatelessWidget {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                           )
                         : Text(
                             order.status == 'packed' ? 'Start delivery' : 'Mark delivered',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                           ),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
+import 'package:fastswipe/features/basket/presentation/festival_theme.dart';
 
 /// A one-shot "tell the user what just happened" popup — set by
 /// [BasketCubit] the instant an order/payment attempt resolves (placed,
@@ -84,7 +85,9 @@ class BasketState extends Equatable {
     this.apiCoupons = const [],
     this.apiNotifications = const [],
     this.apiBanners = const [],
+    this.apiFestivalSettings = const [],
     this.paymentPopup,
+    this.festivalPopup,
   });
 
   final BasketScreen screen;
@@ -205,10 +208,20 @@ class BasketState extends Equatable {
   /// Home-carousel promo banners (`Banner.placement == 'home_carousel'`).
   final List<ApiBanner> apiBanners;
 
+  /// Admin-editable per-festival overrides (colours/motif/text/on-off) —
+  /// see [FestivalCalendar.activeOn].
+  final List<ApiFestivalSetting> apiFestivalSettings;
+
   /// Set once per order/payment outcome; see [PaymentPopup]. Null the rest
   /// of the time — [BasketCubit.clearPaymentPopup] resets it right after
   /// the root widget shows it.
   final PaymentPopup? paymentPopup;
+
+  /// Set once per app session/day when a festival is active and its popup
+  /// is enabled; see [BasketCubit._maybeShowFestivalPopup]. Null the rest of
+  /// the time — [BasketCubit.clearFestivalPopup] resets it right after the
+  /// root widget shows it.
+  final FestivalTheme? festivalPopup;
 
   BasketState copyWith({
     BasketScreen? screen,
@@ -266,8 +279,11 @@ class BasketState extends Equatable {
     List<ApiCoupon>? apiCoupons,
     List<ApiNotification>? apiNotifications,
     List<ApiBanner>? apiBanners,
+    List<ApiFestivalSetting>? apiFestivalSettings,
     PaymentPopup? paymentPopup,
     bool clearPaymentPopup = false,
+    FestivalTheme? festivalPopup,
+    bool clearFestivalPopup = false,
   }) {
     return BasketState(
       screen: screen ?? this.screen,
@@ -320,7 +336,9 @@ class BasketState extends Equatable {
       apiCoupons: apiCoupons ?? this.apiCoupons,
       apiNotifications: apiNotifications ?? this.apiNotifications,
       apiBanners: apiBanners ?? this.apiBanners,
+      apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
       paymentPopup: clearPaymentPopup ? null : (paymentPopup ?? this.paymentPopup),
+      festivalPopup: clearFestivalPopup ? null : (festivalPopup ?? this.festivalPopup),
     );
   }
 
@@ -376,6 +394,8 @@ class BasketState extends Equatable {
         apiCoupons,
         apiNotifications,
         apiBanners,
+        apiFestivalSettings,
         paymentPopup,
+        festivalPopup,
       ];
 }

@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
@@ -18,6 +19,7 @@ class OrderDetailScreenView extends StatelessWidget {
     final detail = context.select((BasketCubit c) => resolveOrderDetail(c.state));
     final etaLeft = context.select((BasketCubit c) => etaLeftForStage(c.state.trackingStage, eta: BasketCubit.etaMinutes));
     final riderName = context.select((BasketCubit c) => c.state.currentOrder?.deliveryPartnerName ?? 'Your rider');
+    final orderId = context.select((BasketCubit c) => c.state.currentOrder?.id);
 
     return Column(
       children: [
@@ -34,21 +36,21 @@ class OrderDetailScreenView extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(detail.id, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text(detail.id, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
-                  Text(detail.statusLabel, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text(detail.statusLabel, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -70,15 +72,15 @@ class OrderDetailScreenView extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Live tracking', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                            Text('Live tracking', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                             const SizedBox(height: 4),
                             Text(
                               '$riderName · $etaLeft min away',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                             ),
                           ],
                         ),
-                        Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                        Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       ],
                     ),
                   ),
@@ -111,7 +113,7 @@ class OrderDetailScreenView extends StatelessWidget {
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.reorder,
-                        child: Text('Reorder', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white)),
+                        child: Text('Reorder', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       ),
                     ],
                   ),
@@ -174,22 +176,25 @@ class OrderDetailScreenView extends StatelessWidget {
                   ],
                 ),
               ),
-              if (detail.showInvoice) ...[
+              if (detail.showInvoice && orderId != null) ...[
                 const SizedBox(height: 11),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.68),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Download GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                      Text('↓ PDF', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
-                    ],
+                GestureDetector(
+                  onTap: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+                      border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Download GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                        Text('↓ PDF', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                      ],
+                    ),
                   ),
                 ),
               ],

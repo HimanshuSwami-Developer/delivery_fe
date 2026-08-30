@@ -23,7 +23,7 @@ class LoginView extends StatelessWidget {
     final topInset = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFFFFBF2),
       body: SafeArea(
         top: false,
         child: Column(
@@ -45,18 +45,18 @@ class LoginView extends StatelessWidget {
                         Container(
                           width: 32,
                           height: 32,
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(10)),
                           alignment: Alignment.center,
                           child: const BazarMark(size: 19),
                         ),
                         const SizedBox(width: 10),
-                        Text('Aapno Bazar', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
+                        Text('Aapno Bazar', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       ],
                     ),
                     const SizedBox(height: 40),
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.plusJakartaSans(fontSize: 29, height: 1.2, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.87),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 29, height: 1.2, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: -0.87),
                         children: [
                           const TextSpan(text: 'Order groceries\nin '),
                           TextSpan(text: '${BasketCubit.etaMinutes} minutes', style: const TextStyle(color: AapnoBazar.gold)),
@@ -67,7 +67,7 @@ class LoginView extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       'Log in with your mobile number',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.62)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.62)),
                     ),
                   ],
                 ),
@@ -83,7 +83,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(26)),
+                        decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(26)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -138,8 +138,8 @@ class LoginView extends StatelessWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: authLoading
-                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
-                                    : Text('Send OTP', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))))
+                                    : Text('Send OTP', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                               ),
                             ),
                             const SizedBox(height: 14),

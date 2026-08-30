@@ -50,12 +50,12 @@ class CategoryListView extends StatelessWidget {
                       category.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subcategory.isEmpty ? '${items.length} items' : '${items.length} items · $subcategory',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5)),
                     ),
                   ],
                 ),
@@ -76,7 +76,7 @@ class CategoryListView extends StatelessWidget {
                   width: 78,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
                       border: Border(right: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
                     ),
                     child: ListView(
@@ -166,12 +166,12 @@ class _CircleIconButton extends StatelessWidget {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+          color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child: Icon(icon, color: Colors.white, size: 16),
+        child: Icon(icon, color: Color(0xFFFFFBF2), size: 16),
       ),
     );
   }
@@ -192,7 +192,7 @@ class _SubcategoryItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
         decoration: BoxDecoration(
           border: Border(left: BorderSide(color: active ? BasketColors.ink : Colors.transparent, width: 2.5)),
-          color: active ? Colors.white.withValues(alpha: 0.9) : Colors.transparent,
+          color: active ? Color(0xFFFFFBF2).withValues(alpha: 0.9) : Colors.transparent,
         ),
         child: Column(
           children: [
@@ -225,7 +225,7 @@ class _FilterPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
           borderRadius: BorderRadius.circular(99),
         ),

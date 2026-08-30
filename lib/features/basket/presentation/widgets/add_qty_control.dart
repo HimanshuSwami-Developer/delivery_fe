@@ -47,7 +47,7 @@ class AddQtyControl extends StatelessWidget {
             boxShadow: [BoxShadow(color: BasketColors.success.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           alignment: Alignment.center,
-          child: const Icon(Icons.add, size: 18, color: Colors.white),
+          child: const Icon(Icons.add, size: 18, color: Color(0xFFFFFBF2)),
         ),
       );
     }
@@ -61,7 +61,7 @@ class AddQtyControl extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Text(
               '$qty',
-              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
             ),
           ),
           _StepButton(icon: Icons.add, onTap: () => cubit.bump(product.id, 1)),
@@ -84,7 +84,7 @@ class _StepButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(99),
       child: Padding(
         padding: const EdgeInsets.all(6),
-        child: Icon(icon, size: 14, color: Colors.white),
+        child: Icon(icon, size: 14, color: Color(0xFFFFFBF2)),
       ),
     );
   }

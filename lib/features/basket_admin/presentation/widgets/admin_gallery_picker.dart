@@ -125,7 +125,7 @@ class _GalleryThumb extends StatelessWidget {
               height: 20,
               decoration: const BoxDecoration(color: AdminColors.ink, shape: BoxShape.circle),
               alignment: Alignment.center,
-              child: const Icon(Icons.close, size: 12, color: Colors.white),
+              child: const Icon(Icons.close, size: 12, color: Color(0xFFFFFBF2)),
             ),
           ),
         ),

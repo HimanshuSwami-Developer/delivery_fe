@@ -23,7 +23,7 @@ class OnboardingView extends StatelessWidget {
     final last = slideIndex == slides.length - 1;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFFFFBF2),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -125,10 +125,10 @@ class OnboardingView extends StatelessWidget {
                                 children: [
                                   Text(
                                     last ? 'Start shopping' : 'Next',
-                                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                                   ),
                                   const SizedBox(width: 10),
-                                  const Icon(Icons.arrow_forward_rounded, size: 17, color: Colors.white),
+                                  const Icon(Icons.arrow_forward_rounded, size: 17, color: Color(0xFFFFFBF2)),
                                 ],
                               ),
                             ),
@@ -187,7 +187,7 @@ class _HeroPanel extends StatelessWidget {
                 width: 104,
                 height: 104,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Color(0xFFFFFBF2),
                   shape: BoxShape.circle,
                   boxShadow: [BoxShadow(color: AapnoBazar.navy.withValues(alpha: 0.16), blurRadius: 28, offset: const Offset(0, 12))],
                 ),
@@ -200,7 +200,7 @@ class _HeroPanel extends StatelessWidget {
               left: 18,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.94), borderRadius: BorderRadius.circular(100)),
+                decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.94), borderRadius: BorderRadius.circular(100)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

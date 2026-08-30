@@ -4,7 +4,9 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/festival_theme.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/festival_overlay.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/promo_banner.dart';
@@ -277,12 +279,14 @@ class _HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     final addressSubtitle = context.select((BasketCubit c) => homeAddressSubtitle(c.state));
+    final festivalSettings = context.select((BasketCubit c) => c.state.apiFestivalSettings);
+    final festival = FestivalCalendar.activeToday(settings: festivalSettings);
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 18),
-        decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
+        decoration: BoxDecoration(gradient: festival?.gradient ?? BasketColors.headerGradient),
         child: Stack(
           children: [
             Positioned(
@@ -294,6 +298,7 @@ class _HomeHeader extends StatelessWidget {
                 decoration: BoxDecoration(shape: BoxShape.circle, color: BasketColors.primary.withValues(alpha: 0.14)),
               ),
             ),
+            if (festival != null) FestivalOverlay(theme: festival),
             Column(
               children: [
                 Row(
@@ -305,14 +310,18 @@ class _HomeHeader extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.bolt_rounded, size: 13, color: BasketColors.gold),
+                              Icon(Icons.bolt_rounded, size: 13, color: festival?.accent ?? BasketColors.gold),
                               const SizedBox(width: 3),
                               Text(
                                 'DELIVERY IN ${BasketCubit.etaMinutes} MIN',
-                                style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.6), letterSpacing: 0.8),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.6), letterSpacing: 0.8),
                               ),
                             ],
                           ),
+                          if (festival != null) ...[
+                            const SizedBox(height: 8),
+                            FestivalBadge(theme: festival),
+                          ],
                           const SizedBox(height: 5),
                           GestureDetector(
                             onTap: cubit.goToAddress,
@@ -323,17 +332,17 @@ class _HomeHeader extends StatelessWidget {
                                   children: [
                                     Text(
                                       'Home',
-                                      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                                      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                                     ),
                                     const SizedBox(width: 5),
-                                    Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Colors.white.withValues(alpha: 0.6)),
+                                    Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
                                   ],
                                 ),
                                 Text(
                                   addressSubtitle ?? 'Add a delivery address',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.65)),
+                                  style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.65)),
                                 ),
                               ],
                             ),
@@ -348,12 +357,12 @@ class _HomeHeader extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                          color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 19),
+                        child: const Icon(Icons.notifications_none_rounded, color: Color(0xFFFFFBF2), size: 19),
                       ),
                     ),
                   ],
@@ -366,7 +375,7 @@ class _HomeHeader extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Color(0xFFFFFBF2),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -476,7 +485,7 @@ class _BuyAgainCard extends StatelessWidget {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: BasketColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Color(0xFFFFFBF2),
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   minimumSize: Size.zero,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
@@ -538,7 +547,7 @@ class _LastOrderCard extends StatelessWidget {
               minimumSize: Size.zero,
             ),
             onPressed: context.read<BasketCubit>().repeatOrder,
-            child: Text('Repeat', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
+            child: Text('Repeat', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
           ),
         ],
       ),
@@ -571,7 +580,7 @@ class _CouponBanner extends StatelessWidget {
               child: Container(
                 width: 110,
                 height: 110,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.14)),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
               ),
             ),
             Row(
@@ -579,7 +588,7 @@ class _CouponBanner extends StatelessWidget {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(11)),
                   alignment: Alignment.center,
                   child: const Icon(Icons.local_offer_rounded, size: 19, color: BasketColors.accentTeal),
                 ),
@@ -588,19 +597,19 @@ class _CouponBanner extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${coupon.code} · ${coupon.title}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text('${coupon.code} · ${coupon.title}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       const SizedBox(height: 4),
                       Text(
                         'Tap to apply at checkout',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                       ),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
-                  child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
+                  child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                 ),
               ],
             ),

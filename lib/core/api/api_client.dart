@@ -40,7 +40,7 @@ class ApiClient {
             baseUrl: baseUrl ??
                 const String.fromEnvironment(
                   'API_BASE_URL',
-                  // defaultValue:'http://192.168.1.10:8000/api',
+                   //defaultValue:'http://192.168.1.5:8000/api',
                    defaultValue:'https://deliverybe.vercel.app/api',
                 ),
             contentType: 'application/json',

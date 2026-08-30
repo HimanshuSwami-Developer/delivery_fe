@@ -124,7 +124,7 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
                             onPressed: null,
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                              backgroundColor: Colors.white,
+                              backgroundColor: Color(0xFFFFFBF2),
                               disabledForegroundColor: AdminColors.ink,
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
@@ -140,7 +140,7 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                             ),
-                            child: Text('Bulk restock', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('Bulk restock', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                           ),
                         ],
                       ),
@@ -180,7 +180,7 @@ class _SearchField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFFFFBF2),
         border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(11),
       ),

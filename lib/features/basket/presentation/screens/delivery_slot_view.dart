@@ -35,21 +35,21 @@ class DeliverySlotView extends StatelessWidget {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                        color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                        border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delivery slot', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Delivery slot', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                       const SizedBox(height: 2),
-                      Text('Step 2 of 3', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      Text('Step 2 of 3', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -85,8 +85,8 @@ class DeliverySlotView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(13),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.68),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+                  border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Text(
@@ -101,7 +101,7 @@ class DeliverySlotView extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
             border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
           ),
           child: SafeArea(
@@ -115,7 +115,7 @@ class DeliverySlotView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: cubit.goToSummary,
-                child: Text('Continue to payment →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                child: Text('Continue to payment →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
               ),
             ),
           ),
@@ -177,8 +177,8 @@ class _SlotCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(13),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.68),
-            border: Border.all(color: selected ? BasketColors.ink : Colors.white.withValues(alpha: 0.85), width: 1.5),
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+            border: Border.all(color: selected ? BasketColors.ink : Color(0xFFFFFBF2).withValues(alpha: 0.85), width: 1.5),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Row(

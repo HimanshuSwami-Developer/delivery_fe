@@ -67,7 +67,7 @@ class ProductDetailView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(18, 16, 18, 30),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
                     boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.18), blurRadius: 40, offset: const Offset(0, -12))],
                   ),
@@ -202,7 +202,7 @@ class ProductDetailView extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
             border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
           ),
           child: SafeArea(
@@ -233,7 +233,7 @@ class ProductDetailView extends StatelessWidget {
                     onPressed: cubit.pdpAdd,
                     child: Text(
                       'Add to cart · ${moneyLabel(p.price * pdpQty)}',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                     ),
                   ),
                 ),
@@ -331,7 +331,7 @@ class _ProductGalleryState extends State<_ProductGallery> {
                           height: 6,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(3),
-                            color: i == _index ? Colors.white : Colors.white.withValues(alpha: 0.45),
+                            color: i == _index ? Color(0xFFFFFBF2) : Color(0xFFFFFBF2).withValues(alpha: 0.45),
                             boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.25), blurRadius: 3)],
                           ),
                         ),
@@ -360,7 +360,7 @@ class _ProductGalleryState extends State<_ProductGallery> {
                       height: 46,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: i == _index ? BasketColors.ink : Colors.white, width: i == _index ? 2.4 : 1.6),
+                        border: Border.all(color: i == _index ? BasketColors.ink : Color(0xFFFFFBF2), width: i == _index ? 2.4 : 1.6),
                         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 6, offset: const Offset(0, 2))],
                       ),
                       child: ClipRRect(
@@ -398,7 +398,7 @@ class _DarkCircleButton extends StatelessWidget {
         height: 36,
         decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
         alignment: Alignment.center,
-        child: Icon(icon, color: Colors.white, size: 16),
+        child: Icon(icon, color: Color(0xFFFFFBF2), size: 16),
       ),
     );
   }
@@ -415,11 +415,11 @@ class _VariantPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
       decoration: BoxDecoration(
-        color: selected ? BasketColors.ink : Colors.white.withValues(alpha: 0.7),
+        color: selected ? BasketColors.ink : Color(0xFFFFFBF2).withValues(alpha: 0.7),
         border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.14)),
         borderRadius: BorderRadius.circular(99),
       ),
-      child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : BasketColors.ink)),
+      child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Color(0xFFFFFBF2) : BasketColors.ink)),
     );
   }
 }
@@ -435,7 +435,7 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
+        color: Color(0xFFFFFBF2).withValues(alpha: 0.8),
         border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
         borderRadius: BorderRadius.circular(14),
       ),

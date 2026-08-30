@@ -16,7 +16,7 @@ class PaymentFailureView extends StatelessWidget {
     final methodName = context.select((BasketCubit c) => BasketCatalog.paymentMethodById(c.state.paymentMethodId).name);
 
     return Container(
-      color: Colors.white,
+      color: Color(0xFFFFFBF2),
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(22, MediaQuery.paddingOf(context).top + 24, 22, 26),
       child: Column(
@@ -27,7 +27,7 @@ class PaymentFailureView extends StatelessWidget {
             height: 58,
             decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
             alignment: Alignment.center,
-            child: Text('!', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+            child: Text('!', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
           ),
           const SizedBox(height: 18),
           Text(
@@ -43,7 +43,7 @@ class PaymentFailureView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
               border: Border.all(color: BasketColors.ink.withValues(alpha: 0.08)),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -67,7 +67,7 @@ class PaymentFailureView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
               onPressed: cubit.goToPaymentChoice,
-              child: Text('Retry payment', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+              child: Text('Retry payment', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
             ),
           ),
           const SizedBox(height: 9),

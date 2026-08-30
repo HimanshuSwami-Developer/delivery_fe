@@ -37,11 +37,11 @@ class CategoriesView extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('All categories', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.4)),
+                    Text('All categories', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: -0.4)),
                     const SizedBox(height: 4),
                     Text(
                       '${categories.length} categories to shop from',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                     ),
                     const SizedBox(height: 14),
                     InkWell(
@@ -50,7 +50,7 @@ class CategoriesView extends StatelessWidget {
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(14)),
                         child: Row(
                           children: [
                             Icon(Icons.search_rounded, size: 17, color: BasketColors.muted),

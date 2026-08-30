@@ -49,7 +49,7 @@ class FilterSheet extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.96),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
               ),
               child: Column(
@@ -127,7 +127,7 @@ class FilterSheet extends StatelessWidget {
                           onPressed: cubit.closeSheet,
                           child: Text(
                             'Show $listCount results',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: Colors.white),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                           ),
                         ),
                       ),

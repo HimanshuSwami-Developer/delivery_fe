@@ -57,6 +57,8 @@ class BasketAdminState extends Equatable {
     this.editingCategory,
     this.apiBanners = const [],
     this.editingBanner,
+    this.apiFestivalSettings = const [],
+    this.editingFestivalSetting,
     this.apiNotifications = const [],
     this.dashboardReport,
     this.dashboardLoading = false,
@@ -181,6 +183,14 @@ class BasketAdminState extends Equatable {
   /// creating a new one, non-null means it's editing this one.
   final ApiBanner? editingBanner;
 
+  /// One row per festival — see [AdminPage.festivals].
+  final List<ApiFestivalSetting> apiFestivalSettings;
+
+  /// The row shown on [AdminModal.editFestival] — always non-null while
+  /// that modal is open (unlike banners, there's no "create new" here;
+  /// every festival's row already exists, seeded server-side).
+  final ApiFestivalSetting? editingFestivalSetting;
+
   final List<ApiNotification> apiNotifications;
 
   final DashboardReport? dashboardReport;
@@ -246,6 +256,9 @@ class BasketAdminState extends Equatable {
     List<ApiBanner>? apiBanners,
     ApiBanner? editingBanner,
     bool clearEditingBanner = false,
+    List<ApiFestivalSetting>? apiFestivalSettings,
+    ApiFestivalSetting? editingFestivalSetting,
+    bool clearEditingFestivalSetting = false,
     List<ApiNotification>? apiNotifications,
     DashboardReport? dashboardReport,
     bool? dashboardLoading,
@@ -300,6 +313,8 @@ class BasketAdminState extends Equatable {
       editingCategory: clearEditingCategory ? null : (editingCategory ?? this.editingCategory),
       apiBanners: apiBanners ?? this.apiBanners,
       editingBanner: clearEditingBanner ? null : (editingBanner ?? this.editingBanner),
+      apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
+      editingFestivalSetting: clearEditingFestivalSetting ? null : (editingFestivalSetting ?? this.editingFestivalSetting),
       apiNotifications: apiNotifications ?? this.apiNotifications,
       dashboardReport: dashboardReport ?? this.dashboardReport,
       dashboardLoading: dashboardLoading ?? this.dashboardLoading,
@@ -355,6 +370,8 @@ class BasketAdminState extends Equatable {
         editingCategory,
         apiBanners,
         editingBanner,
+        apiFestivalSettings,
+        editingFestivalSetting,
         apiNotifications,
         dashboardReport,
         dashboardLoading,

@@ -145,7 +145,7 @@ class _ComposePanelState extends State<_ComposePanel> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Compose', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+              Text('Compose', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
               const SizedBox(height: 14),
               _DarkField(label: 'Title', controller: _title),
               const SizedBox(height: 10),
@@ -162,12 +162,12 @@ class _ComposePanelState extends State<_ComposePanel> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                         decoration: BoxDecoration(
-                          color: audience == a ? Colors.white : Colors.transparent,
-                          border: Border.all(color: audience == a ? Colors.white : Colors.white.withValues(alpha: 0.3)),
+                          color: audience == a ? Color(0xFFFFFBF2) : Colors.transparent,
+                          border: Border.all(color: audience == a ? Color(0xFFFFFBF2) : Color(0xFFFFFBF2).withValues(alpha: 0.3)),
                           borderRadius: BorderRadius.circular(99),
                         ),
                         child: Text(a,
-                            style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: audience == a ? AdminColors.ink : Colors.white)),
+                            style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: audience == a ? AdminColors.ink : Color(0xFFFFFBF2))),
                       ),
                     ),
                 ],
@@ -178,8 +178,8 @@ class _ComposePanelState extends State<_ComposePanel> {
                 child: FilledButton(
                   onPressed: _sending ? null : () => _send(cubit),
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.white.withValues(alpha: 0.6),
+                    backgroundColor: Color(0xFFFFFBF2),
+                    disabledBackgroundColor: Color(0xFFFFFBF2).withValues(alpha: 0.6),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -216,7 +216,7 @@ class _ComposePanelState extends State<_ComposePanel> {
                           height: 30,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(8)),
-                          child: Text('b', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
+                          child: Text('b', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                         ),
                         const SizedBox(width: 10),
                         Text('basket · now', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: AdminColors.muted)),
@@ -257,21 +257,21 @@ class _DarkField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+        color: Color(0xFFFFFBF2).withValues(alpha: 0.08),
+        border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label.toUpperCase(),
-              style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.45), letterSpacing: 0.6)),
+              style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.45), letterSpacing: 0.6)),
           const SizedBox(height: 5),
           TextField(
             controller: controller,
             maxLines: maxLines,
-            style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.5, color: Colors.white.withValues(alpha: 0.9)),
-            cursorColor: Colors.white,
+            style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.5, color: Color(0xFFFFFBF2).withValues(alpha: 0.9)),
+            cursorColor: Color(0xFFFFFBF2),
             decoration: const InputDecoration(
               filled: false,
               border: InputBorder.none,

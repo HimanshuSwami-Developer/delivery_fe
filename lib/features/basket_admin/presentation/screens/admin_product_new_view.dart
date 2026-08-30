@@ -320,11 +320,11 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                           )
                         : Text(
                             _editing == null ? 'Save product' : 'Save changes',
-                            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w800, color: Colors.white),
+                            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                           ),
                   ),
                 ),

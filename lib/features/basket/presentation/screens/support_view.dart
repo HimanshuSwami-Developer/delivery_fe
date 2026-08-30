@@ -27,21 +27,21 @@ class SupportView extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Help & support', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Help & support', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
-                  Text('Typical reply in under 2 min', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                  Text('Typical reply in under 2 min', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -69,8 +69,8 @@ class SupportView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.68),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+                      border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
@@ -109,11 +109,11 @@ class _ContactTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 15, color: filled ? Colors.white : BasketColors.ink),
+          Icon(icon, size: 15, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Colors.white : BasketColors.ink),
+            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
           ),
         ],
       ),

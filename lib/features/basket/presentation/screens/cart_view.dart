@@ -52,23 +52,23 @@ class _CartViewState extends State<CartView> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Your basket', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Your basket', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
                   Text(
                     '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} · arrives in ${BasketCubit.etaMinutes} min',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5)),
                   ),
                 ],
               ),
@@ -100,7 +100,7 @@ class _EmptyState extends StatelessWidget {
               width: 74,
               height: 74,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
                 border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
                 borderRadius: BorderRadius.circular(22),
               ),
@@ -123,7 +123,7 @@ class _EmptyState extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
               ),
               onPressed: context.read<BasketCubit>().goHome,
-              child: Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+              child: Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ),
           ],
         ),
@@ -182,7 +182,7 @@ class _FullCart extends StatelessWidget {
                               isDense: true,
                               hintText: 'FIRST50 / FRESH10',
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: Color(0xFFFFFBF2),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(11),
@@ -208,7 +208,7 @@ class _FullCart extends StatelessWidget {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.applyCoupon,
-                          child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                         ),
                       ],
                     ),
@@ -245,7 +245,7 @@ class _FullCart extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
             border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
           ),
           child: SafeArea(
@@ -271,7 +271,7 @@ class _FullCart extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   ),
                   onPressed: cubit.goCheckout,
-                  child: Text('Checkout →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                  child: Text('Checkout →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                 ),
               ],
             ),
@@ -319,15 +319,15 @@ class _CartItemRow extends StatelessWidget {
                   onTap: () => cubit.bump(product.id, -1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('−', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('−', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                   ),
                 ),
-                Text('$qty', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                Text('$qty', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                 InkWell(
                   onTap: () => cubit.bump(product.id, 1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                    child: Text('+', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('+', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                   ),
                 ),
               ],

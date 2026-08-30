@@ -207,7 +207,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
           right: 0,
           top: 0,
           child: IgnorePointer(
-            child: Container(height: 60, color: Colors.white.withValues(alpha: 0.78)),
+            child: Container(height: 60, color: Color(0xFFFFFBF2).withValues(alpha: 0.78)),
           ),
         ),
         Positioned(
@@ -221,7 +221,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
               height: 36,
               decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
               alignment: Alignment.center,
-              child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
             ),
           ),
         ),
@@ -256,7 +256,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: Color(0xFFFFFBF2),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
               ),
               child: ListView(
@@ -311,24 +311,24 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(riderName, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                              Text(riderName, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                               const SizedBox(height: 3),
-                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
+                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55))),
                             ],
                           ),
                         ),
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), shape: BoxShape.circle),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.call_outlined, color: Colors.white, size: 15),
+                          child: const Icon(Icons.call_outlined, color: Color(0xFFFFFBF2), size: 15),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle),
                           alignment: Alignment.center,
                           child: const Icon(Icons.mail_outline, color: BasketColors.ink, size: 15),
                         ),
@@ -369,7 +369,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.goToSupport,
-                          child: Text('Get help', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                          child: Text('Get help', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                         ),
                       ),
                     ],
@@ -413,7 +413,7 @@ class _TimelineStep extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: done ? BasketColors.ink : Colors.white,
+                  color: done ? BasketColors.ink : Color(0xFFFFFBF2),
                   border: Border.all(color: BasketColors.ink, width: 2),
                 ),
               ),
@@ -466,7 +466,7 @@ class _MapPin extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
-            color: filled ? BasketColors.ink : Colors.white,
+            color: filled ? BasketColors.ink : Color(0xFFFFFBF2),
             border: filled ? null : Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -475,7 +475,7 @@ class _MapPin extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: filled ? Colors.white : BasketColors.ink,
+              color: filled ? Color(0xFFFFFBF2) : BasketColors.ink,
             ),
           ),
         ),
@@ -485,12 +485,12 @@ class _MapPin extends StatelessWidget {
           height: filled ? 30 : 26,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: filled ? BasketColors.ink : Colors.white,
+            color: filled ? BasketColors.ink : Color(0xFFFFFBF2),
             border: filled ? null : Border.all(color: BasketColors.ink, width: 2),
             boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: filled ? 0.22 : 0.1), blurRadius: 6, spreadRadius: filled ? 1 : 0)],
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: filled ? 17 : 14, color: filled ? Colors.white : BasketColors.ink),
+          child: Icon(icon, size: filled ? 17 : 14, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
         ),
       ],
     );
@@ -513,7 +513,7 @@ class _MapControlButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Color(0xFFFFFBF2),
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.16), blurRadius: 6)],
         ),

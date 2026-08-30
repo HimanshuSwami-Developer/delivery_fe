@@ -322,7 +322,7 @@ class AdminToggle extends StatelessWidget {
           color: on ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Container(width: knob, height: knob, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+        child: Container(width: knob, height: knob, decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle)),
       ),
     );
   }
@@ -364,7 +364,7 @@ class AdminFieldBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFFFFBF2),
         border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -426,7 +426,7 @@ class AdminEditField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFFFFBF2),
         border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -489,7 +489,7 @@ class AdminEditDropdown<T> extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFFFFBF2),
         border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -571,7 +571,7 @@ class AdminFormModal extends StatelessWidget {
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.98),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.98),
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [BoxShadow(color: AdminColors.ink.withValues(alpha: 0.3), blurRadius: 60, offset: const Offset(0, 30))],
               ),
@@ -643,9 +643,9 @@ class AdminFormModal extends StatelessWidget {
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                                 )
-                              : Text(submitLabel, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                              : Text(submitLabel, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                         ),
                       ),
                     ],

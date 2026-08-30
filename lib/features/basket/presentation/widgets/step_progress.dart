@@ -17,7 +17,7 @@ class StepProgress extends StatelessWidget {
             child: Container(
               height: 3,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: i < step ? 1 : 0.22),
+                color: Color(0xFFFFFBF2).withValues(alpha: i < step ? 1 : 0.22),
                 borderRadius: BorderRadius.circular(9),
               ),
             ),

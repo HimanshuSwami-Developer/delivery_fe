@@ -25,7 +25,7 @@ class OrderSuccessView extends StatelessWidget {
     final orderNumberLabel = order?.orderNumber ?? '—';
 
     return Container(
-      color: Colors.white,
+      color: Color(0xFFFFFBF2),
       child: Column(
         children: [
           Container(
@@ -37,16 +37,16 @@ class OrderSuccessView extends StatelessWidget {
                 Container(
                   width: 62,
                   height: 62,
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle),
                   alignment: Alignment.center,
                   child: const Icon(Icons.check, color: BasketColors.ink, size: 30),
                 ),
                 const SizedBox(height: 16),
-                Text('Order confirmed', style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.4)),
+                Text('Order confirmed', style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: -0.4)),
                 const SizedBox(height: 7),
                 Text(
                   '$orderNumberLabel · paid by $methodName',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                 ),
               ],
             ),
@@ -58,7 +58,7 @@ class OrderSuccessView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
                     border: Border.all(color: BasketColors.ink.withValues(alpha: 0.08)),
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -75,7 +75,7 @@ class OrderSuccessView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
                     border: Border.all(color: BasketColors.ink.withValues(alpha: 0.08)),
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -97,7 +97,7 @@ class OrderSuccessView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     onPressed: cubit.goToTrack,
-                    child: Text('Track this order', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                    child: Text('Track this order', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                   ),
                 ),
                 const SizedBox(height: 9),

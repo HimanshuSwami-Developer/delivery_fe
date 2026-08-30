@@ -64,12 +64,12 @@ class _SearchViewState extends State<SearchView> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
               const SizedBox(width: 10),
@@ -77,20 +77,20 @@ class _SearchViewState extends State<SearchView> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
+                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.2)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.search, size: 16, color: Colors.white.withValues(alpha: 0.6)),
+                      Icon(Icons.search, size: 16, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _text,
                           focusNode: _focus,
                           onChanged: _setQuery,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2)),
                           decoration: InputDecoration(
                             isDense: true,
                             // Unset `filled` inherits the app-wide theme's
@@ -102,7 +102,7 @@ class _SearchViewState extends State<SearchView> {
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             hintText: 'Search products',
-                            hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.55)),
+                            hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                           ),
                         ),
                       ),
@@ -112,7 +112,7 @@ class _SearchViewState extends State<SearchView> {
                             cubit.clearQuery();
                             _text.clear();
                           },
-                          child: Icon(Icons.close, size: 16, color: Colors.white.withValues(alpha: 0.6)),
+                          child: Icon(Icons.close, size: 16, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
                         ),
                     ],
                   ),
@@ -167,7 +167,7 @@ class _SearchViewState extends State<SearchView> {
                       child: Container(
                         padding: const EdgeInsets.all(9),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
                           border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -209,7 +209,7 @@ class _SearchViewState extends State<SearchView> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(12)),
-                        child: Text('Request this product', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                        child: Text('Request this product', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                       ),
                     ],
                   ),
@@ -237,7 +237,7 @@ class _Chip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
           border: Border.all(color: filled ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.12)),
           borderRadius: BorderRadius.circular(99),
         ),

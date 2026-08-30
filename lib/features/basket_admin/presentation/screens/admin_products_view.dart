@@ -52,7 +52,7 @@ class AdminProductsView extends StatelessWidget {
                 onPressed: cubit.goCategories,
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: Colors.white,
+                  backgroundColor: Color(0xFFFFFBF2),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
@@ -66,7 +66,7 @@ class AdminProductsView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
-                child: Text('+ Add product', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                child: Text('+ Add product', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
               ),
             ],
           ),

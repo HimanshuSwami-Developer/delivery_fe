@@ -59,7 +59,7 @@ class PromoBanner extends StatelessWidget {
                         banner.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14.5, height: 1.25, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 14.5, height: 1.25, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                       ),
                     ),
                   ],

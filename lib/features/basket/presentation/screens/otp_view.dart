@@ -119,7 +119,7 @@ class _OtpViewState extends State<OtpView> {
     final topInset = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFFFFBF2),
       body: SafeArea(
         top: false,
         child: Column(
@@ -142,20 +142,20 @@ class _OtpViewState extends State<OtpView> {
                       child: Container(
                         width: 42,
                         height: 42,
-                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                        child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 18),
                       ),
                     ),
                     const SizedBox(height: 24),
                     Text(
                       'Verify your number',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.84),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: -0.84),
                     ),
                     const SizedBox(height: 8),
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.62)),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.62)),
                         children: [
                           const TextSpan(text: 'We sent a 4-digit code to '),
                           TextSpan(
@@ -181,7 +181,7 @@ class _OtpViewState extends State<OtpView> {
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(26)),
+                        decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(26)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -243,10 +243,10 @@ class _OtpViewState extends State<OtpView> {
                                 ),
                                 alignment: Alignment.center,
                                 child: authLoading
-                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
+                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))))
                                     : Text(
                                         full ? 'Verify & continue' : 'Enter 4-digit code',
-                                        style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: full ? Colors.white : AapnoBazar.textDisabled),
+                                        style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: full ? Color(0xFFFFFBF2) : AapnoBazar.textDisabled),
                                       ),
                               ),
                             ),

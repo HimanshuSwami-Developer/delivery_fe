@@ -7,6 +7,7 @@ import 'package:fastswipe/features/basket_admin/presentation/screens/admin_categ
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_coupons_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_customers_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_dashboard_view.dart';
+import 'package:fastswipe/features/basket_admin/presentation/screens/admin_festival_settings_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_gst_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_inventory_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_login_view.dart';
@@ -115,6 +116,7 @@ class _AdminShell extends StatelessWidget {
           if (modal == AdminModal.partnerForm) const PartnerFormModal(),
           if (modal == AdminModal.addCoupon) const AddCouponModal(),
           if (modal == AdminModal.addBanner) const AddBannerModal(),
+          if (modal == AdminModal.editFestival) const EditFestivalSettingModal(),
         ],
       ),
     );
@@ -139,6 +141,7 @@ class _AdminPage extends StatelessWidget {
       AdminPage.partners => const AdminPartnersView(),
       AdminPage.coupons => const AdminCouponsView(),
       AdminPage.banners => const AdminBannersView(),
+      AdminPage.festivals => const AdminFestivalSettingsView(),
       AdminPage.notifs => const AdminNotificationsView(),
       AdminPage.sales => const AdminSalesView(),
       AdminPage.gst => const AdminGstView(),

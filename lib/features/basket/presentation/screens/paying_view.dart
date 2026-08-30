@@ -53,7 +53,7 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
                     if (i > 0) const SizedBox(width: 7),
                     Opacity(
                       opacity: _dotOpacity(i),
-                      child: Container(width: 9, height: 9, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                      child: Container(width: 9, height: 9, decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle)),
                     ),
                   ],
                 ],
@@ -61,14 +61,14 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
             },
           ),
           const SizedBox(height: 16),
-          Text('Processing ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+          Text('Processing ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
           const SizedBox(height: 16),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 230),
             child: Text(
               "Do not close the app. We're confirming with $methodName.",
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5)),
+              style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5)),
             ),
           ),
         ],

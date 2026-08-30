@@ -116,6 +116,24 @@ class PromotionsRepository {
     }
   }
 
+  Future<List<ApiFestivalSetting>> fetchFestivalSettings() async {
+    try {
+      final response = await _client.dio.get('/festival-settings/', queryParameters: {'page_size': 50});
+      return extractResults(response.data).map((e) => ApiFestivalSetting.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiFestivalSetting> updateFestivalSetting(int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/festival-settings/$id/', data: data);
+      return ApiFestivalSetting.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<ApiNotification>> fetchNotifications() async {
     try {
       final response = await _client.dio.get('/notifications/', queryParameters: {'page_size': 50});

@@ -138,6 +138,8 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadCoupons();
       case AdminPage.banners:
         loadBanners();
+      case AdminPage.festivals:
+        loadFestivalSettings();
       case AdminPage.notifs:
         loadNotifications();
       case AdminPage.sales:
@@ -239,6 +241,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         clearEditingCategory: true,
         clearEditingCoupon: true,
         clearEditingBanner: true,
+        clearEditingFestivalSetting: true,
       ));
 
   /// [category] null opens the form blank (create); non-null opens it
@@ -548,6 +551,27 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   Future<void> deleteBanner(int id) async {
     await api.promotions.deleteBanner(id);
     emit(state.copyWith(apiBanners: state.apiBanners.where((b) => b.id != id).toList()));
+  }
+
+  Future<void> loadFestivalSettings() async {
+    try {
+      final settings = await api.promotions.fetchFestivalSettings();
+      emit(state.copyWith(apiFestivalSettings: settings));
+    } catch (_) {}
+  }
+
+  /// Opens the edit form for one festival's row — see
+  /// `AdminFestivalSettingsView`. Unlike banners, there's always exactly
+  /// one row per festival (seeded server-side), so this only ever edits.
+  void openEditFestivalSetting(ApiFestivalSetting setting) {
+    emit(state.copyWith(modal: AdminModal.editFestival, editingFestivalSetting: setting));
+  }
+
+  Future<ApiFestivalSetting> updateFestivalSetting(int id, Map<String, dynamic> data) async {
+    final updated = await api.promotions.updateFestivalSetting(id, data);
+    final next = [for (final s in state.apiFestivalSettings) if (s.id == id) updated else s];
+    emit(state.copyWith(apiFestivalSettings: next));
+    return updated;
   }
 
   // ── Notifications ─────────────────────────────────────────────────────

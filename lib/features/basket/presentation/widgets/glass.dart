@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 /// with a semi-opaque fill instead of `BackdropFilter` blur for perf.
 BoxDecoration glassCard({double radius = 16, double opacity = 0.68}) {
   return BoxDecoration(
-    color: Colors.white.withValues(alpha: opacity),
-    border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+    color: Color(0xFFFFFBF2).withValues(alpha: opacity),
+    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
     borderRadius: BorderRadius.circular(radius),
     // Tighter, tonal shadow (per `stitch_instazepto_grocery_mart`'s
     // "minimal use of shadows" elevation spec) instead of a heavy floaty
@@ -33,7 +33,7 @@ BoxDecoration darkHeaderDecoration() => const BoxDecoration(
 /// elevated with shadow alone rather than a hard border line, which is what
 /// reads as "considered" instead of "boxed-in" at this card size.
 BoxDecoration productCardDecoration({double radius = 14}) => BoxDecoration(
-      color: Colors.white,
+      color: Color(0xFFFFFBF2),
       borderRadius: BorderRadius.circular(radius),
       boxShadow: [
         BoxShadow(

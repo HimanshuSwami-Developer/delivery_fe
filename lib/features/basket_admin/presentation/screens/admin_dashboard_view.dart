@@ -43,7 +43,7 @@ class AdminDashboardView extends StatelessWidget {
                 sub: 'vs yesterday',
                 delta: _pctLabel(report.gmvDeltaPct),
                 chipBg: AdminColors.ink,
-                chipFg: Colors.white,
+                chipFg: Color(0xFFFFFBF2),
               ),
               AdminKpiCard(
                 label: 'Orders',
@@ -51,7 +51,7 @@ class AdminDashboardView extends StatelessWidget {
                 sub: 'Today so far',
                 delta: _pctLabel(report.ordersDeltaPct),
                 chipBg: AdminColors.ink,
-                chipFg: Colors.white,
+                chipFg: Color(0xFFFFFBF2),
               ),
               AdminKpiCard(
                 label: 'Avg basket',
@@ -154,16 +154,16 @@ class AdminDashboardView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Low stock alerts', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
+                  Text('Low stock alerts', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 5),
                   Text('${report.lowStock.length} SKUs below reorder level',
-                      style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                      style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                   const SizedBox(height: 15),
                   if (report.lowStock.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text('Nothing below reorder level right now.',
-                          style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.6))),
+                          style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.6))),
                     ),
                   for (final l in report.lowStock)
                     Padding(
@@ -171,8 +171,8 @@ class AdminDashboardView extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                          color: Color(0xFFFFFBF2).withValues(alpha: 0.08),
+                          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.12)),
                           borderRadius: BorderRadius.circular(13),
                         ),
                         child: Row(
@@ -183,17 +183,17 @@ class AdminDashboardView extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(l.product, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                                  Text(l.product, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                                   const SizedBox(height: 3),
-                                  Text(l.sku, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.45))),
+                                  Text(l.sku, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.45))),
                                 ],
                               ),
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('${l.onHand}', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
-                                Text('left', style: GoogleFonts.manrope(fontSize: 9, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.45))),
+                                Text('${l.onHand}', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                                Text('left', style: GoogleFonts.manrope(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.45))),
                               ],
                             ),
                           ],
@@ -205,7 +205,7 @@ class AdminDashboardView extends StatelessWidget {
                     child: FilledButton(
                       onPressed: cubit.goInventory,
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: Color(0xFFFFFBF2),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),

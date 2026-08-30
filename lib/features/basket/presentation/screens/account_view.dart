@@ -36,11 +36,11 @@ class AccountView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(nameLabel, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text(nameLabel, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 3),
                   Text(
                     '+91 $phoneLabel',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                   ),
                 ],
               ),
@@ -60,14 +60,14 @@ class AccountView extends StatelessWidget {
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                         children: const [TextSpan(text: 'Refer & earn '), TextSpan(text: '₹250', style: TextStyle(color: BasketColors.gold))],
                       ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       'Your friend gets ₹100 off their first order, you get ₹250 in credits.',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -76,12 +76,12 @@ class AccountView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                              border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.3)),
                               borderRadius: BorderRadius.circular(11),
                             ),
                             child: Text(
                               referralCode ?? '···',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.3),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: 1.3),
                             ),
                           ),
                         ),
@@ -97,7 +97,7 @@ class AccountView extends StatelessWidget {
                                   ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11)),
+                            decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(11)),
                             child: Text('Share', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                           ),
                         ),

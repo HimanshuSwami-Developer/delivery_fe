@@ -38,7 +38,7 @@ class CancelSheet extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 26),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.96),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
               ),
               child: Column(
@@ -98,7 +98,7 @@ class CancelSheet extends StatelessWidget {
                           onPressed: cubit.confirmCancel,
                           child: Text(
                             isReturn ? 'Request return' : 'Cancel order',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                           ),
                         ),
                       ),
@@ -129,7 +129,7 @@ class _ReasonTile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: selected ? BasketColors.ink.withValues(alpha: 0.05) : Colors.white,
+          color: selected ? BasketColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
           border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.12), width: 1.5),
           borderRadius: BorderRadius.circular(13),
         ),

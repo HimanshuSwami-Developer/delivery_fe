@@ -84,6 +84,63 @@ class ApiBanner {
       );
 }
 
+/// Mirrors `promotions.serializers.FestivalSettingSerializer` — one row per
+/// festival, admin-editable colours/motif/text and on/auto/off override for
+/// the home header's festival theme. See
+/// `features/basket/presentation/festival_theme.dart` for how this merges
+/// over the app's built-in festival catalog.
+class ApiFestivalSetting {
+  const ApiFestivalSetting({
+    required this.id,
+    required this.key,
+    required this.overrideMode,
+    this.startsOn,
+    this.endsOn,
+    required this.accentColor,
+    required this.gradientStart,
+    required this.gradientEnd,
+    required this.motif,
+    required this.greetingText,
+    required this.popupEnabled,
+    required this.popupTitle,
+    required this.popupMessage,
+  });
+
+  final int id;
+  final String key;
+
+  /// `'auto'` | `'force_on'` | `'force_off'`.
+  final String overrideMode;
+  final DateTime? startsOn;
+  final DateTime? endsOn;
+  final String accentColor;
+  final String gradientStart;
+  final String gradientEnd;
+
+  /// `'diyaLights'` | `'colorSplash'` | `'snowfall'` | `'confetti'`.
+  final String motif;
+  final String greetingText;
+  final bool popupEnabled;
+  final String popupTitle;
+  final String popupMessage;
+
+  factory ApiFestivalSetting.fromJson(Map<String, dynamic> json) => ApiFestivalSetting(
+        id: json['id'] as int,
+        key: json['key'] as String,
+        overrideMode: json['override_mode'] as String? ?? 'auto',
+        startsOn: json['starts_on'] != null ? DateTime.parse(json['starts_on'] as String) : null,
+        endsOn: json['ends_on'] != null ? DateTime.parse(json['ends_on'] as String) : null,
+        accentColor: json['accent_color'] as String? ?? '',
+        gradientStart: json['gradient_start'] as String? ?? '',
+        gradientEnd: json['gradient_end'] as String? ?? '',
+        motif: json['motif'] as String? ?? '',
+        greetingText: json['greeting_text'] as String? ?? '',
+        popupEnabled: json['popup_enabled'] as bool? ?? true,
+        popupTitle: json['popup_title'] as String? ?? '',
+        popupMessage: json['popup_message'] as String? ?? '',
+      );
+}
+
 /// Mirrors `promotions.serializers.NotificationSerializer`.
 class ApiNotification {
   const ApiNotification({

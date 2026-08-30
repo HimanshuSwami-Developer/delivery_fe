@@ -2,11 +2,13 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// The simple "one card's worth of fields" add/edit forms — category,
 /// coupon, banner — each a thin [AdminFormModal] wrapper around its own
@@ -277,3 +279,221 @@ class _AddBannerModalState extends State<AddBannerModal> {
     );
   }
 }
+
+const _kFestivalOverrideModes = {'auto': 'Auto — by date', 'force_on': 'Always on', 'force_off': 'Always off'};
+const _kFestivalMotifs = {
+  'diyaLights': 'Diya / string lights',
+  'colorSplash': 'Colour splash',
+  'snowfall': 'Snowfall',
+  'confetti': 'Confetti',
+};
+
+Color? _hexOrNull(String hex) {
+  final cleaned = hex.replaceFirst('#', '').trim();
+  if (cleaned.length != 6) return null;
+  final value = int.tryParse('FF$cleaned', radix: 16);
+  return value == null ? null : Color(value);
+}
+
+/// A hex-code [AdminEditField] with a live colour swatch next to it —
+/// this console's stand-in for a full colour-picker (kept text-based,
+/// consistent with every other field here) while still giving the admin
+/// visual feedback on what they typed.
+class _AdminColorField extends StatelessWidget {
+  const _AdminColorField({required this.label, required this.controller});
+
+  final String label;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: AdminEditField(
+            label: label,
+            controller: controller,
+            hint: '#RRGGBB',
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: AnimatedBuilder(
+            animation: controller,
+            builder: (context, _) => Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: _hexOrNull(controller.text) ?? AdminColors.faint,
+                shape: BoxShape.circle,
+                border: Border.all(color: AdminColors.ink.withValues(alpha: 0.14)),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Edit form for one festival's home-header theme — colours, motif,
+/// greeting/popup text, and the auto/on/off override. Always editing an
+/// existing row (every festival is seeded server-side; there's no "create
+/// new" here) — see `AdminFestivalSettingsView`.
+class EditFestivalSettingModal extends StatefulWidget {
+  const EditFestivalSettingModal({super.key});
+
+  @override
+  State<EditFestivalSettingModal> createState() => _EditFestivalSettingModalState();
+}
+
+class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
+  late final ApiFestivalSetting _editing = context.read<BasketAdminCubit>().state.editingFestivalSetting!;
+
+  late String _overrideMode = _editing.overrideMode;
+  late String _motif = _editing.motif;
+  late bool _popupEnabled = _editing.popupEnabled;
+  late final _startsOn = TextEditingController(text: _editing.startsOn != null ? _fmt(_editing.startsOn!) : '');
+  late final _endsOn = TextEditingController(text: _editing.endsOn != null ? _fmt(_editing.endsOn!) : '');
+  late final _accent = TextEditingController(text: _editing.accentColor);
+  late final _gradientStart = TextEditingController(text: _editing.gradientStart);
+  late final _gradientEnd = TextEditingController(text: _editing.gradientEnd);
+  late final _greeting = TextEditingController(text: _editing.greetingText);
+  late final _popupTitle = TextEditingController(text: _editing.popupTitle);
+  late final _popupMessage = TextEditingController(text: _editing.popupMessage);
+  bool _loading = false;
+  String? _error;
+
+  static String _fmt(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  @override
+  void dispose() {
+    _startsOn.dispose();
+    _endsOn.dispose();
+    _accent.dispose();
+    _gradientStart.dispose();
+    _gradientEnd.dispose();
+    _greeting.dispose();
+    _popupTitle.dispose();
+    _popupMessage.dispose();
+    super.dispose();
+  }
+
+  /// `null` for a blank field, a parsed date for a valid `yyyy-mm-dd`, or
+  /// throws [FormatException] (caught by [_submit]) for anything else.
+  DateTime? _parseDate(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return null;
+    return DateTime.parse(trimmed);
+  }
+
+  Future<void> _submit(BasketAdminCubit cubit) async {
+    if (_accent.text.trim().isEmpty || _gradientStart.text.trim().isEmpty || _gradientEnd.text.trim().isEmpty) {
+      setState(() => _error = 'All three colours are required.');
+      return;
+    }
+    DateTime? startsOn;
+    DateTime? endsOn;
+    try {
+      startsOn = _parseDate(_startsOn.text);
+      endsOn = _parseDate(_endsOn.text);
+    } on FormatException {
+      setState(() => _error = 'Dates must be yyyy-mm-dd, e.g. 2026-11-06.');
+      return;
+    }
+    if ((startsOn == null) != (endsOn == null)) {
+      setState(() => _error = 'Set both dates, or leave both blank to use the app default.');
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await cubit.updateFestivalSetting(_editing.id, {
+        'override_mode': _overrideMode,
+        'starts_on': startsOn?.toIso8601String().substring(0, 10),
+        'ends_on': endsOn?.toIso8601String().substring(0, 10),
+        'accent_color': _accent.text.trim(),
+        'gradient_start': _gradientStart.text.trim(),
+        'gradient_end': _gradientEnd.text.trim(),
+        'motif': _motif,
+        'greeting_text': _greeting.text.trim(),
+        'popup_enabled': _popupEnabled,
+        'popup_title': _popupTitle.text.trim(),
+        'popup_message': _popupMessage.text.trim(),
+      });
+      if (mounted) cubit.closeModal();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<BasketAdminCubit>();
+    return AdminFormModal(
+      title: 'Edit ${_kFestivalLabelsForModal[_editing.key] ?? _editing.key}',
+      subtitle: 'Changes apply immediately to the customer app\'s home header.',
+      loading: _loading,
+      error: _error,
+      onCancel: cubit.closeModal,
+      onSubmit: () => _submit(cubit),
+      submitLabel: 'Save changes',
+      fields: [
+        AdminEditDropdown<String>(
+          label: 'Activation',
+          value: _overrideMode,
+          items: _kFestivalOverrideModes.keys.toList(),
+          itemLabel: (key) => _kFestivalOverrideModes[key]!,
+          onChanged: (v) => setState(() => _overrideMode = v ?? _overrideMode),
+        ),
+        Row(
+          children: [
+            Expanded(child: AdminEditField(label: 'Starts on (yyyy-mm-dd, optional)', controller: _startsOn, hint: '2026-11-06')),
+            const SizedBox(width: 10),
+            Expanded(child: AdminEditField(label: 'Ends on (yyyy-mm-dd, optional)', controller: _endsOn, hint: '2026-11-10')),
+          ],
+        ),
+        _AdminColorField(label: 'Accent colour', controller: _accent),
+        _AdminColorField(label: 'Gradient — near corner', controller: _gradientStart),
+        _AdminColorField(label: 'Gradient — far corner', controller: _gradientEnd),
+        AdminEditDropdown<String>(
+          label: 'Decoration',
+          value: _motif,
+          items: _kFestivalMotifs.keys.toList(),
+          itemLabel: (key) => _kFestivalMotifs[key]!,
+          onChanged: (v) => setState(() => _motif = v ?? _motif),
+        ),
+        AdminEditField(label: 'Header greeting badge', controller: _greeting, hint: 'Happy Diwali! Festive picks inside ✨'),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+          decoration: BoxDecoration(color: Color(0xFFFFFBF2), border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)), borderRadius: BorderRadius.circular(12)),
+          child: Row(
+            children: [
+              Expanded(child: Text('Show popup on app open', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: AdminColors.ink))),
+              AdminToggle(on: _popupEnabled, onTap: () => setState(() => _popupEnabled = !_popupEnabled)),
+            ],
+          ),
+        ),
+        AdminEditField(label: 'Popup title', controller: _popupTitle, hint: 'Happy Diwali! 🪔'),
+        AdminEditField(label: 'Popup message', controller: _popupMessage, hint: 'Celebrate with festive prices on your favourite picks.', maxLines: 2),
+      ],
+    );
+  }
+}
+
+const _kFestivalLabelsForModal = {
+  'diwali': 'Diwali',
+  'holi': 'Holi',
+  'christmas': 'Christmas',
+  'new_year': 'New Year',
+  'independence_day': 'Independence / Republic Day',
+  'raksha_bandhan': 'Raksha Bandhan',
+};

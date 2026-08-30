@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 /// Brand palette for the splash/onboarding/OTP-verify flow — ported 1:1
 /// from the Claude Design "Aapno Bazar — Splash, Onboarding, OTP Login"
-/// mockup (navy & white, gold accent). Scoped to just those three screens
-/// rather than folded into [BasketColors]: the rest of the app (home,
-/// cart, PDP, admin console, …) keeps its existing green/indigo palette,
-/// which the mockup doesn't touch.
+/// mockup (navy & white, gold accent), with the white family since swapped
+/// for a warm ivory so the palette reads as navy + gold + ivory rather
+/// than navy-on-white. Scoped to just those three screens rather than
+/// folded into [BasketColors]: the rest of the app (home, cart, PDP, admin
+/// console, …) keeps its existing green/indigo palette, which the mockup
+/// doesn't touch.
 class AapnoBazar {
   AapnoBazar._();
 
@@ -19,10 +21,10 @@ class AapnoBazar {
   static const textDisabled = Color(0xFFA6B2C5);
   static const textSubtle = Color(0xFF94A0B4);
 
-  static const heroPanelBg = Color(0xFFEDF1F7);
-  static const inputFill = Color(0xFFF4F7FB);
-  static const borderIdle = Color(0xFFE1E7F0);
-  static const borderSoft = Color(0xFFE4EAF2);
-  static const borderFilled = Color(0xFFC3D0E2);
-  static const dotIdle = Color(0xFFD3DBE7);
+  static const heroPanelBg = Color(0xFFF6EFE0);
+  static const inputFill = Color(0xFFF8F1E4);
+  static const borderIdle = Color(0xFFE8DFCC);
+  static const borderSoft = Color(0xFFEAE1CE);
+  static const borderFilled = Color(0xFFD0C2A3);
+  static const dotIdle = Color(0xFFDCD2BC);
 }

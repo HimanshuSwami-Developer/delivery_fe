@@ -25,7 +25,7 @@ class AdminTopBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: narrow ? 14 : 26, vertical: narrow ? 12 : 18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.62),
+        color: Color(0xFFFFFBF2).withValues(alpha: 0.62),
         border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.07))),
       ),
       child: Row(
@@ -68,7 +68,7 @@ class AdminTopBar extends StatelessWidget {
               width: 260,
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color(0xFFFFFBF2),
                 border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
                 borderRadius: BorderRadius.circular(11),
               ),
@@ -93,7 +93,7 @@ class AdminTopBar extends StatelessWidget {
             height: narrow ? 36 : 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(narrow ? 10 : 11)),
-            child: const Text('◑', style: TextStyle(fontSize: 13, color: Colors.white)),
+            child: const Text('◑', style: TextStyle(fontSize: 13, color: Color(0xFFFFFBF2))),
           ),
         ],
       ),

@@ -90,7 +90,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                             width: 112,
                             height: 112,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Color(0xFFFFFBF2),
                               borderRadius: BorderRadius.circular(32),
                               boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: -12, offset: const Offset(0, 18))],
                             ),
@@ -103,7 +103,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                     const SizedBox(height: 26),
                     Text(
                       'Aapno Bazar',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -1.2, height: 1),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 40, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2), letterSpacing: -1.2, height: 1),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
@@ -113,7 +113,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                       padding: const EdgeInsets.only(top: 16),
                       child: Text(
                         'FRESH · DAILY · YOURS',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.55), letterSpacing: 2.86),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.55), letterSpacing: 2.86),
                       ),
                     ),
                   ],
@@ -132,7 +132,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                             children: [
                               Positioned.fill(
                                 child: DecoratedBox(
-                                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(2)),
+                                  decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.16), borderRadius: BorderRadius.circular(2)),
                                 ),
                               ),
                               AnimatedBuilder(
@@ -146,7 +146,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                                   final dx = -36 + 192 * Curves.easeInOut.transform(_sweep.value);
                                   return Transform.translate(
                                     offset: Offset(dx, 0),
-                                    child: Container(width: 60, height: 3, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(2))),
+                                    child: Container(width: 60, height: 3, decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(2))),
                                   );
                                 },
                               ),
@@ -157,7 +157,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                       const SizedBox(height: 18),
                       Text(
                         'Groceries in 15 minutes',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.45), letterSpacing: 0.48),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.45), letterSpacing: 0.48),
                       ),
                     ],
                   ),
@@ -182,7 +182,7 @@ class _RingDecoration extends StatelessWidget {
     return Container(
       width: diameter,
       height: diameter,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: opacity))),
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: opacity))),
     );
   }
 }

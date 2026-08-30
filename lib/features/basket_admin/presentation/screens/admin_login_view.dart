@@ -22,7 +22,7 @@ class AdminLoginView extends StatelessWidget {
     final formPanel = const _SignInPanel();
 
     return ColoredBox(
-      color: Colors.white,
+      color: Color(0xFFFFFBF2),
       child: SafeArea(
         child: isNarrow
             ? SingleChildScrollView(
@@ -59,11 +59,11 @@ class _BrandPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Aapno Bazar', style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+              Text('Aapno Bazar', style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
               const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(99)),
+                decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
                 child: Text('ADMIN', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w700, color: AdminColors.ink, letterSpacing: 1.6)),
               ),
             ],
@@ -72,14 +72,14 @@ class _BrandPanel extends StatelessWidget {
           if (!compact) const Spacer(),
           Text(
             'Every store,\nevery order,\none console.',
-            style: GoogleFonts.manrope(fontSize: compact ? 30 : 44, fontWeight: FontWeight.w800, height: 1.15, color: Colors.white, letterSpacing: -1.2),
+            style: GoogleFonts.manrope(fontSize: compact ? 30 : 44, fontWeight: FontWeight.w800, height: 1.15, color: Color(0xFFFFFBF2), letterSpacing: -1.2),
           ),
           const SizedBox(height: 18),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Text(
               'Live inventory, order routing, delivery partners, GST-ready reporting.',
-              style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w500, height: 1.6, color: Colors.white.withValues(alpha: 0.5)),
+              style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w500, height: 1.6, color: Color(0xFFFFFBF2).withValues(alpha: 0.5)),
             ),
           ),
           const SizedBox(height: 32),
@@ -108,11 +108,11 @@ class _BrandStat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: GoogleFonts.manrope(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
+        Text(value, style: GoogleFonts.manrope(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
         const SizedBox(height: 5),
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.45), letterSpacing: 0.6),
+          style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.45), letterSpacing: 0.6),
         ),
       ],
     );
@@ -208,11 +208,11 @@ class _SignInPanelState extends State<_SignInPanel> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                       )
                     : Text(
                         otpSent ? 'Verify & sign in' : 'Continue',
-                        style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                       ),
               ),
             ),

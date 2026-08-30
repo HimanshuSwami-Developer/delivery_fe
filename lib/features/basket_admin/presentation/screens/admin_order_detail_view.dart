@@ -1,4 +1,5 @@
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
+import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
@@ -70,7 +71,7 @@ class AdminOrderDetailView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(99)),
-                            child: Text(orderStatus, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.white)),
+                            child: Text(orderStatus, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                           ),
                         ],
                       ),
@@ -172,7 +173,7 @@ class AdminOrderDetailView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delivery partner', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text('Delivery partner', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       if (assign != null) ...[
                         const SizedBox(height: 14),
                         Row(
@@ -183,10 +184,10 @@ class AdminOrderDetailView extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(assign.name, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                                  Text(assign.name, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                                   const SizedBox(height: 3),
                                   Text('${assign.partnerCode} · ${assign.vehicle} · ★ ${assign.rating}',
-                                      style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+                                      style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                                 ],
                               ),
                             ),
@@ -198,24 +199,24 @@ class AdminOrderDetailView extends StatelessWidget {
                           child: OutlinedButton(
                             onPressed: cubit.openAssign,
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.white.withValues(alpha: 0.35), width: 1.4),
+                              side: BorderSide(color: Color(0xFFFFFBF2).withValues(alpha: 0.35), width: 1.4),
                               padding: const EdgeInsets.symmetric(vertical: 11),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: Text('Reassign partner', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('Reassign partner', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                           ),
                         ),
                       ] else ...[
                         const SizedBox(height: 10),
                         Text('No partner assigned yet.',
-                            style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.6, color: Colors.white.withValues(alpha: 0.5))),
+                            style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.6, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                         const SizedBox(height: 14),
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton(
                             onPressed: cubit.openAssign,
                             style: FilledButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor: Color(0xFFFFFBF2),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
@@ -244,7 +245,7 @@ class AdminOrderDetailView extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
                               decoration: BoxDecoration(
-                                color: orderStatus == s ? AdminColors.ink.withValues(alpha: 0.05) : Colors.white,
+                                color: orderStatus == s ? AdminColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
                                 border: Border.all(color: orderStatus == s ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.12), width: 1.4),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -292,14 +293,14 @@ class AdminOrderDetailView extends StatelessWidget {
                           if (!cancelled)
                             Expanded(
                               child: FilledButton(
-                                onPressed: null,
+                                onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: AdminColors.ink,
                                   disabledBackgroundColor: AdminColors.ink,
                                   padding: const EdgeInsets.symmetric(vertical: 11),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                                 ),
-                                child: Text('GST invoice ↓', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                                child: Text('GST invoice ↓', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                               ),
                             ),
                           if (!cancelled) const SizedBox(width: 8),
@@ -373,7 +374,7 @@ class _StepTile extends StatelessWidget {
     final reached = cancelled || index <= stageIdx;
     final stageTime = cancelled ? (index == 0 ? order.createdAt : order.cancelledAt) : _stageTime;
     final time = reached && stageTime != null ? _timeOf(stageTime) : '—';
-    final dotColor = reached ? AdminColors.ink : Colors.white;
+    final dotColor = reached ? AdminColors.ink : Color(0xFFFFFBF2);
     final lineColor = cancelled
         ? (index == 0 ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.14))
         : (index < stageIdx ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.14));

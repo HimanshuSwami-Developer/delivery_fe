@@ -99,6 +99,23 @@ class OrdersRepository {
     }
   }
 
+  /// Raw PDF bytes for order [id]'s GST invoice — server generates it on
+  /// demand from the order's own stored data (see `OrderViewSet.invoice`),
+  /// so it's available immediately after placement. Visibility mirrors
+  /// [fetchOrder]: the customer who placed it, the assigned delivery
+  /// partner, or an admin.
+  Future<List<int>> fetchInvoicePdf(int id) async {
+    try {
+      final response = await _client.dio.get<List<int>>(
+        '/orders/$id/invoice/',
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data!;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<ApiOrder> assignPartner(int id, int deliveryPartnerId) async {
     try {
       final response = await _client.dio.post('/orders/$id/assign_partner/', data: {

@@ -34,11 +34,11 @@ class DeliveryBoyView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('My deliveries', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('My deliveries', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                     const SizedBox(height: 4),
                     Text(
                       active.isEmpty ? 'Nothing assigned right now' : '${active.length} active · ${done.length} completed',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                     ),
                   ],
                 ),
@@ -49,9 +49,9 @@ class DeliveryBoyView extends StatelessWidget {
                 child: Container(
                   width: 36,
                   height: 36,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), shape: BoxShape.circle),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.refresh_rounded, color: Colors.white, size: 18),
+                  child: const Icon(Icons.refresh_rounded, color: Color(0xFFFFFBF2), size: 18),
                 ),
               ),
             ],

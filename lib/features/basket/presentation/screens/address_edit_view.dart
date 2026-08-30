@@ -122,7 +122,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(9)),
-                      child: Text('Drag to set pin', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
+                      child: Text('Drag to set pin', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                     ),
                     Container(width: 2, height: 16, color: BasketColors.ink),
                     Container(
@@ -148,7 +148,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                     height: 36,
                     decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
                     alignment: Alignment.center,
-                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
+                    child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                   ),
                 ),
               ),
@@ -161,7 +161,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.92),
                       border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
                       borderRadius: BorderRadius.circular(11),
                     ),
@@ -185,7 +185,7 @@ class _AddressEditViewState extends State<AddressEditView> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.85),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.85),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: ListView(
@@ -276,9 +276,9 @@ class _AddressEditViewState extends State<AddressEditView> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                             )
-                          : Text('Save address', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                          : Text('Save address', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                     ),
                   ),
                 ],

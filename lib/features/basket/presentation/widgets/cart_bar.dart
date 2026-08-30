@@ -48,7 +48,7 @@ class CartBar extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: Color(0xFFFFFBF2),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -57,7 +57,7 @@ class CartBar extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.55),
+                        color: Color(0xFFFFFBF2).withValues(alpha: 0.55),
                       ),
                     ),
                   ],
@@ -66,7 +66,7 @@ class CartBar extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Color(0xFFFFFBF2),
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: Text(

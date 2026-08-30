@@ -38,6 +38,7 @@ import 'package:fastswipe/features/basket/presentation/widgets/bottom_nav.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/cancel_sheet.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/cart_bar.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/filter_sheet.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/festival_overlay.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/payment_result_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -112,12 +113,23 @@ class _BasketRoot extends StatelessWidget {
       (BasketCubit c) =>
           c.state.history.isEmpty && (c.state.screen == BasketScreen.home || c.state.screen == BasketScreen.splash),
     );
-    return BlocListener<BasketCubit, BasketState>(
-      listenWhen: (previous, current) => current.paymentPopup != null && previous.paymentPopup != current.paymentPopup,
-      listener: (context, state) async {
-        await showPaymentResultPopup(context, state.paymentPopup!);
-        if (context.mounted) cubit.clearPaymentPopup();
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BasketCubit, BasketState>(
+          listenWhen: (previous, current) => current.paymentPopup != null && previous.paymentPopup != current.paymentPopup,
+          listener: (context, state) async {
+            await showPaymentResultPopup(context, state.paymentPopup!);
+            if (context.mounted) cubit.clearPaymentPopup();
+          },
+        ),
+        BlocListener<BasketCubit, BasketState>(
+          listenWhen: (previous, current) => current.festivalPopup != null && previous.festivalPopup != current.festivalPopup,
+          listener: (context, state) async {
+            await showFestivalPopup(context, state.festivalPopup!);
+            if (context.mounted) cubit.clearFestivalPopup();
+          },
+        ),
+      ],
       child: PopScope(
         canPop: atRoot,
         onPopInvokedWithResult: (didPop, result) {

@@ -36,7 +36,7 @@ class AssignPartnerModal extends StatelessWidget {
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.96),
+                color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [BoxShadow(color: AdminColors.ink.withValues(alpha: 0.3), blurRadius: 60, offset: const Offset(0, 30))],
               ),
@@ -111,7 +111,7 @@ class AssignPartnerModal extends StatelessWidget {
                           child: Text(
                             assign != null ? 'Assign ${assign.name}' : 'Select a partner',
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
+                            style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                           ),
                         ),
                       ),
@@ -152,7 +152,7 @@ class _PartnerRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: selected ? AdminColors.ink.withValues(alpha: 0.05) : Colors.white,
+          color: selected ? AdminColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
           border: Border.all(color: selected ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.1), width: 1.5),
           borderRadius: BorderRadius.circular(14),
         ),

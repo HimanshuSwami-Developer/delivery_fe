@@ -35,7 +35,7 @@ class _SetupViewState extends State<SetupView> {
     final authError = context.select((BasketCubit c) => c.state.authError);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFFFFBF2),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 30),
@@ -77,10 +77,10 @@ class _SetupViewState extends State<SetupView> {
                           decoration: BoxDecoration(
                             color: BasketColors.primary,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2.5),
+                            border: Border.all(color: Color(0xFFFFFBF2), width: 2.5),
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.camera_alt_rounded, size: 13, color: Colors.white),
+                          child: const Icon(Icons.camera_alt_rounded, size: 13, color: Color(0xFFFFFBF2)),
                         ),
                       ),
                     ],
@@ -125,7 +125,7 @@ class _SetupViewState extends State<SetupView> {
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle),
                       alignment: Alignment.center,
                       child: Icon(Icons.card_giftcard_rounded, size: 18, color: BasketColors.primary),
                     ),
@@ -179,9 +179,9 @@ class _SetupViewState extends State<SetupView> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
                         )
-                      : Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                      : Text('Start shopping', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                 ),
               ),
             ],
