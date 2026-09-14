@@ -197,6 +197,25 @@ class GstReport {
       );
 }
 
+/// Mirrors `reports.serializers.StoreSettingsSerializer`'s JSON — the
+/// seller's own GST profile, editable from the admin console's GST
+/// settings panel and printed on every generated invoice/GSTR-3B summary.
+class StoreGstSettings {
+  const StoreGstSettings({required this.businessName, required this.address, required this.gstin});
+
+  final String businessName;
+  final String address;
+  final String gstin;
+
+  factory StoreGstSettings.fromJson(Map<String, dynamic> json) => StoreGstSettings(
+        businessName: json['business_name'] as String? ?? '',
+        address: json['address'] as String? ?? '',
+        gstin: json['gstin'] as String? ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {'business_name': businessName, 'address': address, 'gstin': gstin};
+}
+
 /// Mirrors `accounts.views.AdminCustomerListView`'s JSON.
 class AdminCustomerRow {
   const AdminCustomerRow({

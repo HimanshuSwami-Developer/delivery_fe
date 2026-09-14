@@ -4,6 +4,7 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
+import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
@@ -146,6 +147,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadSales();
       case AdminPage.gst:
         loadGst();
+        if (state.storeSettings == null) loadStoreSettings();
       case AdminPage.orderDet:
       case AdminPage.productNew:
         break;
@@ -632,6 +634,31 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       emit(state.copyWith(gstReport: report, clearGstError: true));
     } on ApiException catch (e) {
       emit(state.copyWith(gstError: e.message));
+    }
+  }
+
+  /// The seller's own GST profile (business name/address/GSTIN) shown on
+  /// the GST screen's settings panel — see `StoreSettingsView`.
+  Future<void> loadStoreSettings() async {
+    try {
+      final settings = await api.reports.fetchStoreSettings();
+      emit(state.copyWith(storeSettings: settings, clearStoreSettingsError: true));
+    } on ApiException catch (e) {
+      emit(state.copyWith(storeSettingsError: e.message));
+    }
+  }
+
+  /// Saves the GST settings panel's edits — takes effect on the very next
+  /// invoice/GSTR-1/GSTR-3B generated, no deploy needed.
+  Future<bool> saveStoreSettings(StoreGstSettings settings) async {
+    emit(state.copyWith(storeSettingsSaving: true, clearStoreSettingsError: true));
+    try {
+      final saved = await api.reports.updateStoreSettings(settings);
+      emit(state.copyWith(storeSettings: saved, storeSettingsSaving: false));
+      return true;
+    } on ApiException catch (e) {
+      emit(state.copyWith(storeSettingsSaving: false, storeSettingsError: e.message));
+      return false;
     }
   }
 }

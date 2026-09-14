@@ -82,6 +82,28 @@ class ReportsRepository {
     }
   }
 
+  /// The seller's GST profile shown on the GST settings panel — see
+  /// `StoreSettingsView`.
+  Future<StoreGstSettings> fetchStoreSettings() async {
+    try {
+      final response = await _client.dio.get('/admin/reports/settings/');
+      return StoreGstSettings.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Saves edits from the GST settings panel — takes effect on the next
+  /// invoice/GSTR-3B/GSTR-1 generated, no deploy needed.
+  Future<StoreGstSettings> updateStoreSettings(StoreGstSettings settings) async {
+    try {
+      final response = await _client.dio.patch('/admin/reports/settings/', data: settings.toJson());
+      return StoreGstSettings.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<AdminCustomerRow>> fetchCustomers() async {
     try {
       final response = await _client.dio.get('/auth/admin/customers/');

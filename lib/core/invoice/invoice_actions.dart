@@ -23,3 +23,21 @@ Future<void> downloadOrderInvoice(
     preparingMessage: 'Preparing invoice…',
   );
 }
+
+/// Same order, laid out instead as a printable 80mm POS/till-receipt PDF —
+/// for a receipt printer rather than filing as an A4 tax invoice. See
+/// [downloadOrderInvoice].
+Future<void> downloadOrderReceipt(
+  BuildContext context, {
+  required OrdersRepository orders,
+  required int orderId,
+  required String orderNumber,
+}) async {
+  await downloadAndShareBytes(
+    context,
+    fetch: () => orders.fetchReceiptPdf(orderId),
+    filename: 'receipt-$orderNumber.pdf',
+    mimeType: 'application/pdf',
+    preparingMessage: 'Preparing receipt…',
+  );
+}

@@ -187,19 +187,36 @@ class DeliveryOrderDetailView extends StatelessWidget {
               ),
               if (order.status != 'cancelled') ...[
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
-                    icon: const Icon(Icons.receipt_long_outlined, size: 16),
-                    label: Text('GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: BasketColors.ink, width: 1.4),
-                      foregroundColor: BasketColors.ink,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
+                        icon: const Icon(Icons.receipt_long_outlined, size: 16),
+                        label: Text('GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: BasketColors.ink, width: 1.4),
+                          foregroundColor: BasketColors.ink,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
+                        icon: const Icon(Icons.print_outlined, size: 16),
+                        label: Text('Print receipt', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: BasketColors.ink, width: 1.4),
+                          foregroundColor: BasketColors.ink,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
               const SizedBox(height: 18),

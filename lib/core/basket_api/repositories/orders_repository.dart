@@ -116,6 +116,21 @@ class OrdersRepository {
     }
   }
 
+  /// Raw PDF bytes for order [id]'s receipt — the same data as
+  /// [fetchInvoicePdf], laid out as a printable 80mm POS/till-receipt
+  /// instead of an A4 tax invoice. See `OrderViewSet.receipt`.
+  Future<List<int>> fetchReceiptPdf(int id) async {
+    try {
+      final response = await _client.dio.get<List<int>>(
+        '/orders/$id/receipt/',
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data!;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<ApiOrder> assignPartner(int id, int deliveryPartnerId) async {
     try {
       final response = await _client.dio.post('/orders/$id/assign_partner/', data: {

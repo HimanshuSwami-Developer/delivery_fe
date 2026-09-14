@@ -318,6 +318,23 @@ class AdminOrderDetailView extends StatelessWidget {
                           ),
                         ],
                       ),
+                      if (!cancelled) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
+                            icon: const Icon(Icons.print_outlined, size: 15),
+                            label: Text('Printable receipt (POS) ↓', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700)),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AdminColors.ink, width: 1.4),
+                              foregroundColor: AdminColors.ink,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

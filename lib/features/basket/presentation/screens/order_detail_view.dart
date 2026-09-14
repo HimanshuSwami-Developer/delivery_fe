@@ -178,24 +178,22 @@ class OrderDetailScreenView extends StatelessWidget {
               ),
               if (detail.showInvoice && orderId != null) ...[
                 const SizedBox(height: 11),
-                GestureDetector(
-                  onTap: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-                      border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-                      borderRadius: BorderRadius.circular(15),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _DownloadTile(
+                        label: 'Tax invoice',
+                        onTap: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Download GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                        Text('↓ PDF', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
-                      ],
+                    const SizedBox(width: 9),
+                    Expanded(
+                      child: _DownloadTile(
+                        label: 'Receipt',
+                        onTap: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
               if (detail.isLive) ...[
@@ -254,6 +252,36 @@ class OrderDetailScreenView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DownloadTile extends StatelessWidget {
+  const _DownloadTile({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        decoration: BoxDecoration(
+          color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text('↓ PDF', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -66,6 +66,9 @@ class BasketAdminState extends Equatable {
     this.salesError,
     this.gstReport,
     this.gstError,
+    this.storeSettings,
+    this.storeSettingsSaving = false,
+    this.storeSettingsError,
   });
 
   final AdminScreen screen;
@@ -204,6 +207,13 @@ class BasketAdminState extends Equatable {
   final GstReport? gstReport;
   final String? gstError;
 
+  /// The seller's own GST profile (business name/address/GSTIN), edited on
+  /// the GST screen's settings panel — see [BasketAdminCubit.loadStoreSettings]
+  /// / [BasketAdminCubit.saveStoreSettings].
+  final StoreGstSettings? storeSettings;
+  final bool storeSettingsSaving;
+  final String? storeSettingsError;
+
   BasketAdminState copyWith({
     AdminScreen? screen,
     AdminPage? page,
@@ -268,6 +278,10 @@ class BasketAdminState extends Equatable {
     GstReport? gstReport,
     String? gstError,
     bool clearGstError = false,
+    StoreGstSettings? storeSettings,
+    bool? storeSettingsSaving,
+    String? storeSettingsError,
+    bool clearStoreSettingsError = false,
   }) {
     return BasketAdminState(
       screen: screen ?? this.screen,
@@ -322,6 +336,9 @@ class BasketAdminState extends Equatable {
       salesError: clearSalesError ? null : (salesError ?? this.salesError),
       gstReport: gstReport ?? this.gstReport,
       gstError: clearGstError ? null : (gstError ?? this.gstError),
+      storeSettings: storeSettings ?? this.storeSettings,
+      storeSettingsSaving: storeSettingsSaving ?? this.storeSettingsSaving,
+      storeSettingsError: clearStoreSettingsError ? null : (storeSettingsError ?? this.storeSettingsError),
     );
   }
 
@@ -379,5 +396,8 @@ class BasketAdminState extends Equatable {
         salesError,
         gstReport,
         gstError,
+        storeSettings,
+        storeSettingsSaving,
+        storeSettingsError,
       ];
 }
