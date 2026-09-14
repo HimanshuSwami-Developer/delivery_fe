@@ -616,7 +616,10 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     }
   }
 
-  static const _gstMonthCodes = {'aug': '2026-08', 'jul': '2026-07', 'jun': '2026-06'};
+  /// month state key ('aug'/'jul'/'jun') -> the "YYYY-MM" the report
+  /// endpoints expect. Also used directly by [AdminGstView] to build the
+  /// GSTR-1/GSTR-3B export requests for whichever month pill is selected.
+  static const gstMonthCodes = {'aug': '2026-08', 'jul': '2026-07', 'jun': '2026-06'};
 
   void setMonth(String month) {
     emit(state.copyWith(month: month));
@@ -625,7 +628,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   Future<void> loadGst() async {
     try {
-      final report = await api.reports.fetchGst(month: _gstMonthCodes[state.month]);
+      final report = await api.reports.fetchGst(month: gstMonthCodes[state.month]);
       emit(state.copyWith(gstReport: report, clearGstError: true));
     } on ApiException catch (e) {
       emit(state.copyWith(gstError: e.message));

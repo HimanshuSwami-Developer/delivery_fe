@@ -1,6 +1,5 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/aapno_bazar_palette.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/bazar_mark.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,8 +62,8 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 132,
-                      height: 132,
+                      width: 260,
+                      height: 260,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -78,24 +77,25 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                                 child: Opacity(
                                   opacity: 0.35 - 0.23 * t,
                                   child: Container(
-                                    width: 160,
-                                    height: 160,
-                                    decoration: BoxDecoration(color: AapnoBazar.gold, borderRadius: BorderRadius.circular(38)),
+                                    width: 280,
+                                    height: 280,
+                                    decoration: BoxDecoration(color: AapnoBazar.gold, borderRadius: BorderRadius.circular(140)),
                                   ),
                                 ),
                               );
                             },
                           ),
                           Container(
-                            width: 112,
-                            height: 112,
+                            width: 240,
+                            height: 240,
                             decoration: BoxDecoration(
-                              color: Color(0xFFFFFBF2),
-                              borderRadius: BorderRadius.circular(32),
+                              shape: BoxShape.circle,
                               boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: -12, offset: const Offset(0, 18))],
                             ),
                             alignment: Alignment.center,
-                            child: const BazarMark(size: 58),
+                            child: ClipOval(
+                              child: Image.asset('assets/splash_screen_bg.png', width: 240, height: 240, fit: BoxFit.cover),
+                            ),
                           ),
                         ],
                       ),

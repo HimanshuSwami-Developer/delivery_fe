@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
@@ -13,6 +14,7 @@ class AdminSalesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<BasketAdminCubit>();
     final report = context.select((BasketAdminCubit c) => c.state.salesReport);
     final error = context.select((BasketAdminCubit c) => c.state.salesError);
 
@@ -54,6 +56,28 @@ class AdminSalesView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              const Expanded(child: SizedBox.shrink()),
+              OutlinedButton(
+                onPressed: () => downloadAndShareBytes(
+                  context,
+                  fetch: () => cubit.api.reports.fetchSalesExportCsv(),
+                  filename: 'sales-report.csv',
+                  mimeType: 'text/csv',
+                  preparingMessage: 'Preparing sales report…',
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
+                  backgroundColor: const Color(0xFFFFFBF2),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                ),
+                child: Text('⤓ Export CSV', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
           const SizedBox(height: 14),
           LayoutBuilder(builder: (context, constraints) {

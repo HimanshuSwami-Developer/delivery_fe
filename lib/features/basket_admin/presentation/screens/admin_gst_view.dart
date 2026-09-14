@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
@@ -8,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// key -> pill label. Order matters: it's the pill order (Aug, Jul, Jun),
 /// matching the source design's `Object.keys` iteration; must line up with
-/// `BasketAdminCubit._gstMonthCodes`.
+/// `BasketAdminCubit.gstMonthCodes`.
 const _kGstMonths = {'aug': 'Aug 2026', 'jul': 'Jul 2026', 'jun': 'Jun 2026'};
 
 const _kFlex = [1.0, 1.2, 1.0, 1.0, 1.0, 1.1];
@@ -45,11 +46,16 @@ class AdminGstView extends StatelessWidget {
               ),
               const SizedBox(width: 9),
               OutlinedButton(
-                onPressed: null,
+                onPressed: () => downloadAndShareBytes(
+                  context,
+                  fetch: () => cubit.api.reports.fetchGstr1Json(month: BasketAdminCubit.gstMonthCodes[month]),
+                  filename: 'gstr1-${BasketAdminCubit.gstMonthCodes[month]}.json',
+                  mimeType: 'application/json',
+                  preparingMessage: 'Preparing GSTR-1…',
+                ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
                   backgroundColor: Color(0xFFFFFBF2),
-                  disabledForegroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
@@ -57,10 +63,15 @@ class AdminGstView extends StatelessWidget {
               ),
               const SizedBox(width: 9),
               FilledButton(
-                onPressed: null,
+                onPressed: () => downloadAndShareBytes(
+                  context,
+                  fetch: () => cubit.api.reports.fetchGstr3bPdf(month: BasketAdminCubit.gstMonthCodes[month]),
+                  filename: 'gstr3b-${BasketAdminCubit.gstMonthCodes[month]}.pdf',
+                  mimeType: 'application/pdf',
+                  preparingMessage: 'Preparing GSTR-3B summary…',
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AdminColors.ink,
-                  disabledBackgroundColor: AdminColors.ink,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                 ),
