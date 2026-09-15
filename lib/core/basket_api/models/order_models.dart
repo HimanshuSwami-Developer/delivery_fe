@@ -1,3 +1,17 @@
+/// Mirrors `orders.serializers.StoreLocationSerializer` — the fixed
+/// pickup point the backend hardcodes in `orders/views.py`.
+class ApiStoreLocation {
+  const ApiStoreLocation({required this.latitude, required this.longitude});
+
+  final double latitude;
+  final double longitude;
+
+  factory ApiStoreLocation.fromJson(Map<String, dynamic> json) => ApiStoreLocation(
+        latitude: (json['latitude'] as num).toDouble(),
+        longitude: (json['longitude'] as num).toDouble(),
+      );
+}
+
 /// Mirrors `orders.serializers.OrderItemSerializer`.
 class ApiOrderItem {
   const ApiOrderItem({

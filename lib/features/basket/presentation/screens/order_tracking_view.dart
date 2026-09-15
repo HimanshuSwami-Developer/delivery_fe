@@ -12,9 +12,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// The store the rider dispatches from for every order.
-const _storeLocation = LatLng(28.201806, 76.627815);
-
 /// Fraction of the store→customer line the rider has covered at each of
 /// the 4 tracking stages: still at the store while the order is being
 /// packed, most of the way there once "on the way", arrived on delivery.
@@ -37,6 +34,12 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
   // customer marker/route/rider only ever appear once we actually know
   // where "here" is.
   LatLng? _customerLocation;
+
+  // Null until the backend's `/orders/store_location/` responds — the
+  // pickup point is hardcoded server-side (`OrderViewSet.store_location`),
+  // never in this app, so the map only appears once that call resolves.
+  LatLng? _storeLocation;
+
   final _mapController = AppMapController();
 
   // Computed once — the first time a customer location becomes known —
@@ -49,7 +52,23 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
   @override
   void initState() {
     super.initState();
+    _loadStoreLocation();
     _loadCustomerLocation();
+  }
+
+  Future<void> _loadStoreLocation() async {
+    try {
+      final location =
+          await context.read<BasketCubit>().api.orders.fetchStoreLocation();
+      if (!mounted) return;
+      setState(
+        () => _storeLocation = LatLng(location.latitude, location.longitude),
+      );
+      _maybeFitCamera();
+    } catch (_) {
+      // Best-effort — the map just stays on its loading state until this
+      // succeeds; no hardcoded fallback point.
+    }
   }
 
   Future<void> _loadCustomerLocation() async {
@@ -59,30 +78,44 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         return;
       }
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(timeLimit: Duration(seconds: 8)),
+        locationSettings: const LocationSettings(
+          timeLimit: Duration(seconds: 8),
+        ),
       );
       if (!mounted) return;
       final location = LatLng(position.latitude, position.longitude);
       setState(() => _customerLocation = location);
-      // `AppMap.cameraFit` only takes effect on the map's first attach —
-      // the map is already showing by the time this async fix lands, so
-      // command the re-frame explicitly or the store+customer route would
-      // silently sit off-screen until the user manually zooms out.
-      _cameraFit ??= _cameraFitFor(location);
-      _mapController.fitCamera(_cameraFit!);
+      _maybeFitCamera();
     } catch (_) {
       // Best-effort — no fallback point; the customer marker/route just
       // stay hidden until a fix (or a retry) succeeds.
     }
   }
 
-  CameraFit _cameraFitFor(LatLng customerLocation) {
+  /// Store and customer location each resolve independently (in either
+  /// order) — this re-frames the camera once both are known, called from
+  /// both loaders above rather than assuming one is ready before the other.
+  void _maybeFitCamera() {
+    final store = _storeLocation;
+    final customer = _customerLocation;
+    if (store == null || customer == null) return;
+    // `AppMap.cameraFit` only takes effect on the map's first attach — the
+    // map may already be showing by the time one of these async fixes
+    // lands, so command the re-frame explicitly or the store+customer
+    // route would silently sit off-screen until the user manually zooms
+    // out.
+    _cameraFit ??= _cameraFitFor(store, customer);
+    _mapController.fitCamera(_cameraFit!);
+  }
+
+  CameraFit _cameraFitFor(LatLng storeLocation, LatLng customerLocation) {
     return CameraFit.coordinates(
-      coordinates: [_storeLocation, customerLocation],
+      coordinates: [storeLocation, customerLocation],
       padding: const EdgeInsets.fromLTRB(40, 90, 40, 40),
       maxZoom: 16,
     );
@@ -104,38 +137,61 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
   /// handing them off to a proper navigation app is more useful than
   /// anything this in-app map can offer.
   Future<void> _openInGoogleMaps() async {
+    // Only reachable once the map (and its store location) is on screen —
+    // see the loading guard at the top of `build`.
+    final store = _storeLocation!;
     final destination = _customerLocation;
     final uri = destination == null
-        ? Uri.parse('https://www.google.com/maps/search/?api=1&query=${_storeLocation.latitude},${_storeLocation.longitude}')
+        ? Uri.parse(
+            'https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}',
+          )
         : Uri.parse(
             'https://www.google.com/maps/dir/?api=1'
-            '&origin=${_storeLocation.latitude},${_storeLocation.longitude}'
+            '&origin=${store.latitude},${store.longitude}'
             '&destination=${destination.latitude},${destination.longitude}'
             '&travelmode=driving',
           );
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  LatLng _riderLocationForProgress(LatLng customerLocation, double t) {
+  LatLng _riderLocationForProgress(
+    LatLng storeLocation,
+    LatLng customerLocation,
+    double t,
+  ) {
     return LatLng(
-      _storeLocation.latitude + (customerLocation.latitude - _storeLocation.latitude) * t,
-      _storeLocation.longitude + (customerLocation.longitude - _storeLocation.longitude) * t,
+      storeLocation.latitude +
+          (customerLocation.latitude - storeLocation.latitude) * t,
+      storeLocation.longitude +
+          (customerLocation.longitude - storeLocation.longitude) * t,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final storeLocation = _storeLocation;
+    if (storeLocation == null) {
+      // Waiting on `/orders/store_location/` — no hardcoded fallback point.
+      return const Center(child: CircularProgressIndicator());
+    }
     final cubit = context.read<BasketCubit>();
     final stage = context.select((BasketCubit c) => c.state.trackingStage);
     final order = context.select((BasketCubit c) => c.state.currentOrder);
     final etaLeft = etaLeftForStage(stage, eta: BasketCubit.etaMinutes);
-    final headline = ['Order confirmed', 'Packing your basket', 'Rider is on the way', 'Delivered — enjoy!'][stage];
+    final headline = [
+      'Order confirmed',
+      'Packing your basket',
+      'Rider is on the way',
+      'Delivered — enjoy!',
+    ][stage];
     final riderName = order?.deliveryPartnerName ?? 'Your rider';
     // A rider marker only makes sense once the backend has actually
     // assigned one to this order — not from the moment tracking opens.
     final riderAssigned = order?.deliveryPartnerId != null;
     final customerLocation = _customerLocation;
-    final cameraFit = customerLocation == null ? null : (_cameraFit ??= _cameraFitFor(customerLocation));
+    final cameraFit = customerLocation == null
+        ? null
+        : (_cameraFit ??= _cameraFitFor(storeLocation, customerLocation));
 
     return Stack(
       children: [
@@ -149,17 +205,21 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
             builder: (context, t, child) {
               final riderLocation = customerLocation == null
                   ? null
-                  : _riderLocationForProgress(customerLocation, t);
+                  : _riderLocationForProgress(
+                      storeLocation,
+                      customerLocation,
+                      t,
+                    );
               final showRider = riderAssigned && riderLocation != null;
               return AppMap(
-                center: _storeLocation,
+                center: storeLocation,
                 cameraFit: cameraFit,
                 mapController: _mapController,
                 polylines: [
                   if (customerLocation != null) ...[
                     // Full route, muted — the road still ahead.
                     Polyline(
-                      points: [_storeLocation, customerLocation],
+                      points: [storeLocation, customerLocation],
                       strokeWidth: 3,
                       color: BasketColors.ink.withValues(alpha: 0.25),
                       pattern: StrokePattern.dashed(segments: const [8, 6]),
@@ -167,7 +227,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                     // Distance already covered, solid.
                     if (showRider && t > 0.001)
                       Polyline(
-                        points: [_storeLocation, riderLocation],
+                        points: [storeLocation, riderLocation],
                         strokeWidth: 4,
                         color: BasketColors.primary,
                       ),
@@ -175,11 +235,15 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                 ],
                 markers: [
                   Marker(
-                    point: _storeLocation,
+                    point: storeLocation,
                     width: 66,
                     height: 58,
                     alignment: Alignment.topCenter,
-                    child: const _MapPin(label: 'Store', icon: Icons.home_rounded, style: _PinStyle.outlined),
+                    child: const _MapPin(
+                      label: 'Store',
+                      icon: Icons.home_rounded,
+                      style: _PinStyle.outlined,
+                    ),
                   ),
                   if (showRider)
                     Marker(
@@ -187,7 +251,11 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                       width: 70,
                       height: 62,
                       alignment: Alignment.topCenter,
-                      child: const _MapPin(label: 'Rider', icon: Icons.two_wheeler_rounded, style: _PinStyle.filled),
+                      child: const _MapPin(
+                        label: 'Rider',
+                        icon: Icons.two_wheeler_rounded,
+                        style: _PinStyle.filled,
+                      ),
                     ),
                   if (customerLocation != null)
                     Marker(
@@ -195,7 +263,11 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                       width: 66,
                       height: 58,
                       alignment: Alignment.topCenter,
-                      child: const _MapPin(label: 'You', icon: Icons.person_rounded, style: _PinStyle.outlined),
+                      child: const _MapPin(
+                        label: 'You',
+                        icon: Icons.person_rounded,
+                        style: _PinStyle.outlined,
+                      ),
                     ),
                 ],
               );
@@ -207,7 +279,10 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
           right: 0,
           top: 0,
           child: IgnorePointer(
-            child: Container(height: 60, color: Color(0xFFFFFBF2).withValues(alpha: 0.78)),
+            child: Container(
+              height: 60,
+              color: Color(0xFFFFFBF2).withValues(alpha: 0.78),
+            ),
           ),
         ),
         Positioned(
@@ -219,9 +294,16 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
             child: Container(
               width: 36,
               height: 36,
-              decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                color: BasketColors.ink,
+                shape: BoxShape.circle,
+              ),
               alignment: Alignment.center,
-              child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color(0xFFFFFBF2),
+                size: 16,
+              ),
             ),
           ),
         ),
@@ -233,13 +315,22 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
           bottom: MediaQuery.sizeOf(context).height * 0.17 + 14,
           child: Column(
             children: [
-              _MapControlButton(icon: Icons.map_outlined, onTap: _openInGoogleMaps),
+              _MapControlButton(
+                icon: Icons.map_outlined,
+                onTap: _openInGoogleMaps,
+              ),
               const SizedBox(height: 8),
-              _MapControlButton(icon: Icons.my_location, onTap: _goToCustomerLocation),
+              _MapControlButton(
+                icon: Icons.my_location,
+                onTap: _goToCustomerLocation,
+              ),
               const SizedBox(height: 8),
               _MapControlButton(icon: Icons.add, onTap: _mapController.zoomIn),
               const SizedBox(height: 8),
-              _MapControlButton(icon: Icons.remove, onTap: _mapController.zoomOut),
+              _MapControlButton(
+                icon: Icons.remove,
+                onTap: _mapController.zoomOut,
+              ),
             ],
           ),
         ),
@@ -267,7 +358,10 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                       width: 34,
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 14),
-                      decoration: BoxDecoration(color: BasketColors.ink.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(9)),
+                      decoration: BoxDecoration(
+                        color: BasketColors.ink.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
                     ),
                   ),
                   Row(
@@ -277,11 +371,22 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(headline, style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                            Text(
+                              headline,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.4,
+                              ),
+                            ),
                             const SizedBox(height: 5),
                             Text(
                               '${order?.orderNumber ?? '—'} · ${order?.itemCount ?? 0} ${order?.itemCount == 1 ? 'item' : 'items'}',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: BasketColors.muted,
+                              ),
                             ),
                           ],
                         ),
@@ -289,9 +394,22 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('$etaLeft min', style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800)),
+                          Text(
+                            '$etaLeft min',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('remaining', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                          Text(
+                            'remaining',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w500,
+                              color: BasketColors.faint,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -299,38 +417,78 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                   const SizedBox(height: 15),
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: BasketColors.ink,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Row(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(99),
-                          child: const SizedBox(width: 42, height: 42, child: ImageSlot(shape: ImageSlotShape.circle, mini: true)),
+                          child: const SizedBox(
+                            width: 42,
+                            height: 42,
+                            child: ImageSlot(
+                              shape: ImageSlotShape.circle,
+                              mini: true,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 11),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(riderName, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                              Text(
+                                riderName,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFFFFBF2),
+                                ),
+                              ),
                               const SizedBox(height: 3),
-                              Text('Honda Activa · ★ 4.8', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55))),
+                              Text(
+                                'Honda Activa · ★ 4.8',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(
+                                    0xFFFFFBF2,
+                                  ).withValues(alpha: 0.55),
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFFFFBF2).withValues(alpha: 0.14),
+                            shape: BoxShape.circle,
+                          ),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.call_outlined, color: Color(0xFFFFFBF2), size: 15),
+                          child: const Icon(
+                            Icons.call_outlined,
+                            color: Color(0xFFFFFBF2),
+                            size: 15,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFFFBF2),
+                            shape: BoxShape.circle,
+                          ),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.mail_outline, color: BasketColors.ink, size: 15),
+                          child: const Icon(
+                            Icons.mail_outline,
+                            color: BasketColors.ink,
+                            size: 15,
+                          ),
                         ),
                       ],
                     ),
@@ -340,7 +498,9 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                     _TimelineStep(
                       index: i,
                       title: BasketCatalog.trackingSteps[i].title,
-                      sub: i == stage ? 'Now' : BasketCatalog.trackingSteps[i].sub,
+                      sub: i == stage
+                          ? 'Now'
+                          : BasketCatalog.trackingSteps[i].sub,
                       done: i <= stage,
                       isLast: i == BasketCatalog.trackingSteps.length - 1,
                     ),
@@ -350,13 +510,25 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                       Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                            side: const BorderSide(
+                              color: BasketColors.ink,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(13),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.refreshTracking,
-                          child: Text('Refresh status', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                          child: Text(
+                            'Refresh status',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: BasketColors.ink,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 9),
@@ -364,12 +536,21 @@ class _OrderTrackingViewState extends State<OrderTrackingView> {
                         child: FilledButton(
                           style: FilledButton.styleFrom(
                             backgroundColor: BasketColors.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(13),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             minimumSize: Size.zero,
                           ),
                           onPressed: cubit.goToSupport,
-                          child: Text('Get help', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                          child: Text(
+                            'Get help',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFFFBF2),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -421,7 +602,9 @@ class _TimelineStep extends StatelessWidget {
                 Container(
                   width: 2,
                   height: 26,
-                  color: done ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.12),
+                  color: done
+                      ? BasketColors.ink
+                      : BasketColors.ink.withValues(alpha: 0.12),
                 ),
             ],
           ),
@@ -432,9 +615,22 @@ class _TimelineStep extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 3),
-                  Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+                  Text(
+                    sub,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: BasketColors.muted,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -467,7 +663,9 @@ class _MapPin extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
             color: filled ? BasketColors.ink : Color(0xFFFFFBF2),
-            border: filled ? null : Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
+            border: filled
+                ? null
+                : Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -486,11 +684,23 @@ class _MapPin extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: filled ? BasketColors.ink : Color(0xFFFFFBF2),
-            border: filled ? null : Border.all(color: BasketColors.ink, width: 2),
-            boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: filled ? 0.22 : 0.1), blurRadius: 6, spreadRadius: filled ? 1 : 0)],
+            border: filled
+                ? null
+                : Border.all(color: BasketColors.ink, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: BasketColors.ink.withValues(alpha: filled ? 0.22 : 0.1),
+                blurRadius: 6,
+                spreadRadius: filled ? 1 : 0,
+              ),
+            ],
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: filled ? 17 : 14, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
+          child: Icon(
+            icon,
+            size: filled ? 17 : 14,
+            color: filled ? Color(0xFFFFFBF2) : BasketColors.ink,
+          ),
         ),
       ],
     );
@@ -515,7 +725,12 @@ class _MapControlButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Color(0xFFFFFBF2),
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.16), blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(
+              color: BasketColors.ink.withValues(alpha: 0.16),
+              blurRadius: 6,
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: Icon(icon, color: BasketColors.ink, size: 18),

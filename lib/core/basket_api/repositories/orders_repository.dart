@@ -25,6 +25,17 @@ class OrdersRepository {
     }
   }
 
+  /// The store/warehouse pickup point — hardcoded on the backend
+  /// (`OrderViewSet.store_location`), not in this app.
+  Future<ApiStoreLocation> fetchStoreLocation() async {
+    try {
+      final response = await _client.dio.get('/orders/store_location/');
+      return ApiStoreLocation.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<ApiOrder> fetchOrder(int id) async {
     try {
       final response = await _client.dio.get('/orders/$id/');

@@ -4,7 +4,7 @@ import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/step_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,15 +20,21 @@ class OrderSummaryView extends StatelessWidget {
     final cartMap = context.select((BasketCubit c) => c.state.cart);
     final addr = context.select((BasketCubit c) => addressForState(c.state));
     final day = context.select((BasketCubit c) => c.state.deliveryDay);
-    final slot = context.select((BasketCubit c) => BasketCatalog.slotById(c.state.deliverySlotId));
-    final appliedCoupon = context.select((BasketCubit c) => c.state.appliedCoupon);
-    final items = context.select((BasketCubit c) => cartMap.entries
-        .map((e) {
-          final p = productById(c.state, e.key);
-          return p == null ? null : (p, e.value);
-        })
-        .whereType<(BasketProduct, int)>()
-        .toList());
+    final slot = context.select(
+      (BasketCubit c) => BasketCatalog.slotById(c.state.deliverySlotId),
+    );
+    final appliedCoupon = context.select(
+      (BasketCubit c) => c.state.appliedCoupon,
+    );
+    final items = context.select(
+      (BasketCubit c) => cartMap.entries
+          .map((e) {
+            final p = productById(c.state, e.key);
+            return p == null ? null : (p, e.value);
+          })
+          .whereType<(BasketProduct, int)>()
+          .toList(),
+    );
 
     final slotLabel = slot.id == 'exp'
         ? 'Express, ${BasketCubit.etaMinutes} min'
@@ -40,7 +46,12 @@ class OrderSummaryView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(
+            18,
+            MediaQuery.paddingOf(context).top + 12,
+            18,
+            16,
+          ),
           decoration: darkHeaderDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,20 +66,40 @@ class OrderSummaryView extends StatelessWidget {
                       height: 34,
                       decoration: BoxDecoration(
                         color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
-                        border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
+                        border: Border.all(
+                          color: Color(0xFFFFFBF2).withValues(alpha: 0.14),
+                        ),
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFFFFFBF2),
+                        size: 16,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order summary', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                      Text(
+                        'Order summary',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFFFFBF2),
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text('Step 3 of 3', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
+                      Text(
+                        'Step 3 of 3',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -102,7 +133,10 @@ class OrderSummaryView extends StatelessWidget {
                   children: [
                     Text(
                       '${t.itemCount} ${t.itemCount == 1 ? 'item' : 'items'} in this order',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 11),
                     SizedBox(
@@ -120,10 +154,19 @@ class OrderSummaryView extends StatelessWidget {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(11),
-                                  child: const SizedBox(width: 56, height: 56, child: ImageSlot(mini: true)),
+                                  child: ProductImageMini(
+                                    size: 56,
+                                    imageUrl: p.imageUrl,
+                                  ),
                                 ),
                                 const SizedBox(height: 5),
-                                Text('×$qty', style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w700)),
+                                Text(
+                                  '×$qty',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ],
                             ),
                           );
@@ -139,19 +182,39 @@ class OrderSummaryView extends StatelessWidget {
                 decoration: glassCard(radius: 16),
                 child: Column(
                   children: [
-                    _TotalRow(label: 'Item total', value: moneyLabel(t.subtotal)),
+                    _TotalRow(
+                      label: 'Item total',
+                      value: moneyLabel(t.subtotal),
+                    ),
                     const SizedBox(height: 8),
-                    _TotalRow(label: 'Coupon $appliedLabel', value: t.discount > 0 ? '− ${moneyLabel(t.discount)}' : '—'),
-                    const SizedBox(height: 8),
-                    _TotalRow(label: 'Delivery fee', value: t.deliveryFee > 0 ? moneyLabel(t.deliveryFee) : 'FREE'),
-                    const SizedBox(height: 8),
-                    _TotalRow(label: 'Handling & GST', value: moneyLabel(t.gst)),
-                    Container(margin: const EdgeInsets.symmetric(vertical: 12), height: 1, color: BasketColors.ink.withValues(alpha: 0.09)),
+                    _TotalRow(
+                      label: 'Coupon $appliedLabel',
+                      value: t.discount > 0
+                          ? '− ${moneyLabel(t.discount)}'
+                          : '—',
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      height: 1,
+                      color: BasketColors.ink.withValues(alpha: 0.09),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('To pay', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(moneyLabel(t.payable), style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(
+                          'To pay',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          moneyLabel(t.payable),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -165,7 +228,9 @@ class OrderSummaryView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
           decoration: BoxDecoration(
             color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
+            border: Border(
+              top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07)),
+            ),
           ),
           child: SafeArea(
             top: false,
@@ -175,10 +240,22 @@ class OrderSummaryView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(moneyLabel(t.payable), style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
                       Text(
-                        t.savings > 0 ? 'You save ${moneyLabel(t.savings)}' : 'Inclusive of all taxes',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                        moneyLabel(t.payable),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        t.savings > 0
+                            ? 'You save ${moneyLabel(t.savings)}'
+                            : 'Inclusive of all taxes',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                          color: BasketColors.faint,
+                        ),
                       ),
                     ],
                   ),
@@ -186,11 +263,23 @@ class OrderSummaryView extends StatelessWidget {
                 FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: BasketColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 14,
+                    ),
                   ),
                   onPressed: cubit.goToPaymentChoice,
-                  child: Text('Place order', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                  child: Text(
+                    'Place order',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFFFFFBF2),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -202,7 +291,11 @@ class OrderSummaryView extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.title, required this.sub, required this.onChange});
+  const _SummaryCard({
+    required this.title,
+    required this.sub,
+    required this.onChange,
+  });
 
   final String title;
   final String sub;
@@ -219,15 +312,38 @@ class _SummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800))),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
               GestureDetector(
                 onTap: onChange,
-                child: Text('Change', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                child: Text(
+                  'Change',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: BasketColors.muted,
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.55, fontWeight: FontWeight.w500, color: BasketColors.muted)),
+          Text(
+            sub,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: BasketColors.muted,
+            ),
+          ),
         ],
       ),
     );
@@ -245,8 +361,22 @@ class _TotalRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4A4A52),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4A4A52),
+          ),
+        ),
       ],
     );
   }

@@ -16,16 +16,29 @@ class OrderDetailScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
-    final detail = context.select((BasketCubit c) => resolveOrderDetail(c.state));
-    final etaLeft = context.select((BasketCubit c) => etaLeftForStage(c.state.trackingStage, eta: BasketCubit.etaMinutes));
-    final riderName = context.select((BasketCubit c) => c.state.currentOrder?.deliveryPartnerName ?? 'Your rider');
+    final detail = context.select(
+      (BasketCubit c) => resolveOrderDetail(c.state),
+    );
+    final etaLeft = context.select(
+      (BasketCubit c) =>
+          etaLeftForStage(c.state.trackingStage, eta: BasketCubit.etaMinutes),
+    );
+    final riderName = context.select(
+      (BasketCubit c) =>
+          c.state.currentOrder?.deliveryPartnerName ?? 'Your rider',
+    );
     final orderId = context.select((BasketCubit c) => c.state.currentOrder?.id);
 
     return Column(
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(
+            18,
+            MediaQuery.paddingOf(context).top + 12,
+            18,
+            16,
+          ),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
@@ -37,20 +50,40 @@ class OrderDetailScreenView extends StatelessWidget {
                   height: 34,
                   decoration: BoxDecoration(
                     color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
-                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
+                    border: Border.all(
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.14),
+                    ),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: Color(0xFFFFFBF2),
+                    size: 16,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(detail.id, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                  Text(
+                    detail.id,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFFFFBF2),
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(detail.statusLabel, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
+                  Text(
+                    detail.statusLabel,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -65,22 +98,45 @@ class OrderDetailScreenView extends StatelessWidget {
                   onTap: cubit.goToTrack,
                   child: Container(
                     padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: BasketColors.ink,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Live tracking', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                            Text(
+                              'Live tracking',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFFFFBF2),
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '$riderName · $etaLeft min away',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Color(
+                                  0xFFFFFBF2,
+                                ).withValues(alpha: 0.55),
+                              ),
                             ),
                           ],
                         ),
-                        Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                        Text(
+                          '›',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFFFFBF2),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -96,11 +152,21 @@ class OrderDetailScreenView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Order placed ${detail.date}', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
+                            Text(
+                              'Order placed ${detail.date}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               'Add the same items back to your basket',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: BasketColors.muted,
+                              ),
                             ),
                           ],
                         ),
@@ -109,11 +175,21 @@ class OrderDetailScreenView extends StatelessWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: BasketColors.primary,
                           shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 9,
+                          ),
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.reorder,
-                        child: Text('Reorder', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                        child: Text(
+                          'Reorder',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFFFFBF2),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -125,7 +201,13 @@ class OrderDetailScreenView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Items', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                    Text(
+                      'Items',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     const SizedBox(height: 11),
                     for (final (name, pack, qty, rate) in detail.items)
                       Padding(
@@ -134,20 +216,45 @@ class OrderDetailScreenView extends StatelessWidget {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: const SizedBox(width: 44, height: 44, child: ImageSlot(mini: true)),
+                              child: const SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: ImageSlot(mini: true),
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('$pack · ×$qty', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                                  Text(
+                                    '$pack · ×$qty',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w500,
+                                      color: BasketColors.faint,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            Text(moneyLabel(rate * qty), style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800)),
+                            Text(
+                              moneyLabel(rate * qty),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -163,14 +270,28 @@ class OrderDetailScreenView extends StatelessWidget {
                     _Row(label: 'Item total', value: detail.subtotalLabel),
                     const SizedBox(height: 8),
                     _Row(label: 'Discount', value: detail.discountLabel),
-                    const SizedBox(height: 8),
-                    _Row(label: 'Delivery + GST', value: detail.feeLabel),
-                    Container(margin: const EdgeInsets.symmetric(vertical: 12), height: 1, color: BasketColors.ink.withValues(alpha: 0.09)),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      height: 1,
+                      color: BasketColors.ink.withValues(alpha: 0.09),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(detail.paidLabel, style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
-                        Text(detail.totalLabel, style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                        Text(
+                          detail.paidLabel,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          detail.totalLabel,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -178,22 +299,17 @@ class OrderDetailScreenView extends StatelessWidget {
               ),
               if (detail.showInvoice && orderId != null) ...[
                 const SizedBox(height: 11),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DownloadTile(
-                        label: 'Tax invoice',
-                        onTap: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
-                      ),
+                SizedBox(
+                  width: double.infinity,
+                  child: _DownloadTile(
+                    label: 'Receipt',
+                    onTap: () => downloadOrderReceipt(
+                      context,
+                      orders: cubit.api.orders,
+                      orderId: orderId,
+                      orderNumber: detail.id,
                     ),
-                    const SizedBox(width: 9),
-                    Expanded(
-                      child: _DownloadTile(
-                        label: 'Receipt',
-                        onTap: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: orderId, orderNumber: detail.id),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
               if (detail.isLive) ...[
@@ -203,26 +319,50 @@ class OrderDetailScreenView extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                          side: const BorderSide(
+                            color: BasketColors.ink,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.openCancelSheet,
-                        child: Text('Cancel order', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                        child: Text(
+                          'Cancel order',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: BasketColors.ink,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 9),
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                          side: const BorderSide(
+                            color: BasketColors.ink,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           minimumSize: Size.zero,
                         ),
                         onPressed: cubit.openReturnSheet,
-                        child: Text('Return items', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                        child: Text(
+                          'Return items',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: BasketColors.ink,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -233,19 +373,38 @@ class OrderDetailScreenView extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                      side: const BorderSide(
+                        color: BasketColors.ink,
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(13),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 13),
                     ),
                     onPressed: cubit.openReturnSheet,
-                    child: Text('Return items', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
+                    child: Text(
+                      'Return items',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: BasketColors.ink,
+                      ),
+                    ),
                   ),
                 ),
               ],
               Center(
                 child: TextButton(
                   onPressed: cubit.goToSupport,
-                  child: Text('Need help with this order?', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+                  child: Text(
+                    'Need help with this order?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: BasketColors.muted,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -276,9 +435,22 @@ class _DownloadTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text('↓ PDF', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.muted)),
+            Text(
+              '↓ PDF',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: BasketColors.muted,
+              ),
+            ),
           ],
         ),
       ),
@@ -297,8 +469,22 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
-        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52))),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4A4A52),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF4A4A52),
+          ),
+        ),
       ],
     );
   }

@@ -61,7 +61,12 @@ List<BasketCategory> categoriesOf(BasketState state) =>
 
 BasketCategory categoryByKey(BasketState state, String key) {
   final cats = categoriesOf(state);
-  return cats.firstWhere((c) => c.key == key, orElse: () => cats.isNotEmpty ? cats.first : const BasketCategory(key: '', name: '', subs: [], count: 0));
+  return cats.firstWhere(
+    (c) => c.key == key,
+    orElse: () => cats.isNotEmpty
+        ? cats.first
+        : const BasketCategory(key: '', name: '', subs: [], count: 0),
+  );
 }
 
 /// Full street-level address shown under the "Home" header line — GPS
@@ -69,7 +74,8 @@ BasketCategory categoryByKey(BasketState state, String key) {
 /// prompt) until it resolves.
 String? homeAddressSubtitle(BasketState state) => state.gpsAddress;
 
-List<BasketProduct> productsOf(BasketState state) => state.apiProducts.map(BasketProduct.fromApi).toList();
+List<BasketProduct> productsOf(BasketState state) =>
+    state.apiProducts.map(BasketProduct.fromApi).toList();
 
 BasketProduct? productById(BasketState state, String id) {
   for (final p in state.apiProducts) {
@@ -81,8 +87,10 @@ BasketProduct? productById(BasketState state, String id) {
 /// Resolves every product currently in [BasketState.cart] against the
 /// loaded catalog — used by the cart/checkout screens instead of each one
 /// re-deriving it.
-List<BasketProduct> cartProducts(BasketState state) =>
-    state.cart.keys.map((id) => productById(state, id)).whereType<BasketProduct>().toList();
+List<BasketProduct> cartProducts(BasketState state) => state.cart.keys
+    .map((id) => productById(state, id))
+    .whereType<BasketProduct>()
+    .toList();
 
 /// The currently-selected delivery address, resolved from
 /// [BasketState.apiAddresses] — falls back to a placeholder before
@@ -91,8 +99,15 @@ List<BasketProduct> cartProducts(BasketState state) =>
 Address addressForState(BasketState state) {
   final match = state.apiAddresses.where((a) => a.id == state.addressId);
   if (match.isNotEmpty) return Address.fromApi(match.first);
-  if (state.apiAddresses.isNotEmpty) return Address.fromApi(state.apiAddresses.first);
-  return const Address(id: '', label: 'Address', tag: '', line: 'Add a delivery address', eta: 15);
+  if (state.apiAddresses.isNotEmpty)
+    return Address.fromApi(state.apiAddresses.first);
+  return const Address(
+    id: '',
+    label: 'Address',
+    tag: '',
+    line: 'Add a delivery address',
+    eta: 15,
+  );
 }
 
 class BasketTotals {
@@ -117,14 +132,11 @@ class BasketTotals {
   int get savings => mrpTotal - subtotal + discount;
   bool get freeDeliveryUnlocked => subtotal >= freeDeliveryAbove;
 
-  /// Handling & GST shown at order-summary/checkout: a flat ₹9 handling
-  /// charge plus 18% GST on the delivery fee, matching the source design's
-  /// `gst = sub ? 9 + round(fee * 0.18) : 0`. This is a checkout-preview
-  /// estimate only — the order actually placed computes real per-line
-  /// CGST/SGST server-side from each product's GST slab.
-  int get gst => subtotal > 0 ? 9 + (deliveryFee * 0.18).round() : 0;
-
-  int get payable => total + gst;
+  /// The customer only ever sees and pays item price minus coupon discount
+  /// — delivery fee and GST aren't broken out or charged in-app (product
+  /// prices are already GST-inclusive, and GST/delivery cost is handled on
+  /// the admin/backend side, not itemized to the customer).
+  int get payable => total;
 }
 
 BasketTotals cartTotals(BasketState state, {int freeDeliveryAbove = 199}) {
@@ -143,12 +155,18 @@ BasketTotals cartTotals(BasketState state, {int freeDeliveryAbove = 199}) {
   if (coupon != null && subtotal >= coupon.minOrderValue) {
     discount = coupon.percentDiscount != null
         ? (coupon.maxDiscount != null
-            ? (subtotal * coupon.percentDiscount! / 100).round().clamp(0, coupon.maxDiscount!)
-            : (subtotal * coupon.percentDiscount! / 100).round())
+              ? (subtotal * coupon.percentDiscount! / 100).round().clamp(
+                  0,
+                  coupon.maxDiscount!,
+                )
+              : (subtotal * coupon.percentDiscount! / 100).round())
         : (coupon.flatDiscount ?? 0);
   }
+  // `fee` still drives the cart bar's "free delivery" nudge, but it's never
+  // added to `total`/`payable` — the customer is only ever charged item
+  // price minus discount.
   final fee = (subtotal >= freeDeliveryAbove || subtotal == 0) ? 0 : 29;
-  final total = subtotal - discount + fee;
+  final total = subtotal - discount;
   return BasketTotals(
     subtotal: subtotal,
     mrpTotal: mrpTotal,
@@ -161,7 +179,9 @@ BasketTotals cartTotals(BasketState state, {int freeDeliveryAbove = 199}) {
 }
 
 List<BasketProduct> visibleListProducts(BasketState state) {
-  var out = productsOf(state).where((p) => p.cat == state.category && p.sub == state.subcategory).toList();
+  var out = productsOf(state)
+      .where((p) => p.cat == state.category && p.sub == state.subcategory)
+      .toList();
   if (out.isEmpty) {
     out = productsOf(state).where((p) => p.cat == state.category).toList();
   }
@@ -196,13 +216,30 @@ List<BasketProduct> visibleListProducts(BasketState state) {
 List<BasketProduct> searchResults(BasketState state) {
   final q = state.query.trim().toLowerCase();
   if (q.isEmpty) return const [];
-  return productsOf(state).where((p) => '${p.name} ${p.brand} ${p.sub}'.toLowerCase().contains(q)).take(8).toList();
+  return productsOf(state)
+      .where((p) => '${p.name} ${p.brand} ${p.sub}'.toLowerCase().contains(q))
+      .take(8)
+      .toList();
 }
 
 BasketProduct pdpProduct(BasketState state) =>
-    (state.selectedProductId != null ? productById(state, state.selectedProductId!) : null) ??
-    (state.apiProducts.isNotEmpty ? BasketProduct.fromApi(state.apiProducts.first) : const BasketProduct(
-        id: '', name: '', pack: '', price: 0, mrp: 0, cat: '', sub: '', brand: '', rating: 0, ratingsCount: 0));
+    (state.selectedProductId != null
+        ? productById(state, state.selectedProductId!)
+        : null) ??
+    (state.apiProducts.isNotEmpty
+        ? BasketProduct.fromApi(state.apiProducts.first)
+        : const BasketProduct(
+            id: '',
+            name: '',
+            pack: '',
+            price: 0,
+            mrp: 0,
+            cat: '',
+            sub: '',
+            brand: '',
+            rating: 0,
+            ratingsCount: 0,
+          ));
 
 /// "Buy it again": the most frequently-ordered products across the
 /// customer's real order history (best-effort — only orders whose detail
@@ -212,13 +249,17 @@ List<BasketProduct> buyAgainProducts(BasketState state) {
   final current = state.currentOrder;
   if (current == null || current.items.isEmpty) return const [];
   final ids = current.items.map((i) => i.productId.toString()).toSet();
-  return ids.map((id) => productById(state, id)).whereType<BasketProduct>().toList();
+  return ids
+      .map((id) => productById(state, id))
+      .whereType<BasketProduct>()
+      .toList();
 }
 
 /// "Recommended for you": simply the highest-rated products in the loaded
 /// catalog (no real recommendation engine exists server-side).
 List<BasketProduct> recommendedProducts(BasketState state, {int take = 6}) {
-  final all = [...productsOf(state)]..sort((a, b) => b.rating.compareTo(a.rating));
+  final all = [...productsOf(state)]
+    ..sort((a, b) => b.rating.compareTo(a.rating));
   return all.take(take).toList();
 }
 
@@ -229,15 +270,28 @@ const _liveStatuses = {'new', 'packed', 'out_for_delivery'};
 bool isLiveOrderStatus(String status) => _liveStatuses.contains(status);
 
 String orderStatusLabel(String status) => switch (status) {
-      'new' => 'Confirmed',
-      'packed' => 'Packed',
-      'out_for_delivery' => 'On the way',
-      'delivered' => 'Delivered',
-      'cancelled' => 'Cancelled',
-      _ => status,
-    };
+  'new' => 'Confirmed',
+  'packed' => 'Packed',
+  'out_for_delivery' => 'On the way',
+  'delivered' => 'Delivered',
+  'cancelled' => 'Cancelled',
+  _ => status,
+};
 
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const _months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 String orderDateLabel(DateTime dt) {
   final local = dt.toLocal();
@@ -246,8 +300,13 @@ String orderDateLabel(DateTime dt) {
   final mm = local.minute.toString().padLeft(2, '0');
   final ap = local.hour >= 12 ? 'PM' : 'AM';
   final time = '$hh:$mm $ap';
-  final isToday = local.year == now.year && local.month == now.month && local.day == now.day;
-  return isToday ? 'Today, $time' : '${local.day} ${_months[local.month - 1]}, $time';
+  final isToday =
+      local.year == now.year &&
+      local.month == now.month &&
+      local.day == now.day;
+  return isToday
+      ? 'Today, $time'
+      : '${local.day} ${_months[local.month - 1]}, $time';
 }
 
 class OrderListRow {
@@ -287,7 +346,9 @@ List<OrderListRow> orderListRows(BasketState state) {
       isLive: live,
       itemCount: o.itemCount,
       totalLabel: moneyLabel(o.total),
-      ctaLabel: live ? 'Track order' : (o.status == 'cancelled' ? 'View details' : 'Reorder'),
+      ctaLabel: live
+          ? 'Track order'
+          : (o.status == 'cancelled' ? 'View details' : 'Reorder'),
     );
   }).toList();
 }
@@ -306,7 +367,6 @@ class OrderDetail {
     required this.items,
     required this.subtotalLabel,
     required this.discountLabel,
-    required this.feeLabel,
     required this.totalLabel,
     required this.paidLabel,
   });
@@ -324,7 +384,6 @@ class OrderDetail {
 
   final String subtotalLabel;
   final String discountLabel;
-  final String feeLabel;
   final String totalLabel;
   final String paidLabel;
 
@@ -339,7 +398,6 @@ class OrderDetail {
     items: [],
     subtotalLabel: '₹0',
     discountLabel: '—',
-    feeLabel: '₹0',
     totalLabel: '₹0',
     paidLabel: '—',
   );
@@ -362,8 +420,9 @@ OrderDetail resolveOrderDetail(BasketState state) {
     showInvoice: !cancelled,
     items: o.items.map((i) => (i.productName, i.pack, i.qty, i.rate)).toList(),
     subtotalLabel: moneyLabel(o.subtotal),
-    discountLabel: cancelled ? 'Refunded' : (o.discount > 0 ? '− ${moneyLabel(o.discount)}' : '—'),
-    feeLabel: moneyLabel(o.deliveryFee + o.cgst + o.sgst),
+    discountLabel: cancelled
+        ? 'Refunded'
+        : (o.discount > 0 ? '− ${moneyLabel(o.discount)}' : '—'),
     totalLabel: moneyLabel(o.total),
     paidLabel: cancelled ? 'Refunded' : 'Paid · ${o.paymentMode.toUpperCase()}',
   );

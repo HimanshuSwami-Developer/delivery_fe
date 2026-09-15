@@ -31,11 +31,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// design, not an oversight.
 class BasketCubit extends Cubit<BasketState> {
   BasketCubit(this.api) : super(const BasketState()) {
-    _splashTimer = Timer(const Duration(milliseconds: 1700), _leaveSplash);
+    _splashTimer = Timer(const Duration(milliseconds: 3000), _leaveSplash);
     _bootstrap();
     // Re-register whenever the OS/browser rotates the token — a no-op
     // (401, swallowed) if nobody's signed in yet.
-    _tokenRefreshSub = PushNotifications.onTokenRefresh.listen((_) => _registerDevice());
+    _tokenRefreshSub = PushNotifications.onTokenRefresh.listen(
+      (_) => _registerDevice(),
+    );
   }
 
   final BasketApiBundle api;
@@ -46,6 +48,7 @@ class BasketCubit extends Cubit<BasketState> {
 
   Timer? _splashTimer;
   StreamSubscription<String>? _tokenRefreshSub;
+  bool _hasSession = false;
 
   @override
   Future<void> close() {
@@ -65,7 +68,10 @@ class BasketCubit extends Cubit<BasketState> {
       return;
     }
     try {
-      await api.auth.registerDevice(token: token, platform: PushNotifications.platformName);
+      await api.auth.registerDevice(
+        token: token,
+        platform: PushNotifications.platformName,
+      );
       debugPrint('[push] _registerDevice: registered ok');
     } catch (e) {
       debugPrint('[push] _registerDevice failed: $e');
@@ -77,19 +83,27 @@ class BasketCubit extends Cubit<BasketState> {
   /// re-authenticate every launch.
   Future<void> _bootstrap() async {
     if (!await api.auth.hasSession()) return;
-    // `hasSession` is just a local secure-storage read — trust it and
-    // navigate immediately. Don't gate the redirect on `fetchProfile`
-    // succeeding: that's a network call, and if it's slow (loses the race
-    // against `_splashTimer`) or fails outright, an already-logged-in user
-    // would otherwise get dumped back on the login screen for no reason.
-    _splashTimer?.cancel();
-    goReset(BasketScreen.home);
+    // `hasSession` is just a local secure-storage read — trust it, but
+    // still let the splash's own timer (`_leaveSplash`) decide when to
+    // move on, so the splash always shows for its full fixed duration
+    // instead of getting cut short for returning signed-in users. Don't
+    // gate the home-data load on `fetchProfile` succeeding: that's a
+    // network call, and if it's slow or fails outright, an already-logged-in
+    // user would otherwise get dumped back on the login screen for no reason.
+    _hasSession = true;
     _loadHomeData();
     _registerDevice();
     try {
       final profile = await api.auth.fetchProfile();
       if (profile != null) {
-        emit(state.copyWith(name: profile.name, email: profile.email, myReferralCode: profile.referralCode, role: profile.role));
+        emit(
+          state.copyWith(
+            name: profile.name,
+            email: profile.email,
+            myReferralCode: profile.referralCode,
+            role: profile.role,
+          ),
+        );
       } else {
         // No completed profile (e.g. an admin-provisioned delivery_boy
         // account) — fall back to the role alone so tabs like "Deliveries"
@@ -122,8 +136,16 @@ class BasketCubit extends Cubit<BasketState> {
     emit(state.copyWith(catalogLoading: true));
     try {
       final categories = await api.catalog.fetchCategories();
-      final products = await api.catalog.fetchProducts(ordering: '-ratings_count');
-      emit(state.copyWith(catalogLoading: false, apiCategories: categories, apiProducts: products));
+      final products = await api.catalog.fetchProducts(
+        ordering: '-ratings_count',
+      );
+      emit(
+        state.copyWith(
+          catalogLoading: false,
+          apiCategories: categories,
+          apiProducts: products,
+        ),
+      );
     } catch (_) {
       emit(state.copyWith(catalogLoading: false));
     }
@@ -131,7 +153,10 @@ class BasketCubit extends Cubit<BasketState> {
 
   Future<void> loadBanners() async {
     try {
-      final banners = await api.promotions.fetchBanners(placement: 'home_carousel', isActive: true);
+      final banners = await api.promotions.fetchBanners(
+        placement: 'home_carousel',
+        isActive: true,
+      );
       emit(state.copyWith(apiBanners: banners));
     } catch (_) {}
   }
@@ -152,7 +177,9 @@ class BasketCubit extends Cubit<BasketState> {
   /// Shows the festival popup at most once per day per festival — tracked
   /// on-device via [AppPrefs], not per session, so it doesn't nag on every
   /// app reopen but does reappear for a new festival or the next day.
-  Future<void> _maybeShowFestivalPopup(List<ApiFestivalSetting> settings) async {
+  Future<void> _maybeShowFestivalPopup(
+    List<ApiFestivalSetting> settings,
+  ) async {
     final festival = FestivalCalendar.activeToday(settings: settings);
     if (festival == null || !festival.popupEnabled) return;
     final today = DateTime.now().toIso8601String().substring(0, 10);
@@ -188,13 +215,18 @@ class BasketCubit extends Cubit<BasketState> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         return;
       }
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(timeLimit: Duration(seconds: 8)),
+        locationSettings: const LocationSettings(
+          timeLimit: Duration(seconds: 8),
+        ),
       );
-      final result = await NominatimService().reverseGeocode(LatLng(position.latitude, position.longitude));
+      final result = await NominatimService().reverseGeocode(
+        LatLng(position.latitude, position.longitude),
+      );
       if (result != null && result.displayName.isNotEmpty) {
         emit(state.copyWith(gpsAddress: result.displayName));
       }
@@ -230,11 +262,13 @@ class BasketCubit extends Cubit<BasketState> {
   // ── Navigation ────────────────────────────────────────────────────────
 
   void go(BasketScreen next) {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: next,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: next,
+        sheet: ActiveSheet.none,
+      ),
+    );
   }
 
   void back() {
@@ -242,17 +276,21 @@ class BasketCubit extends Cubit<BasketState> {
       emit(state.copyWith(screen: BasketScreen.home, sheet: ActiveSheet.none));
       return;
     }
-    emit(state.copyWith(
-      screen: state.history.last,
-      history: state.history.sublist(0, state.history.length - 1),
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        screen: state.history.last,
+        history: state.history.sublist(0, state.history.length - 1),
+        sheet: ActiveSheet.none,
+      ),
+    );
   }
 
   /// Jumps to [next] and clears the back-stack — used by the bottom-nav
   /// tabs and anywhere else that should start a fresh flow.
   void goReset(BasketScreen next) {
-    emit(state.copyWith(screen: next, history: const [], sheet: ActiveSheet.none));
+    emit(
+      state.copyWith(screen: next, history: const [], sheet: ActiveSheet.none),
+    );
   }
 
   void goHome() => goReset(BasketScreen.home);
@@ -263,19 +301,31 @@ class BasketCubit extends Cubit<BasketState> {
   /// and merges it back into `apiProducts` — that's what fills in `images`
   /// for the slider a moment later.
   void openProduct(String productId) {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.pdp,
-      selectedProductId: productId,
-      pdpTab: PdpTab.description,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.pdp,
+        selectedProductId: productId,
+        pdpTab: PdpTab.description,
+        sheet: ActiveSheet.none,
+      ),
+    );
     final id = int.tryParse(productId);
     if (id == null) return;
-    api.catalog.fetchProduct(id).then((detail) {
-      if (isClosed) return;
-      emit(state.copyWith(apiProducts: [for (final p in state.apiProducts) if (p.id == id) detail else p]));
-    }).catchError((_) {});
+    api.catalog
+        .fetchProduct(id)
+        .then((detail) {
+          if (isClosed) return;
+          emit(
+            state.copyWith(
+              apiProducts: [
+                for (final p in state.apiProducts)
+                  if (p.id == id) detail else p,
+              ],
+            ),
+          );
+        })
+        .catchError((_) {});
   }
 
   /// Takes the whole [BasketCategory] (not just its key) so this can pick a
@@ -284,13 +334,15 @@ class BasketCubit extends Cubit<BasketState> {
   /// threw on those (the "subcategory screen not showing" bug: the tap
   /// crashed before `go` ever ran).
   void openCategory(BasketCategory category) {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.list,
-      category: category.key,
-      subcategory: category.subs.isEmpty ? '' : category.subs.first,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.list,
+        category: category.key,
+        subcategory: category.subs.isEmpty ? '' : category.subs.first,
+        sheet: ActiveSheet.none,
+      ),
+    );
   }
 
   /// Home banners are optionally tied to a category (`Banner.category` on
@@ -305,12 +357,16 @@ class BasketCubit extends Cubit<BasketState> {
   }
 
   void openCoupons({String? code}) {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.cart,
-      couponInput: code ?? (state.apiCoupons.isNotEmpty ? state.apiCoupons.first.code : ''),
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.cart,
+        couponInput:
+            code ??
+            (state.apiCoupons.isNotEmpty ? state.apiCoupons.first.code : ''),
+        sheet: ActiveSheet.none,
+      ),
+    );
   }
 
   // ── Onboarding / auth (Part 1) ──────────────────────────────────────
@@ -320,12 +376,14 @@ class BasketCubit extends Cubit<BasketState> {
   /// login instead of replaying it.
   Future<void> _leaveSplash() async {
     if (state.screen != BasketScreen.splash) return;
+    if (_hasSession) {
+      goReset(BasketScreen.home);
+      return;
+    }
     final seen = await AppPrefs.hasSeenOnboarding();
     if (state.screen != BasketScreen.splash) return; // re-check post-await
     go(seen ? BasketScreen.login : BasketScreen.onboard);
   }
-
-  void skipSplash() => _leaveSplash();
 
   void skipOnboarding() {
     AppPrefs.setSeenOnboarding();
@@ -345,7 +403,8 @@ class BasketCubit extends Cubit<BasketState> {
   /// swipe/Next-driven.
   void setOnboardSlide(int i) => emit(state.copyWith(onboardSlide: i));
 
-  void setPhone(String value) => emit(state.copyWith(phone: _digitsOnly(value), clearAuthError: true));
+  void setPhone(String value) =>
+      emit(state.copyWith(phone: _digitsOnly(value), clearAuthError: true));
 
   /// The backend wants E.164-ish numbers; the login screen only collects
   /// the 10-digit local part (with a fixed "+91" prefix shown next to it).
@@ -376,7 +435,8 @@ class BasketCubit extends Cubit<BasketState> {
     }
   }
 
-  void setOtp(String value) => emit(state.copyWith(otp: _digitsOnly(value), clearAuthError: true));
+  void setOtp(String value) =>
+      emit(state.copyWith(otp: _digitsOnly(value), clearAuthError: true));
 
   Future<void> verifyOtp() async {
     if (state.otp.length != 4) {
@@ -385,7 +445,10 @@ class BasketCubit extends Cubit<BasketState> {
     }
     emit(state.copyWith(authLoading: true, clearAuthError: true));
     try {
-      final result = await api.auth.verifyOtp(mobileNumber: _fullPhone, otpCode: state.otp);
+      final result = await api.auth.verifyOtp(
+        mobileNumber: _fullPhone,
+        otpCode: state.otp,
+      );
       _registerDevice();
       if (result.isNewUser) {
         emit(state.copyWith(authLoading: false));
@@ -397,13 +460,15 @@ class BasketCubit extends Cubit<BasketState> {
       // never completes a customer profile, so `profile` is null forever
       // and `role` must be recovered separately.
       final role = profile?.role ?? await api.auth.fetchRole() ?? 'customer';
-      emit(state.copyWith(
-        authLoading: false,
-        name: profile?.name ?? '',
-        email: profile?.email ?? '',
-        myReferralCode: profile?.referralCode,
-        role: role,
-      ));
+      emit(
+        state.copyWith(
+          authLoading: false,
+          name: profile?.name ?? '',
+          email: profile?.email ?? '',
+          myReferralCode: profile?.referralCode,
+          role: role,
+        ),
+      );
       goReset(BasketScreen.home);
       _loadHomeData();
     } on ApiException catch (e) {
@@ -415,7 +480,8 @@ class BasketCubit extends Cubit<BasketState> {
 
   void setEmail(String value) => emit(state.copyWith(email: value));
 
-  void setReferralCodeInput(String value) => emit(state.copyWith(referralCodeInput: value));
+  void setReferralCodeInput(String value) =>
+      emit(state.copyWith(referralCodeInput: value));
 
   Future<void> finishSetup() async {
     emit(state.copyWith(authLoading: true, clearAuthError: true));
@@ -425,7 +491,13 @@ class BasketCubit extends Cubit<BasketState> {
         email: state.email.trim(),
         referralCode: state.referralCodeInput.trim(),
       );
-      emit(state.copyWith(authLoading: false, myReferralCode: profile.referralCode, role: profile.role));
+      emit(
+        state.copyWith(
+          authLoading: false,
+          myReferralCode: profile.referralCode,
+          role: profile.role,
+        ),
+      );
       goReset(BasketScreen.home);
       _loadHomeData();
     } on ApiException catch (e) {
@@ -438,7 +510,8 @@ class BasketCubit extends Cubit<BasketState> {
     emit(const BasketState());
   }
 
-  static String _digitsOnly(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');
+  static String _digitsOnly(String value) =>
+      value.replaceAll(RegExp(r'[^0-9]'), '');
 
   // ── Cart / wishlist ──────────────────────────────────────────────────
   //
@@ -508,7 +581,9 @@ class BasketCubit extends Cubit<BasketState> {
     if (state.apiOrders.isEmpty) return;
     try {
       final detail = await api.orders.fetchOrder(state.apiOrders.first.id);
-      final newCart = <String, int>{for (final i in detail.items) i.productId.toString(): i.qty};
+      final newCart = <String, int>{
+        for (final i in detail.items) i.productId.toString(): i.qty,
+      };
       emit(state.copyWith(cart: newCart));
       await _syncWholeCart(newCart);
     } catch (_) {}
@@ -527,17 +602,23 @@ class BasketCubit extends Cubit<BasketState> {
   /// Resets the cart to the selected order's items and returns to the cart
   /// with a clean back-stack — matching the source design's `reorder`.
   Future<void> reorder() async {
-    final id = state.selectedOrderId != null ? int.tryParse(state.selectedOrderId!) : state.currentOrder?.id;
+    final id = state.selectedOrderId != null
+        ? int.tryParse(state.selectedOrderId!)
+        : state.currentOrder?.id;
     if (id == null) return;
     try {
       final detail = await api.orders.fetchOrder(id);
-      final newCart = <String, int>{for (final i in detail.items) i.productId.toString(): i.qty};
-      emit(state.copyWith(
-        cart: newCart,
-        screen: BasketScreen.cart,
-        clearSelectedOrderId: true,
-        history: const [BasketScreen.home],
-      ));
+      final newCart = <String, int>{
+        for (final i in detail.items) i.productId.toString(): i.qty,
+      };
+      emit(
+        state.copyWith(
+          cart: newCart,
+          screen: BasketScreen.cart,
+          clearSelectedOrderId: true,
+          history: const [BasketScreen.home],
+        ),
+      );
       await _syncWholeCart(newCart);
     } on ApiException catch (_) {
       // Nothing to reorder from (e.g. order fetch failed) — stay put.
@@ -554,9 +635,13 @@ class BasketCubit extends Cubit<BasketState> {
 
   void setSubcategory(String sub) => emit(state.copyWith(subcategory: sub));
 
-  void toggleView() => emit(state.copyWith(
-        view: state.view == CatalogView.grid ? CatalogView.rows : CatalogView.grid,
-      ));
+  void toggleView() => emit(
+    state.copyWith(
+      view: state.view == CatalogView.grid
+          ? CatalogView.rows
+          : CatalogView.grid,
+    ),
+  );
 
   void openFilterSheet() => emit(state.copyWith(sheet: ActiveSheet.filter));
 
@@ -566,7 +651,8 @@ class BasketCubit extends Cubit<BasketState> {
 
   void setSort(SortOption sort) => emit(state.copyWith(sort: sort));
 
-  void resetFilters() => emit(state.copyWith(band: PriceBand.all, sort: SortOption.popularity));
+  void resetFilters() =>
+      emit(state.copyWith(band: PriceBand.all, sort: SortOption.popularity));
 
   void setQuery(String query) => emit(state.copyWith(query: query));
 
@@ -588,12 +674,14 @@ class BasketCubit extends Cubit<BasketState> {
   /// design's `apply` action (`setState({coupon, screen:'cart', ...}, ()
   /// => applyCoupon())`).
   Future<void> applyCouponFromCard(String code) async {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.cart,
-      couponInput: code,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.cart,
+        couponInput: code,
+        sheet: ActiveSheet.none,
+      ),
+    );
     await _applyCouponCode(code);
   }
 
@@ -607,7 +695,9 @@ class BasketCubit extends Cubit<BasketState> {
     }
     try {
       await api.cart.applyCoupon(code);
-      emit(state.copyWith(appliedCoupon: code, couponMessage: '$code applied.'));
+      emit(
+        state.copyWith(appliedCoupon: code, couponMessage: '$code applied.'),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(couponMessage: e.message));
     }
@@ -617,7 +707,8 @@ class BasketCubit extends Cubit<BasketState> {
 
   void goCheckout() => go(BasketScreen.addr);
 
-  void selectAddress(String addressId) => emit(state.copyWith(addressId: addressId));
+  void selectAddress(String addressId) =>
+      emit(state.copyWith(addressId: addressId));
 
   void openAddressEdit() {
     emit(state.copyWith(clearAddressFormError: true));
@@ -643,38 +734,53 @@ class BasketCubit extends Cubit<BasketState> {
       emit(state.copyWith(addressFormError: 'Flat / house no. is required.'));
       return;
     }
-    if (city.trim().isEmpty || stateName.trim().isEmpty || pincode.trim().isEmpty) {
-      emit(state.copyWith(addressFormError: 'City, state and pincode are required.'));
+    if (city.trim().isEmpty ||
+        stateName.trim().isEmpty ||
+        pincode.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          addressFormError: 'City, state and pincode are required.',
+        ),
+      );
       return;
     }
 
     emit(state.copyWith(addressSaving: true, clearAddressFormError: true));
     try {
-      final saved = await api.auth.addAddress(ApiAddress(
-        id: '',
-        addressType: state.newAddressTag.toLowerCase(),
-        addressLine1: houseNo.trim(),
-        addressLine2: landmark.trim().isEmpty ? null : landmark.trim(),
-        city: city.trim(),
-        state: stateName.trim(),
-        country: 'India',
-        pincode: pincode.trim(),
-        isDefault: state.apiAddresses.isEmpty,
-        latitude: latitude,
-        longitude: longitude,
-      ));
+      final saved = await api.auth.addAddress(
+        ApiAddress(
+          id: '',
+          addressType: state.newAddressTag.toLowerCase(),
+          addressLine1: houseNo.trim(),
+          addressLine2: landmark.trim().isEmpty ? null : landmark.trim(),
+          city: city.trim(),
+          state: stateName.trim(),
+          country: 'India',
+          pincode: pincode.trim(),
+          isDefault: state.apiAddresses.isEmpty,
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      );
       final addresses = [...state.apiAddresses, saved];
-      emit(state.copyWith(
-        addressSaving: false,
-        apiAddresses: addresses,
-        addressId: saved.id,
-        screen: BasketScreen.addr,
-        history: const [BasketScreen.home, BasketScreen.cart],
-      ));
+      emit(
+        state.copyWith(
+          addressSaving: false,
+          apiAddresses: addresses,
+          addressId: saved.id,
+          screen: BasketScreen.addr,
+          history: const [BasketScreen.home, BasketScreen.cart],
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(addressSaving: false, addressFormError: e.message));
     } catch (_) {
-      emit(state.copyWith(addressSaving: false, addressFormError: 'Could not save address. Try again.'));
+      emit(
+        state.copyWith(
+          addressSaving: false,
+          addressFormError: 'Could not save address. Try again.',
+        ),
+      );
     }
   }
 
@@ -686,7 +792,8 @@ class BasketCubit extends Cubit<BasketState> {
 
   void selectDeliveryDay(int index) => emit(state.copyWith(deliveryDay: index));
 
-  void selectDeliverySlot(String slotId) => emit(state.copyWith(deliverySlotId: slotId));
+  void selectDeliverySlot(String slotId) =>
+      emit(state.copyWith(deliverySlotId: slotId));
 
   void goToSummary() => go(BasketScreen.summary);
 
@@ -696,10 +803,12 @@ class BasketCubit extends Cubit<BasketState> {
   /// Resets the back-stack to `[home, cart]` so back always returns to the
   /// cart rather than replaying address/slot/summary.
   void goToPaymentChoice() {
-    emit(state.copyWith(
-      screen: BasketScreen.payChoice,
-      history: const [BasketScreen.home, BasketScreen.cart],
-    ));
+    emit(
+      state.copyWith(
+        screen: BasketScreen.payChoice,
+        history: const [BasketScreen.home, BasketScreen.cart],
+      ),
+    );
   }
 
   /// From the payment-choice screen's "Pay via UPI QR code" — the QR image
@@ -707,19 +816,27 @@ class BasketCubit extends Cubit<BasketState> {
   /// backend call happens until the customer actually uploads a screenshot
   /// (see [placeQrOrder]).
   void chooseQrPayment() {
-    emit(state.copyWith(
-      paymentMethodId: 'qr',
-      screen: BasketScreen.qrPayment,
-      history: const [BasketScreen.home, BasketScreen.cart, BasketScreen.payChoice],
-    ));
+    emit(
+      state.copyWith(
+        paymentMethodId: 'qr',
+        screen: BasketScreen.qrPayment,
+        history: const [
+          BasketScreen.home,
+          BasketScreen.cart,
+          BasketScreen.payChoice,
+        ],
+      ),
+    );
   }
 
   Future<void> payCashOnDelivery() async {
-    emit(state.copyWith(
-      paymentMethodId: 'cod',
-      screen: BasketScreen.paying,
-      history: const [BasketScreen.home],
-    ));
+    emit(
+      state.copyWith(
+        paymentMethodId: 'cod',
+        screen: BasketScreen.paying,
+        history: const [BasketScreen.home],
+      ),
+    );
     await _placeRealOrder(minDelay: const Duration(milliseconds: 1200));
   }
 
@@ -727,12 +844,17 @@ class BasketCubit extends Cubit<BasketState> {
   /// screenshot — places the order with it attached as proof. The backend
   /// uploads it to Cloudinary and leaves `payment_status` pending for an
   /// admin to verify by hand; there's no gateway callback to trust here.
-  Future<void> placeQrOrder(List<int> screenshotBytes, String screenshotFilename) async {
-    emit(state.copyWith(
-      screen: BasketScreen.paying,
-      history: const [BasketScreen.home, BasketScreen.cart],
-      trackingStage: 0,
-    ));
+  Future<void> placeQrOrder(
+    List<int> screenshotBytes,
+    String screenshotFilename,
+  ) async {
+    emit(
+      state.copyWith(
+        screen: BasketScreen.paying,
+        history: const [BasketScreen.home, BasketScreen.cart],
+        trackingStage: 0,
+      ),
+    );
     await _placeRealOrder(
       minDelay: const Duration(milliseconds: 1700),
       screenshotBytes: screenshotBytes,
@@ -758,27 +880,35 @@ class BasketCubit extends Cubit<BasketState> {
       );
       await delayFuture;
 
-      emit(state.copyWith(
-        currentOrder: order,
-        cart: const {},
-        screen: BasketScreen.success,
-        history: const [BasketScreen.home],
-        paymentPopup: PaymentPopup(
-          title: 'Order placed',
-          message: order.paymentMode == 'qr'
-              ? "Your order ${order.orderNumber} has been placed — we'll confirm your payment shortly."
-              : 'Your order ${order.orderNumber} has been placed successfully.',
-          success: true,
+      emit(
+        state.copyWith(
+          currentOrder: order,
+          cart: const {},
+          screen: BasketScreen.success,
+          history: const [BasketScreen.home],
+          paymentPopup: PaymentPopup(
+            title: 'Order placed',
+            message: order.paymentMode == 'qr'
+                ? "Your order ${order.orderNumber} has been placed — we'll confirm your payment shortly."
+                : 'Your order ${order.orderNumber} has been placed successfully.',
+            success: true,
+          ),
         ),
-      ));
+      );
       loadOrders();
     } on ApiException catch (e) {
       await delayFuture;
-      emit(state.copyWith(
-        screen: BasketScreen.failure,
-        history: const [BasketScreen.home, BasketScreen.cart],
-        paymentPopup: PaymentPopup(title: 'Could not place order', message: e.message, success: false),
-      ));
+      emit(
+        state.copyWith(
+          screen: BasketScreen.failure,
+          history: const [BasketScreen.home, BasketScreen.cart],
+          paymentPopup: PaymentPopup(
+            title: 'Could not place order',
+            message: e.message,
+            success: false,
+          ),
+        ),
+      );
     }
   }
 
@@ -790,13 +920,15 @@ class BasketCubit extends Cubit<BasketState> {
   /// is null right after placing an order (there's no id to pass yet other
   /// than [BasketState.currentOrder], which is already the full detail).
   Future<void> openOrderDetail(String? orderId) async {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.orderDet,
-      selectedOrderId: orderId,
-      clearSelectedOrderId: orderId == null,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.orderDet,
+        selectedOrderId: orderId,
+        clearSelectedOrderId: orderId == null,
+        sheet: ActiveSheet.none,
+      ),
+    );
     final id = orderId != null ? int.tryParse(orderId) : state.currentOrder?.id;
     if (id == null) return;
     try {
@@ -811,13 +943,15 @@ class BasketCubit extends Cubit<BasketState> {
   /// reachable from the "Deliveries" tab, itself only shown for
   /// role='delivery_boy' accounts (see `kBottomNavScreens`/`BasketBottomNav`).
   Future<void> openDeliveryDetail(String orderId) async {
-    emit(state.copyWith(
-      history: [...state.history, state.screen],
-      screen: BasketScreen.deliveryDetail,
-      selectedOrderId: orderId,
-      clearDeliveryActionError: true,
-      sheet: ActiveSheet.none,
-    ));
+    emit(
+      state.copyWith(
+        history: [...state.history, state.screen],
+        screen: BasketScreen.deliveryDetail,
+        selectedOrderId: orderId,
+        clearDeliveryActionError: true,
+        sheet: ActiveSheet.none,
+      ),
+    );
     final id = int.tryParse(orderId);
     if (id == null) return;
     try {
@@ -833,17 +967,32 @@ class BasketCubit extends Cubit<BasketState> {
   Future<void> updateDeliveryStatus(String newStatus) async {
     final id = state.currentOrder?.id;
     if (id == null) return;
-    emit(state.copyWith(deliveryActionLoading: true, clearDeliveryActionError: true));
+    emit(
+      state.copyWith(
+        deliveryActionLoading: true,
+        clearDeliveryActionError: true,
+      ),
+    );
     try {
       final updated = await api.orders.setStatus(id, newStatus);
       emit(state.copyWith(deliveryActionLoading: false, currentOrder: updated));
       loadOrders();
     } on ApiException catch (e) {
-      emit(state.copyWith(deliveryActionLoading: false, deliveryActionError: e.message));
+      emit(
+        state.copyWith(
+          deliveryActionLoading: false,
+          deliveryActionError: e.message,
+        ),
+      );
     }
   }
 
-  static const _statusToStage = {'new': 0, 'packed': 1, 'out_for_delivery': 2, 'delivered': 3};
+  static const _statusToStage = {
+    'new': 0,
+    'packed': 1,
+    'out_for_delivery': 2,
+    'delivered': 3,
+  };
 
   Future<void> goToTrack() async {
     go(BasketScreen.track);
@@ -859,29 +1008,39 @@ class BasketCubit extends Cubit<BasketState> {
     if (id == null) return;
     try {
       final order = await api.orders.fetchOrder(id);
-      emit(state.copyWith(currentOrder: order, trackingStage: _statusToStage[order.status] ?? state.trackingStage));
+      emit(
+        state.copyWith(
+          currentOrder: order,
+          trackingStage: _statusToStage[order.status] ?? state.trackingStage,
+        ),
+      );
     } catch (_) {}
   }
 
   // ── Cancel / return ──────────────────────────────────────────────────
 
   void openCancelSheet() {
-    emit(state.copyWith(
-      sheet: ActiveSheet.cancelOrReturn,
-      cancelMode: CancelMode.cancel,
-      clearCancelReason: true,
-    ));
+    emit(
+      state.copyWith(
+        sheet: ActiveSheet.cancelOrReturn,
+        cancelMode: CancelMode.cancel,
+        clearCancelReason: true,
+      ),
+    );
   }
 
   void openReturnSheet() {
-    emit(state.copyWith(
-      sheet: ActiveSheet.cancelOrReturn,
-      cancelMode: CancelMode.returnItems,
-      clearCancelReason: true,
-    ));
+    emit(
+      state.copyWith(
+        sheet: ActiveSheet.cancelOrReturn,
+        cancelMode: CancelMode.returnItems,
+        clearCancelReason: true,
+      ),
+    );
   }
 
-  void pickCancelReason(String reason) => emit(state.copyWith(cancelReason: reason));
+  void pickCancelReason(String reason) =>
+      emit(state.copyWith(cancelReason: reason));
 
   /// Resets the back-stack to `[home, account]` — dismissing the sheet and
   /// landing on the orders list, not back through order-detail/tracking.
@@ -896,11 +1055,13 @@ class BasketCubit extends Cubit<BasketState> {
         emit(state.copyWith(currentOrder: updated));
       } on ApiException catch (_) {}
     }
-    emit(state.copyWith(
-      sheet: ActiveSheet.none,
-      screen: BasketScreen.orders,
-      history: const [BasketScreen.home, BasketScreen.account],
-    ));
+    emit(
+      state.copyWith(
+        sheet: ActiveSheet.none,
+        screen: BasketScreen.orders,
+        history: const [BasketScreen.home, BasketScreen.account],
+      ),
+    );
     loadOrders();
   }
 
