@@ -39,6 +39,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   late final _mrp = TextEditingController(text: _editing == null ? '' : '${_editing.mrp}');
   late final _price = TextEditingController(text: _editing == null ? '' : '${_editing.price}');
   late final _costPrice = TextEditingController();
+  late final _initialStock = TextEditingController();
   late String _mainImageUrl = _editing?.mainImageUrl ?? '';
 
   int? _categoryId;
@@ -82,6 +83,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
     _mrp.dispose();
     _price.dispose();
     _costPrice.dispose();
+    _initialStock.dispose();
     super.dispose();
   }
 
@@ -114,6 +116,9 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'gst_slab': _gstSlab,
         'is_out_of_stock': _outOfStock,
         'main_image_url': _mainImageUrl,
+        // Only meaningful at creation — the backend ignores it on update,
+        // since editing stock afterward goes through the Inventory screen.
+        if (_editing == null) 'initial_stock': int.tryParse(_initialStock.text.trim()) ?? 0,
       };
       final product = _editing == null
           ? await cubit.createProduct(data)
@@ -294,11 +299,28 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Stock levels are managed on the Inventory page once the product exists.',
-                        style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
-                      ),
+                      if (_editing == null) ...[
+                        const SizedBox(height: 14),
+                        AdminEditField(
+                          label: 'Initial quantity',
+                          controller: _initialStock,
+                          hint: '0',
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Sets the Inventory on-hand count right away — leave blank to start at 0. '
+                          'Later restocks are managed from the Inventory page.',
+                          style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          'Stock levels are managed on the Inventory page.',
+                          style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
+                        ),
+                      ],
                     ],
                   ),
                 ),
