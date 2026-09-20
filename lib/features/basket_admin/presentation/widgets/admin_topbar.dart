@@ -5,14 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Sticky header: page title/subtitle, a decorative search field, and a
-/// theme button.
+/// Sticky header: page title/subtitle, plus a hamburger button on narrow
+/// screens.
 ///
 /// [narrow] (screen width < 900, matching `AdminLoginView`'s own threshold)
 /// drops the sidebar into a `Drawer` — see `_AdminRoot` — so this bar grows
-/// a hamburger button to open it, and sheds everything else it doesn't have
-/// room for: the search box (decorative — never wired to an actual search)
-/// disappears. On the desktop width this was built for, none of that changes.
+/// a hamburger button to open it. On the desktop width this was built for,
+/// only the subtitle line drops.
 class AdminTopBar extends StatelessWidget {
   const AdminTopBar({super.key, required this.narrow});
   final bool narrow;
@@ -61,39 +60,6 @@ class AdminTopBar extends StatelessWidget {
                 ],
               ],
             ),
-          ),
-          const SizedBox(width: 12),
-          if (!narrow) ...[
-            Container(
-              width: 260,
-              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-              decoration: BoxDecoration(
-                color: Color(0xFFFFFBF2),
-                border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-                borderRadius: BorderRadius.circular(11),
-              ),
-              child: Row(
-                children: [
-                  const Text('⌕', style: TextStyle(fontSize: 12, color: AdminColors.faint)),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      'Search orders, SKUs, partners',
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.faint),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const SizedBox(width: 9),
-          Container(
-            width: narrow ? 36 : 38,
-            height: narrow ? 36 : 38,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(narrow ? 10 : 11)),
-            child: const Text('◑', style: TextStyle(fontSize: 13, color: Color(0xFFFFFBF2))),
           ),
         ],
       ),
