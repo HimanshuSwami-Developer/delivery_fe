@@ -113,6 +113,7 @@ class _AdminShell extends StatelessWidget {
           ),
           if (modal == AdminModal.assign) const AssignPartnerModal(),
           if (modal == AdminModal.addCategory) const AddCategoryModal(),
+          if (modal == AdminModal.addSubcategory) const AddSubcategoryModal(),
           if (modal == AdminModal.partnerForm) const PartnerFormModal(),
           if (modal == AdminModal.addCoupon) const AddCouponModal(),
           if (modal == AdminModal.addBanner) const AddBannerModal(),

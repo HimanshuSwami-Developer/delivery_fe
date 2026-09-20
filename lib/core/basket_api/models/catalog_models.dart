@@ -31,6 +31,34 @@ class ApiCategory {
       );
 }
 
+/// Mirrors `catalog.serializers.SubcategorySerializer` — the admin
+/// console's own CRUD shape (id + real `categoryId`), distinct from
+/// [ApiCategory.subs] which is just a list of names with no id, so it
+/// can't be edited/deleted individually.
+class ApiSubcategory {
+  const ApiSubcategory({
+    required this.id,
+    required this.categoryId,
+    required this.name,
+    required this.imageUrl,
+    required this.order,
+  });
+
+  final int id;
+  final int categoryId;
+  final String name;
+  final String imageUrl;
+  final int order;
+
+  factory ApiSubcategory.fromJson(Map<String, dynamic> json) => ApiSubcategory(
+        id: json['id'] as int,
+        categoryId: json['category'] as int,
+        name: json['name'] as String,
+        imageUrl: json['image_url'] as String? ?? '',
+        order: json['order'] as int? ?? 0,
+      );
+}
+
 /// Mirrors `catalog.serializers.ProductImageSerializer`.
 class ApiProductImage {
   const ApiProductImage({required this.id, required this.imageUrl, required this.order});

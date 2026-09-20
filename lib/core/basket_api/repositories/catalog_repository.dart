@@ -63,6 +63,41 @@ class CatalogRepository {
     }
   }
 
+  Future<List<ApiSubcategory>> fetchSubcategories({int? categoryId}) async {
+    try {
+      final response = await _client.dio.get('/subcategories/', queryParameters: {'category': ?categoryId});
+      return extractResults(response.data).map((e) => ApiSubcategory.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiSubcategory> createSubcategory(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.post('/subcategories/', data: data);
+      return ApiSubcategory.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiSubcategory> updateSubcategory(int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/subcategories/$id/', data: data);
+      return ApiSubcategory.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteSubcategory(int id) async {
+    try {
+      await _client.dio.delete('/subcategories/$id/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// [category]/[subcategory] are the string keys/names the Flutter state
   /// already uses (not numeric ids) — matches `ProductFilter` server-side.
   Future<List<ApiProduct>> fetchProducts({

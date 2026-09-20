@@ -36,6 +36,7 @@ class BasketAdminState extends Equatable {
     this.ordersLoading = false,
     this.currentOrder,
     this.apiCategories = const [],
+    this.categoriesLoading = false,
     this.apiProducts = const [],
     this.productsLoading = false,
     this.currentProduct,
@@ -55,6 +56,9 @@ class BasketAdminState extends Equatable {
     this.apiCoupons = const [],
     this.editingCoupon,
     this.editingCategory,
+    this.apiSubcategories = const [],
+    this.editingSubcategory,
+    this.addSubcategoryCategory,
     this.apiBanners = const [],
     this.editingBanner,
     this.apiFestivalSettings = const [],
@@ -130,6 +134,7 @@ class BasketAdminState extends Equatable {
   final ApiOrder? currentOrder;
 
   final List<ApiCategory> apiCategories;
+  final bool categoriesLoading;
   final List<ApiProduct> apiProducts;
   final bool productsLoading;
 
@@ -179,6 +184,21 @@ class BasketAdminState extends Equatable {
   /// The category shown on [AdminModal.addCategory] — null means create,
   /// non-null means edit.
   final ApiCategory? editingCategory;
+
+  /// All subcategories across every category — filtered client-side by
+  /// `categoryId` when rendering a given category's chips, rather than
+  /// re-fetching per card.
+  final List<ApiSubcategory> apiSubcategories;
+
+  /// The subcategory shown on [AdminModal.addSubcategory] — null means
+  /// create, non-null means edit.
+  final ApiSubcategory? editingSubcategory;
+
+  /// Which category a new/edited subcategory belongs to — set whenever
+  /// [AdminModal.addSubcategory] opens (for a new one, from whichever
+  /// category's "+" chip was tapped; for editing, derived from the
+  /// subcategory's own `categoryId`).
+  final ApiCategory? addSubcategoryCategory;
 
   final List<ApiBanner> apiBanners;
 
@@ -239,6 +259,7 @@ class BasketAdminState extends Equatable {
     bool? ordersLoading,
     ApiOrder? currentOrder,
     List<ApiCategory>? apiCategories,
+    bool? categoriesLoading,
     List<ApiProduct>? apiProducts,
     bool? productsLoading,
     ApiProduct? currentProduct,
@@ -263,6 +284,11 @@ class BasketAdminState extends Equatable {
     bool clearEditingCoupon = false,
     ApiCategory? editingCategory,
     bool clearEditingCategory = false,
+    List<ApiSubcategory>? apiSubcategories,
+    ApiSubcategory? editingSubcategory,
+    bool clearEditingSubcategory = false,
+    ApiCategory? addSubcategoryCategory,
+    bool clearAddSubcategoryCategory = false,
     List<ApiBanner>? apiBanners,
     ApiBanner? editingBanner,
     bool clearEditingBanner = false,
@@ -306,6 +332,7 @@ class BasketAdminState extends Equatable {
       ordersLoading: ordersLoading ?? this.ordersLoading,
       currentOrder: currentOrder ?? this.currentOrder,
       apiCategories: apiCategories ?? this.apiCategories,
+      categoriesLoading: categoriesLoading ?? this.categoriesLoading,
       apiProducts: apiProducts ?? this.apiProducts,
       productsLoading: productsLoading ?? this.productsLoading,
       currentProduct: clearCurrentProduct ? null : (currentProduct ?? this.currentProduct),
@@ -325,6 +352,9 @@ class BasketAdminState extends Equatable {
       apiCoupons: apiCoupons ?? this.apiCoupons,
       editingCoupon: clearEditingCoupon ? null : (editingCoupon ?? this.editingCoupon),
       editingCategory: clearEditingCategory ? null : (editingCategory ?? this.editingCategory),
+      apiSubcategories: apiSubcategories ?? this.apiSubcategories,
+      editingSubcategory: clearEditingSubcategory ? null : (editingSubcategory ?? this.editingSubcategory),
+      addSubcategoryCategory: clearAddSubcategoryCategory ? null : (addSubcategoryCategory ?? this.addSubcategoryCategory),
       apiBanners: apiBanners ?? this.apiBanners,
       editingBanner: clearEditingBanner ? null : (editingBanner ?? this.editingBanner),
       apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
@@ -366,6 +396,7 @@ class BasketAdminState extends Equatable {
         ordersLoading,
         currentOrder,
         apiCategories,
+        categoriesLoading,
         apiProducts,
         productsLoading,
         currentProduct,
@@ -385,6 +416,9 @@ class BasketAdminState extends Equatable {
         apiCoupons,
         editingCoupon,
         editingCategory,
+        apiSubcategories,
+        editingSubcategory,
+        addSubcategoryCategory,
         apiBanners,
         editingBanner,
         apiFestivalSettings,

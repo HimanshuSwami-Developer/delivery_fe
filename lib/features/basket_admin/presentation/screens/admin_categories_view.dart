@@ -17,6 +17,8 @@ class AdminCategoriesView extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
+    final loading = context.select((BasketAdminCubit c) => c.state.categoriesLoading);
+    final subcategories = context.select((BasketAdminCubit c) => c.state.apiSubcategories);
 
     return SingleChildScrollView(
       child: Column(
@@ -37,12 +39,29 @@ class AdminCategoriesView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          if (categories.isEmpty)
+          if (loading && categories.isEmpty)
             const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
+          else if (categories.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                  'No categories exist yet — add one to get started.',
+                  style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w600, color: AdminColors.faint),
+                ),
+              ),
+            )
           else
             AdminResponsiveGrid(
               minTileWidth: 300,
-              children: [for (final c in categories) _CategoryCard(category: c, cubit: cubit)],
+              children: [
+                for (final c in categories)
+                  _CategoryCard(
+                    category: c,
+                    cubit: cubit,
+                    subcategories: subcategories.where((s) => s.categoryId == c.id).toList(),
+                  ),
+              ],
             ),
         ],
       ),
@@ -51,9 +70,10 @@ class AdminCategoriesView extends StatelessWidget {
 }
 
 class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category, required this.cubit});
+  const _CategoryCard({required this.category, required this.cubit, required this.subcategories});
   final ApiCategory category;
   final BasketAdminCubit cubit;
+  final List<ApiSubcategory> subcategories;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +109,7 @@ class _CategoryCard extends StatelessWidget {
                   children: [
                     Text(category.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 4),
-                    Text('${category.productCount} SKUs · ${category.subs.length} subcategories',
+                    Text('${category.productCount} SKUs · ${subcategories.length} subcategories',
                         overflow: TextOverflow.ellipsis, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
                   ],
                 ),
@@ -102,14 +122,23 @@ class _CategoryCard extends StatelessWidget {
             spacing: 7,
             runSpacing: 7,
             children: [
-              for (final s in category.subs)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                  decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
-                  child: Text(s, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
+              for (final s in subcategories)
+                GestureDetector(
+                  onTap: () => cubit.openAddSubcategory(category: category, subcategory: s),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                    decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
+                    child: Text(s.name, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
+                  ),
                 ),
-              if (category.subs.isEmpty)
-                Text('No subcategories yet', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+              GestureDetector(
+                onTap: () => cubit.openAddSubcategory(category: category),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                  decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(99)),
+                  child: Text('+ Add', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 13),

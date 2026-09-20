@@ -92,6 +92,123 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
   }
 }
 
+class AddSubcategoryModal extends StatefulWidget {
+  const AddSubcategoryModal({super.key});
+
+  @override
+  State<AddSubcategoryModal> createState() => _AddSubcategoryModalState();
+}
+
+class _AddSubcategoryModalState extends State<AddSubcategoryModal> {
+  late final ApiSubcategory? _editing = context.read<BasketAdminCubit>().state.editingSubcategory;
+  late final ApiCategory? _category = context.read<BasketAdminCubit>().state.addSubcategoryCategory;
+
+  late final _name = TextEditingController(text: _editing?.name ?? '');
+  late String _imageUrl = _editing?.imageUrl ?? '';
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit(BasketAdminCubit cubit) async {
+    final name = _name.text.trim();
+    if (name.isEmpty) {
+      setState(() => _error = 'Name is required.');
+      return;
+    }
+    if (_category == null) {
+      setState(() => _error = 'No category selected.');
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      if (_editing == null) {
+        await cubit.createSubcategory({'category': _category.id, 'name': name, 'image_url': _imageUrl});
+      } else {
+        await cubit.updateSubcategory(_editing.id, {'name': name, 'image_url': _imageUrl});
+      }
+      if (mounted) cubit.closeModal();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _delete(BasketAdminCubit cubit) async {
+    final editing = _editing;
+    if (editing == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Delete "${editing.name}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+        content: Text('This can\'t be undone.', style: GoogleFonts.manrope(fontSize: 13)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await cubit.deleteSubcategory(editing.id);
+      if (mounted) cubit.closeModal();
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = e.message;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<BasketAdminCubit>();
+    return AdminFormModal(
+      title: _editing == null ? 'Add subcategory' : 'Edit ${_editing.name}',
+      subtitle: _category == null
+          ? 'Lets products be grouped one level deeper than the category.'
+          : 'In ${_category.name} — lets products be grouped one level deeper than the category.',
+      loading: _loading,
+      error: _error,
+      onCancel: cubit.closeModal,
+      onSubmit: () => _submit(cubit),
+      submitLabel: _editing == null ? 'Add subcategory' : 'Save changes',
+      fields: [
+        AdminEditField(label: 'Name', controller: _name, hint: 'Fresh Vegetables'),
+        AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
+        if (_editing != null) ...[
+          const SizedBox(height: 4),
+          TextButton(
+            onPressed: _loading ? null : () => _delete(cubit),
+            style: TextButton.styleFrom(padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
+            child: Text('Delete subcategory', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class AddCouponModal extends StatefulWidget {
   const AddCouponModal({super.key});
 

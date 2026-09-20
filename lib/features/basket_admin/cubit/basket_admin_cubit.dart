@@ -252,6 +252,19 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
     emit(state.copyWith(modal: AdminModal.addCategory, editingCategory: category, clearEditingCategory: category == null));
   }
 
+  /// [subcategory] null opens the form blank (create, under [category]);
+  /// non-null opens it prefilled (edit) — see `AddSubcategoryModal`.
+  void openAddSubcategory({required ApiCategory category, ApiSubcategory? subcategory}) {
+    emit(
+      state.copyWith(
+        modal: AdminModal.addSubcategory,
+        addSubcategoryCategory: category,
+        editingSubcategory: subcategory,
+        clearEditingSubcategory: subcategory == null,
+      ),
+    );
+  }
+
   /// [coupon] null opens the form blank (create); non-null opens it
   /// prefilled (edit) — see `AddCouponModal`.
   void openAddCoupon({ApiCoupon? coupon}) {
@@ -310,10 +323,43 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   void setCatTab(String key) => emit(state.copyWith(catTab: key));
 
   Future<void> loadCategories() async {
+    emit(state.copyWith(categoriesLoading: true));
     try {
       final categories = await api.catalog.fetchCategories();
-      emit(state.copyWith(apiCategories: categories));
+      emit(state.copyWith(categoriesLoading: false, apiCategories: categories));
+    } catch (_) {
+      emit(state.copyWith(categoriesLoading: false));
+    }
+    loadSubcategories();
+  }
+
+  /// Unfiltered — every subcategory across every category, so the
+  /// Categories page can render each card's chips (filtered client-side by
+  /// `categoryId`) without a fetch per card.
+  Future<void> loadSubcategories() async {
+    try {
+      final subcategories = await api.catalog.fetchSubcategories();
+      emit(state.copyWith(apiSubcategories: subcategories));
     } catch (_) {}
+  }
+
+  /// Rethrows [ApiException] like [createCategory] — see that method's doc.
+  Future<ApiSubcategory> createSubcategory(Map<String, dynamic> data) async {
+    final created = await api.catalog.createSubcategory(data);
+    emit(state.copyWith(apiSubcategories: [...state.apiSubcategories, created]));
+    return created;
+  }
+
+  Future<ApiSubcategory> updateSubcategory(int id, Map<String, dynamic> data) async {
+    final updated = await api.catalog.updateSubcategory(id, data);
+    final next = [for (final s in state.apiSubcategories) if (s.id == id) updated else s];
+    emit(state.copyWith(apiSubcategories: next));
+    return updated;
+  }
+
+  Future<void> deleteSubcategory(int id) async {
+    await api.catalog.deleteSubcategory(id);
+    emit(state.copyWith(apiSubcategories: state.apiSubcategories.where((s) => s.id != id).toList()));
   }
 
   /// Rethrows [ApiException] rather than swallowing it (unlike the `load*`
