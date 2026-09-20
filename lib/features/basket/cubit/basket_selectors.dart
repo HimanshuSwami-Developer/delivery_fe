@@ -115,38 +115,59 @@ class BasketTotals {
     required this.subtotal,
     required this.mrpTotal,
     required this.discount,
+    required this.cgst,
+    required this.sgst,
     required this.deliveryFee,
     required this.total,
     required this.itemCount,
-    required this.freeDeliveryAbove,
   });
 
   final int subtotal;
   final int mrpTotal;
   final int discount;
+
+  /// Real GST, computed per cart line from each product's own `gst_slab` —
+  /// matches `OrderItem.gst_amount`/`cgst`/`sgst` server-side exactly (same
+  /// formula: `round(amount * slab%)`, split cgst = amount // 2, sgst =
+  /// remainder), so this is what the order will actually be charged, not
+  /// an approximation.
+  final int cgst;
+  final int sgst;
+
+  /// Flat ₹19, charged on every order regardless of size — matches
+  /// `Order.delivery_fee`'s default server-side. There is no free-delivery
+  /// threshold in the backend; earlier UI copy implying one ("Free
+  /// delivery above ₹199") was inaccurate and has been removed.
   final int deliveryFee;
+
   final int total;
   final int itemCount;
-  final int freeDeliveryAbove;
 
   int get savings => mrpTotal - subtotal + discount;
-  bool get freeDeliveryUnlocked => subtotal >= freeDeliveryAbove;
+  int get gst => cgst + sgst;
 
-  /// The customer only ever sees and pays item price minus coupon discount
-  /// — delivery fee and GST aren't broken out or charged in-app (product
-  /// prices are already GST-inclusive, and GST/delivery cost is handled on
-  /// the admin/backend side, not itemized to the customer).
+  /// Matches `Order.recalculate_totals()` exactly: subtotal − discount,
+  /// plus real GST and delivery fee — both actually charged server-side on
+  /// every order, now shown to the customer before they place it instead
+  /// of only appearing afterward on the order detail/invoice.
   int get payable => total;
 }
 
-BasketTotals cartTotals(BasketState state, {int freeDeliveryAbove = 199}) {
-  var subtotal = 0, mrpTotal = 0, itemCount = 0;
+BasketTotals cartTotals(BasketState state) {
+  var subtotal = 0, mrpTotal = 0, itemCount = 0, cgst = 0, sgst = 0;
   for (final entry in state.cart.entries) {
     final p = productById(state, entry.key);
     if (p == null) continue;
-    subtotal += p.price * entry.value;
+    final amount = p.price * entry.value;
+    subtotal += amount;
     mrpTotal += p.mrp * entry.value;
     itemCount += entry.value;
+
+    final slabPct = double.tryParse(p.gstSlab) ?? 0;
+    final gstAmount = (amount * slabPct / 100).round();
+    final itemCgst = gstAmount ~/ 2;
+    cgst += itemCgst;
+    sgst += gstAmount - itemCgst;
   }
   final coupon = state.appliedCoupon != null
       ? state.apiCoupons.where((c) => c.code == state.appliedCoupon).firstOrNull
@@ -162,19 +183,18 @@ BasketTotals cartTotals(BasketState state, {int freeDeliveryAbove = 199}) {
               : (subtotal * coupon.percentDiscount! / 100).round())
         : (coupon.flatDiscount ?? 0);
   }
-  // `fee` still drives the cart bar's "free delivery" nudge, but it's never
-  // added to `total`/`payable` — the customer is only ever charged item
-  // price minus discount.
-  final fee = (subtotal >= freeDeliveryAbove || subtotal == 0) ? 0 : 29;
-  final total = subtotal - discount;
+  final deliveryFee = subtotal > 0 ? 19 : 0;
+  final afterDiscount = subtotal - discount;
+  final total = (afterDiscount < 0 ? 0 : afterDiscount) + cgst + sgst + deliveryFee;
   return BasketTotals(
     subtotal: subtotal,
     mrpTotal: mrpTotal,
     discount: discount,
-    deliveryFee: fee,
-    total: total < 0 ? 0 : total,
+    cgst: cgst,
+    sgst: sgst,
+    deliveryFee: deliveryFee,
+    total: total,
     itemCount: itemCount,
-    freeDeliveryAbove: freeDeliveryAbove,
   );
 }
 
@@ -367,6 +387,9 @@ class OrderDetail {
     required this.items,
     required this.subtotalLabel,
     required this.discountLabel,
+    required this.cgstLabel,
+    required this.sgstLabel,
+    required this.deliveryFeeLabel,
     required this.totalLabel,
     required this.paidLabel,
   });
@@ -384,6 +407,16 @@ class OrderDetail {
 
   final String subtotalLabel;
   final String discountLabel;
+
+  /// GST/delivery fee — real, server-computed values from `ApiOrder`
+  /// (`Order.recalculate_totals` adds these on top of subtotal-discount),
+  /// shown to the customer for the first time here — previously only the
+  /// admin console surfaced this breakdown even though it's what actually
+  /// makes up the difference between "item total − discount" and the
+  /// grand total charged.
+  final String cgstLabel;
+  final String sgstLabel;
+  final String deliveryFeeLabel;
   final String totalLabel;
   final String paidLabel;
 
@@ -398,6 +431,9 @@ class OrderDetail {
     items: [],
     subtotalLabel: '₹0',
     discountLabel: '—',
+    cgstLabel: '₹0',
+    sgstLabel: '₹0',
+    deliveryFeeLabel: '₹0',
     totalLabel: '₹0',
     paidLabel: '—',
   );
@@ -423,6 +459,9 @@ OrderDetail resolveOrderDetail(BasketState state) {
     discountLabel: cancelled
         ? 'Refunded'
         : (o.discount > 0 ? '− ${moneyLabel(o.discount)}' : '—'),
+    cgstLabel: moneyLabel(o.cgst),
+    sgstLabel: moneyLabel(o.sgst),
+    deliveryFeeLabel: o.deliveryFee > 0 ? moneyLabel(o.deliveryFee) : 'Free',
     totalLabel: moneyLabel(o.total),
     paidLabel: cancelled ? 'Refunded' : 'Paid · ${o.paymentMode.toUpperCase()}',
   );

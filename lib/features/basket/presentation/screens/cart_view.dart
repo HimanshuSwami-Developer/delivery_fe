@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
@@ -211,6 +212,8 @@ class _FullCart extends StatelessWidget {
     final couponMessage = context.select(
       (BasketCubit c) => c.state.couponMessage,
     );
+    final appliedCoupon = context.select((BasketCubit c) => c.state.appliedCoupon);
+    final coupons = context.select((BasketCubit c) => c.state.apiCoupons);
 
     return Column(
       children: [
@@ -237,6 +240,15 @@ class _FullCart extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    if (coupons.isNotEmpty) ...[
+                      const SizedBox(height: 9),
+                      CouponStrip(
+                        coupons: coupons,
+                        appliedCoupon: appliedCoupon,
+                        onApply: cubit.applyCouponCode,
+                        onViewAll: cubit.goToCoupons,
+                      ),
+                    ],
                     const SizedBox(height: 9),
                     Row(
                       children: [
@@ -339,6 +351,12 @@ class _FullCart extends StatelessWidget {
                           ? '− ${moneyLabel(t.discount)}'
                           : '—',
                     ),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'CGST', value: moneyLabel(t.cgst)),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'SGST', value: moneyLabel(t.sgst)),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'Delivery fee', value: moneyLabel(t.deliveryFee)),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,
@@ -395,7 +413,7 @@ class _FullCart extends StatelessWidget {
                       Text(
                         t.savings > 0
                             ? 'You save ${moneyLabel(t.savings)}'
-                            : 'Inclusive of all taxes',
+                            : 'Incl. GST + delivery',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w500,

@@ -270,6 +270,12 @@ class OrderDetailScreenView extends StatelessWidget {
                     _Row(label: 'Item total', value: detail.subtotalLabel),
                     const SizedBox(height: 8),
                     _Row(label: 'Discount', value: detail.discountLabel),
+                    const SizedBox(height: 8),
+                    _Row(label: 'CGST', value: detail.cgstLabel),
+                    const SizedBox(height: 8),
+                    _Row(label: 'SGST', value: detail.sgstLabel),
+                    const SizedBox(height: 8),
+                    _Row(label: 'Delivery fee', value: detail.deliveryFeeLabel),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,

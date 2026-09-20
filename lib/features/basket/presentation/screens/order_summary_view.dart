@@ -3,6 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/step_progress.dart';
@@ -213,6 +214,15 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                       'Coupon',
                       style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
                     ),
+                    if (coupons.isNotEmpty) ...[
+                      const SizedBox(height: 9),
+                      CouponStrip(
+                        coupons: coupons,
+                        appliedCoupon: appliedCoupon,
+                        onApply: cubit.applyCouponCode,
+                        onViewAll: cubit.goToCoupons,
+                      ),
+                    ],
                     const SizedBox(height: 9),
                     Row(
                       children: [
@@ -266,61 +276,6 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                         style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
                       ),
                     ],
-                    if (coupons.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Container(height: 1, color: BasketColors.ink.withValues(alpha: 0.07)),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Available coupons',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: BasketColors.faint, letterSpacing: 0.3),
-                      ),
-                      const SizedBox(height: 9),
-                      for (final c in coupons)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFFFFBF2),
-                              border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(c.code, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        c.title,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.muted),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                FilledButton(
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: appliedCoupon == c.code ? BasketColors.faint : BasketColors.primary,
-                                    shape: const StadiumBorder(),
-                                    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
-                                    minimumSize: Size.zero,
-                                  ),
-                                  onPressed: appliedCoupon == c.code ? null : () => cubit.applyCouponCode(c.code),
-                                  child: Text(
-                                    appliedCoupon == c.code ? 'Applied' : 'Apply',
-                                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
                   ],
                 ),
               ),
@@ -341,6 +296,12 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                           ? '− ${moneyLabel(t.discount)}'
                           : '—',
                     ),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'CGST', value: moneyLabel(t.cgst)),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'SGST', value: moneyLabel(t.sgst)),
+                    const SizedBox(height: 8),
+                    _TotalRow(label: 'Delivery fee', value: moneyLabel(t.deliveryFee)),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,
@@ -398,7 +359,7 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                       Text(
                         t.savings > 0
                             ? 'You save ${moneyLabel(t.savings)}'
-                            : 'Inclusive of all taxes',
+                            : 'Incl. GST + delivery',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w500,

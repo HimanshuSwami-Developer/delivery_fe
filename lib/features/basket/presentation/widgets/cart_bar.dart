@@ -14,9 +14,7 @@ class CartBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.select((BasketCubit c) => cartTotals(c.state));
-    final free = t.freeDeliveryUnlocked
-        ? 'Free delivery unlocked'
-        : 'Add ${moneyLabel(t.freeDeliveryAbove - t.subtotal)} for free delivery';
+    final free = 'Incl. GST + ${moneyLabel(t.deliveryFee)} delivery';
 
     return Material(
       color: Colors.transparent,

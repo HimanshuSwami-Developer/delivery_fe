@@ -43,6 +43,7 @@ class BasketProduct {
     this.imageUrl = '',
     this.images = const [],
     this.reviews = const [],
+    this.gstSlab = '5',
   });
 
   final String id;
@@ -56,6 +57,11 @@ class BasketProduct {
   final double rating;
   final int ratingsCount;
   final bool oos;
+
+  /// `Product.gst_slab` (e.g. "5", "12") — needed client-side to compute
+  /// the real CGST/SGST a cart will be charged, matching
+  /// `OrderItem.gst_amount` server-side exactly (see [cartTotals]).
+  final String gstSlab;
 
   /// Cloudinary-hosted photo (`Product.main_image_url` on the backend).
   /// Empty when the admin hasn't uploaded one yet, in which case product
@@ -97,6 +103,7 @@ class BasketProduct {
         imageUrl: p.mainImageUrl,
         images: [for (final img in p.images) img.imageUrl],
         reviews: p.reviews,
+        gstSlab: p.gstSlab ?? '5',
       );
 }
 

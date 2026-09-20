@@ -44,7 +44,6 @@ class BasketCubit extends Cubit<BasketState> {
   final BasketApiBundle api;
 
   static const int etaMinutes = 12;
-  static const int freeDeliveryAbove = 199;
   static const bool showBuyAgain = true;
 
   Timer? _splashTimer;
@@ -1177,6 +1176,8 @@ class BasketCubit extends Cubit<BasketState> {
   }
 
   void goToSupport() => go(BasketScreen.support);
+
+  void goToCoupons() => go(BasketScreen.coupons);
 
   void goToNotifications() => go(BasketScreen.notifs);
 
