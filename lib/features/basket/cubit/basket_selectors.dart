@@ -115,9 +115,6 @@ class BasketTotals {
     required this.subtotal,
     required this.mrpTotal,
     required this.discount,
-    required this.cgst,
-    required this.sgst,
-    required this.deliveryFee,
     required this.total,
     required this.itemCount,
   });
@@ -125,49 +122,25 @@ class BasketTotals {
   final int subtotal;
   final int mrpTotal;
   final int discount;
-
-  /// Real GST, computed per cart line from each product's own `gst_slab` —
-  /// matches `OrderItem.gst_amount`/`cgst`/`sgst` server-side exactly (same
-  /// formula: `round(amount * slab%)`, split cgst = amount // 2, sgst =
-  /// remainder), so this is what the order will actually be charged, not
-  /// an approximation.
-  final int cgst;
-  final int sgst;
-
-  /// Flat ₹19, charged on every order regardless of size — matches
-  /// `Order.delivery_fee`'s default server-side. There is no free-delivery
-  /// threshold in the backend; earlier UI copy implying one ("Free
-  /// delivery above ₹199") was inaccurate and has been removed.
-  final int deliveryFee;
-
   final int total;
   final int itemCount;
 
   int get savings => mrpTotal - subtotal + discount;
-  int get gst => cgst + sgst;
 
-  /// Matches `Order.recalculate_totals()` exactly: subtotal − discount,
-  /// plus real GST and delivery fee — both actually charged server-side on
-  /// every order, now shown to the customer before they place it instead
-  /// of only appearing afterward on the order detail/invoice.
+  /// Item price minus coupon discount, full stop — no GST or delivery fee
+  /// added on top here (those are charged server-side and appear only on
+  /// the order/invoice afterward, by design).
   int get payable => total;
 }
 
 BasketTotals cartTotals(BasketState state) {
-  var subtotal = 0, mrpTotal = 0, itemCount = 0, cgst = 0, sgst = 0;
+  var subtotal = 0, mrpTotal = 0, itemCount = 0;
   for (final entry in state.cart.entries) {
     final p = productById(state, entry.key);
     if (p == null) continue;
-    final amount = p.price * entry.value;
-    subtotal += amount;
+    subtotal += p.price * entry.value;
     mrpTotal += p.mrp * entry.value;
     itemCount += entry.value;
-
-    final slabPct = double.tryParse(p.gstSlab) ?? 0;
-    final gstAmount = (amount * slabPct / 100).round();
-    final itemCgst = gstAmount ~/ 2;
-    cgst += itemCgst;
-    sgst += gstAmount - itemCgst;
   }
   final coupon = state.appliedCoupon != null
       ? state.apiCoupons.where((c) => c.code == state.appliedCoupon).firstOrNull
@@ -183,16 +156,12 @@ BasketTotals cartTotals(BasketState state) {
               : (subtotal * coupon.percentDiscount! / 100).round())
         : (coupon.flatDiscount ?? 0);
   }
-  final deliveryFee = subtotal > 0 ? 19 : 0;
   final afterDiscount = subtotal - discount;
-  final total = (afterDiscount < 0 ? 0 : afterDiscount) + cgst + sgst + deliveryFee;
+  final total = afterDiscount < 0 ? 0 : afterDiscount;
   return BasketTotals(
     subtotal: subtotal,
     mrpTotal: mrpTotal,
     discount: discount,
-    cgst: cgst,
-    sgst: sgst,
-    deliveryFee: deliveryFee,
     total: total,
     itemCount: itemCount,
   );
