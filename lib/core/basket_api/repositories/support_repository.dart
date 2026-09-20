@@ -38,4 +38,13 @@ class SupportRepository {
       throw ApiException.from(e);
     }
   }
+
+  Future<List<ApiSupportFaq>> fetchFaqs() async {
+    try {
+      final response = await _client.dio.get('/support-faqs/');
+      return extractResults(response.data).map((e) => ApiSupportFaq.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
 }

@@ -100,6 +100,7 @@ class BasketState extends Equatable {
     this.apiBanners = const [],
     this.apiFestivalSettings = const [],
     this.apiSupportConfig,
+    this.apiSupportFaqs = const [],
     this.paymentPopup,
     this.festivalPopup,
   });
@@ -277,6 +278,11 @@ class BasketState extends Equatable {
   /// until then).
   final ApiSupportConfig? apiSupportConfig;
 
+  /// Admin-editable Q&A shown on the "Help & support" screen — empty until
+  /// [BasketCubit.loadSupportFaqs] resolves (fetched when that screen
+  /// opens, not eagerly at app start).
+  final List<ApiSupportFaq> apiSupportFaqs;
+
   /// Set once per order/payment outcome; see [PaymentPopup]. Null the rest
   /// of the time — [BasketCubit.clearPaymentPopup] resets it right after
   /// the root widget shows it.
@@ -361,6 +367,7 @@ class BasketState extends Equatable {
     List<ApiBanner>? apiBanners,
     List<ApiFestivalSetting>? apiFestivalSettings,
     ApiSupportConfig? apiSupportConfig,
+    List<ApiSupportFaq>? apiSupportFaqs,
     PaymentPopup? paymentPopup,
     bool clearPaymentPopup = false,
     FestivalTheme? festivalPopup,
@@ -431,6 +438,7 @@ class BasketState extends Equatable {
       apiBanners: apiBanners ?? this.apiBanners,
       apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
       apiSupportConfig: apiSupportConfig ?? this.apiSupportConfig,
+      apiSupportFaqs: apiSupportFaqs ?? this.apiSupportFaqs,
       paymentPopup: clearPaymentPopup ? null : (paymentPopup ?? this.paymentPopup),
       festivalPopup: clearFestivalPopup ? null : (festivalPopup ?? this.festivalPopup),
     );
@@ -502,6 +510,7 @@ class BasketState extends Equatable {
         apiBanners,
         apiFestivalSettings,
         apiSupportConfig,
+        apiSupportFaqs,
         paymentPopup,
         festivalPopup,
       ];

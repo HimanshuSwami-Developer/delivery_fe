@@ -14,7 +14,12 @@ class OrderSuccessView extends StatelessWidget {
     final cubit = context.read<BasketCubit>();
     final order = context.select((BasketCubit c) => c.state.currentOrder);
     final fallbackPayable = context.select((BasketCubit c) => cartTotals(c.state).payable);
-    final payable = order?.total ?? fallbackPayable;
+    // Item price minus discount only — the real placed order's `total`
+    // includes GST + delivery fee (charged server-side), which isn't shown
+    // to the customer anywhere in this app (see `cartTotals`/`OrderDetail`).
+    final payable = order == null
+        ? fallbackPayable
+        : (order.subtotal - order.discount < 0 ? 0 : order.subtotal - order.discount);
     final methodName = context.select((BasketCubit c) => BasketCatalog.paymentMethodById(c.state.paymentMethodId).name);
     final addr = context.select((BasketCubit c) => addressForState(c.state));
     final day = context.select((BasketCubit c) => c.state.deliveryDay);

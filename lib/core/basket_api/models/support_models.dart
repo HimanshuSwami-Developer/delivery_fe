@@ -55,3 +55,19 @@ class ApiSupportConfig {
         replyTimeLabel: json['reply_time_label'] as String? ?? '',
       );
 }
+
+/// Mirrors `support.serializers.SupportFAQSerializer` — one admin-editable
+/// Q&A row on the "Help & support" screen.
+class ApiSupportFaq {
+  const ApiSupportFaq({required this.id, required this.question, required this.answer});
+
+  final int id;
+  final String question;
+  final String answer;
+
+  factory ApiSupportFaq.fromJson(Map<String, dynamic> json) => ApiSupportFaq(
+        id: json['id'] as int,
+        question: json['question'] as String,
+        answer: json['answer'] as String,
+      );
+}

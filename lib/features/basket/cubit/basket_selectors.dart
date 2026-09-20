@@ -334,7 +334,11 @@ List<OrderListRow> orderListRows(BasketState state) {
       statusLabel: orderStatusLabel(o.status),
       isLive: live,
       itemCount: o.itemCount,
-      totalLabel: moneyLabel(o.total),
+      // Item price minus discount only — no GST/delivery fee shown to the
+      // customer, even though the real placed order (`o.total`) includes
+      // both server-side. See `resolveOrderDetail`/`order_success_view.dart`
+      // for the same rule applied elsewhere.
+      totalLabel: moneyLabel(o.subtotal - o.discount < 0 ? 0 : o.subtotal - o.discount),
       ctaLabel: live
           ? 'Track order'
           : (o.status == 'cancelled' ? 'View details' : 'Reorder'),
@@ -412,7 +416,9 @@ OrderDetail resolveOrderDetail(BasketState state) {
     discountLabel: cancelled
         ? 'Refunded'
         : (o.discount > 0 ? '− ${moneyLabel(o.discount)}' : '—'),
-    totalLabel: moneyLabel(o.total),
+    // Item price minus discount only — see `orderListRows` for why this
+    // deliberately isn't `o.total` (which includes GST/delivery fee).
+    totalLabel: moneyLabel(o.subtotal - o.discount < 0 ? 0 : o.subtotal - o.discount),
     paidLabel: cancelled ? 'Refunded' : 'Paid · ${o.paymentMode.toUpperCase()}',
   );
 }

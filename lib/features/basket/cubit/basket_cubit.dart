@@ -1175,6 +1175,16 @@ class BasketCubit extends Cubit<BasketState> {
     } catch (_) {}
   }
 
+  /// Best-effort, fetched when the support screen actually opens (FAQs
+  /// rarely change, so there's no need to load them eagerly at app start
+  /// like [loadSupportConfig]).
+  Future<void> loadSupportFaqs() async {
+    try {
+      final faqs = await api.support.fetchFaqs();
+      emit(state.copyWith(apiSupportFaqs: faqs));
+    } catch (_) {}
+  }
+
   void goToSupport() => go(BasketScreen.support);
 
   void goToCoupons() => go(BasketScreen.coupons);

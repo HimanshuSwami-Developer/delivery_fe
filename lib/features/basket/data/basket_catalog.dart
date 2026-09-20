@@ -697,13 +697,6 @@ class BasketCatalog {
     ),
   ];
 
-  static const faqs = <String>[
-    'An item is missing from my order',
-    'How do returns and refunds work?',
-    'Change my delivery slot',
-    'Where is my order receipt?',
-    'Delete my account',
-  ];
 
   static const couponCards = <CouponCard>[
     CouponCard(
