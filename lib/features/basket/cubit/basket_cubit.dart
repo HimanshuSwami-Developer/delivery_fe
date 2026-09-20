@@ -776,6 +776,14 @@ class BasketCubit extends Cubit<BasketState> {
     await _applyCouponCode(code);
   }
 
+  /// Same as [applyCouponFromCard] but without the navigation — for a
+  /// coupon-card list shown on a screen that's already the right place to
+  /// apply one (e.g. the order-summary/checkout screen).
+  Future<void> applyCouponCode(String code) async {
+    emit(state.copyWith(couponInput: code));
+    await _applyCouponCode(code);
+  }
+
   /// Applies the coupon on the real server-side cart (not just locally) —
   /// `placeOrder` reads `Cart.coupon` directly, so this is what makes the
   /// discount actually carry through to the order that gets placed.
