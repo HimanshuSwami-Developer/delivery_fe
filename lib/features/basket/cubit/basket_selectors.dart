@@ -387,9 +387,6 @@ class OrderDetail {
     required this.items,
     required this.subtotalLabel,
     required this.discountLabel,
-    required this.cgstLabel,
-    required this.sgstLabel,
-    required this.deliveryFeeLabel,
     required this.totalLabel,
     required this.paidLabel,
   });
@@ -407,16 +404,6 @@ class OrderDetail {
 
   final String subtotalLabel;
   final String discountLabel;
-
-  /// GST/delivery fee — real, server-computed values from `ApiOrder`
-  /// (`Order.recalculate_totals` adds these on top of subtotal-discount),
-  /// shown to the customer for the first time here — previously only the
-  /// admin console surfaced this breakdown even though it's what actually
-  /// makes up the difference between "item total − discount" and the
-  /// grand total charged.
-  final String cgstLabel;
-  final String sgstLabel;
-  final String deliveryFeeLabel;
   final String totalLabel;
   final String paidLabel;
 
@@ -431,9 +418,6 @@ class OrderDetail {
     items: [],
     subtotalLabel: '₹0',
     discountLabel: '—',
-    cgstLabel: '₹0',
-    sgstLabel: '₹0',
-    deliveryFeeLabel: '₹0',
     totalLabel: '₹0',
     paidLabel: '—',
   );
@@ -459,9 +443,6 @@ OrderDetail resolveOrderDetail(BasketState state) {
     discountLabel: cancelled
         ? 'Refunded'
         : (o.discount > 0 ? '− ${moneyLabel(o.discount)}' : '—'),
-    cgstLabel: moneyLabel(o.cgst),
-    sgstLabel: moneyLabel(o.sgst),
-    deliveryFeeLabel: o.deliveryFee > 0 ? moneyLabel(o.deliveryFee) : 'Free',
     totalLabel: moneyLabel(o.total),
     paidLabel: cancelled ? 'Refunded' : 'Paid · ${o.paymentMode.toUpperCase()}',
   );

@@ -296,12 +296,6 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                           ? '− ${moneyLabel(t.discount)}'
                           : '—',
                     ),
-                    const SizedBox(height: 8),
-                    _TotalRow(label: 'CGST', value: moneyLabel(t.cgst)),
-                    const SizedBox(height: 8),
-                    _TotalRow(label: 'SGST', value: moneyLabel(t.sgst)),
-                    const SizedBox(height: 8),
-                    _TotalRow(label: 'Delivery fee', value: moneyLabel(t.deliveryFee)),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,
@@ -359,7 +353,7 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                       Text(
                         t.savings > 0
                             ? 'You save ${moneyLabel(t.savings)}'
-                            : 'Incl. GST + delivery',
+                            : 'Inclusive of all taxes',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w500,

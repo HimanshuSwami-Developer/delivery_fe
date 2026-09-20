@@ -141,7 +141,7 @@ class ProductDetailView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          const Expanded(child: _InfoTile(title: 'Delivery fee', sub: '₹19, incl. GST breakdown at checkout')),
+                          const Expanded(child: _InfoTile(title: 'Delivery fee', sub: '₹19 per order')),
                           const SizedBox(width: 8),
                           const Expanded(child: _InfoTile(title: 'Easy returns', sub: 'On the doorstep')),
                         ],
