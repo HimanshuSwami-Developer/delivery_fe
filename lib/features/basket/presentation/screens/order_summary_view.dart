@@ -10,8 +10,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class OrderSummaryView extends StatelessWidget {
+class OrderSummaryView extends StatefulWidget {
   const OrderSummaryView({super.key});
+
+  @override
+  State<OrderSummaryView> createState() => _OrderSummaryViewState();
+}
+
+class _OrderSummaryViewState extends State<OrderSummaryView> {
+  late final TextEditingController _coupon = TextEditingController(
+    text: context.read<BasketCubit>().state.couponInput,
+  );
+
+  @override
+  void dispose() {
+    _coupon.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +41,16 @@ class OrderSummaryView extends StatelessWidget {
     final appliedCoupon = context.select(
       (BasketCubit c) => c.state.appliedCoupon,
     );
+    final couponInput = context.select((BasketCubit c) => c.state.couponInput);
+    final couponMessage = context.select((BasketCubit c) => c.state.couponMessage);
+
+    if (_coupon.text != couponInput) {
+      _coupon.value = TextEditingValue(
+        text: couponInput,
+        selection: TextSelection.collapsed(offset: couponInput.length),
+      );
+    }
+
     final items = context.select(
       (BasketCubit c) => cartMap.entries
           .map((e) {
@@ -173,6 +198,73 @@ class OrderSummaryView extends StatelessWidget {
                         },
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 11),
+              Container(
+                padding: const EdgeInsets.all(13),
+                decoration: glassCard(radius: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Coupon',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 9),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _coupon,
+                            onChanged: cubit.setCouponInput,
+                            textCapitalization: TextCapitalization.characters,
+                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              hintText: 'FIRST50 / FRESH10',
+                              filled: true,
+                              fillColor: Color(0xFFFFFBF2),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                borderSide: const BorderSide(color: BasketColors.primary, width: 1.6),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: BasketColors.primary,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            minimumSize: Size.zero,
+                          ),
+                          onPressed: cubit.applyCoupon,
+                          child: Text(
+                            'Apply',
+                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (couponMessage.isNotEmpty) ...[
+                      const SizedBox(height: 9),
+                      Text(
+                        couponMessage,
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
+                      ),
+                    ],
                   ],
                 ),
               ),

@@ -176,10 +176,13 @@ class ProductDetailView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 14),
-                      Text(
-                        _tabBody(tab, p),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
-                      ),
+                      if (tab == PdpTab.reviews)
+                        _ReviewsTab(key: ValueKey(p.id), product: p)
+                      else
+                        Text(
+                          _tabBody(tab, p),
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
+                        ),
                       const SizedBox(height: 22),
                       Text('Frequently bought with', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 11),
@@ -250,15 +253,220 @@ class ProductDetailView extends StatelessWidget {
     return '$n';
   }
 
+  /// Only ever called for [PdpTab.nutrition]/[PdpTab.description] — the
+  /// reviews tab renders [_ReviewsTab] instead (see `build`).
   static String _tabBody(PdpTab tab, BasketProduct p) {
-    switch (tab) {
-      case PdpTab.nutrition:
-        return 'Per 100 ml — Energy 58 kcal · Protein 3.1 g · Fat 3.0 g · Carbohydrate 4.7 g · Calcium 120 mg. Values are indicative and may vary between batches.';
-      case PdpTab.reviews:
-        return '4.4 out of 5 from ${indianGroup(p.ratingsCount)} shoppers. Most mentioned: fresh on arrival, well sealed, good value for the pack size.';
-      case PdpTab.description:
-        return '${p.name} — ${p.pack}. Sourced daily and cold-chain handled from the dark store to your door. Best consumed within 2 days of delivery; keep refrigerated below 5°C.';
+    if (tab == PdpTab.nutrition) {
+      return 'Per 100 ml — Energy 58 kcal · Protein 3.1 g · Fat 3.0 g · Carbohydrate 4.7 g · Calcium 120 mg. Values are indicative and may vary between batches.';
     }
+    return '${p.name} — ${p.pack}. Sourced daily and cold-chain handled from the dark store to your door. Best consumed within 2 days of delivery; keep refrigerated below 5°C.';
+  }
+}
+
+/// Real customer reviews (`Product.reviews`, from `ProductDetailSerializer`)
+/// plus a star-picker + comment form to write/edit the signed-in user's own
+/// one. Keyed by product id in the parent so switching products (or
+/// reopening this tab) re-seeds the form from that product's own review
+/// data instead of carrying over the previous product's draft.
+class _ReviewsTab extends StatefulWidget {
+  const _ReviewsTab({super.key, required this.product});
+
+  final BasketProduct product;
+
+  @override
+  State<_ReviewsTab> createState() => _ReviewsTabState();
+}
+
+class _ReviewsTabState extends State<_ReviewsTab> {
+  late final TextEditingController _comment;
+
+  @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<BasketCubit>();
+    // Pre-fill the form from the user's existing review (if any) the first
+    // time this tab opens for this product — `openProduct` already reset
+    // both fields to blank, so a still-blank state here means "not seeded
+    // yet", not "the user cleared it".
+    if (cubit.state.reviewRatingInput == 0 && cubit.state.reviewCommentInput.isEmpty) {
+      for (final r in widget.product.reviews) {
+        if (r.userId == cubit.state.myUserId) {
+          cubit.setReviewRating(r.rating);
+          cubit.setReviewComment(r.comment);
+          break;
+        }
+      }
+    }
+    _comment = TextEditingController(text: cubit.state.reviewCommentInput);
+  }
+
+  @override
+  void dispose() {
+    _comment.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<BasketCubit>();
+    final ratingInput = context.select((BasketCubit c) => c.state.reviewRatingInput);
+    final commentInput = context.select((BasketCubit c) => c.state.reviewCommentInput);
+    final submitting = context.select((BasketCubit c) => c.state.reviewSubmitting);
+    final formError = context.select((BasketCubit c) => c.state.reviewFormError);
+    final myUserId = context.select((BasketCubit c) => c.state.myUserId);
+
+    if (_comment.text != commentInput) {
+      _comment.value = TextEditingValue(text: commentInput, selection: TextSelection.collapsed(offset: commentInput.length));
+    }
+
+    var hasOwnReview = false;
+    for (final r in widget.product.reviews) {
+      if (r.userId == myUserId) {
+        hasOwnReview = true;
+        break;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Color(0xFFFFFBF2).withValues(alpha: 0.8),
+            border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                hasOwnReview ? 'Update your review' : 'Write a review',
+                style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  for (var i = 1; i <= 5; i++)
+                    GestureDetector(
+                      onTap: () => cubit.setReviewRating(i),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          i <= ratingInput ? Icons.star_rounded : Icons.star_border_rounded,
+                          size: 26,
+                          color: i <= ratingInput ? BasketColors.gold : BasketColors.faint,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _comment,
+                onChanged: cubit.setReviewComment,
+                minLines: 2,
+                maxLines: 4,
+                style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w500),
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: "Share what you liked or didn't (optional)",
+                  filled: true,
+                  fillColor: Color(0xFFFFFBF2),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: BasketColors.primary, width: 1.6)),
+                ),
+              ),
+              if (formError != null) ...[
+                const SizedBox(height: 8),
+                Text(formError, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.error)),
+              ],
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: BasketColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                  ),
+                  onPressed: submitting ? null : () => cubit.submitProductReview(widget.product.id),
+                  child: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
+                        )
+                      : Text(
+                          hasOwnReview ? 'Update review' : 'Submit review',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        Text(
+          '${widget.product.reviews.length} ${widget.product.reviews.length == 1 ? 'review' : 'reviews'}',
+          style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 10),
+        if (widget.product.reviews.isEmpty)
+          Text(
+            'No reviews yet — be the first to leave one.',
+            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
+          )
+        else
+          for (final r in widget.product.reviews)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.all(13),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
+                  border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            (r.userName?.isNotEmpty == true ? r.userName! : 'Customer') + (r.userId == myUserId ? ' (You)' : ''),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Text(_reviewDateLabel(r.createdAt), style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        for (var i = 1; i <= 5; i++)
+                          Icon(i <= r.rating ? Icons.star_rounded : Icons.star_border_rounded, size: 14, color: BasketColors.gold),
+                      ],
+                    ),
+                    if (r.comment.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(r.comment, style: GoogleFonts.plusJakartaSans(fontSize: 12, height: 1.5, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52))),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+      ],
+    );
+  }
+
+  static String _reviewDateLabel(DateTime dt) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }
 }
 

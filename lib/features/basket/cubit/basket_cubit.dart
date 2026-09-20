@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fastswipe/core/api/api_exception.dart';
+import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/geo/nominatim_service.dart';
@@ -101,6 +102,8 @@ class BasketCubit extends Cubit<BasketState> {
             name: profile.name,
             email: profile.email,
             myReferralCode: profile.referralCode,
+            myUserId: profile.id,
+            loyaltyPoints: profile.loyaltyPoints,
             role: profile.role,
           ),
         );
@@ -130,6 +133,8 @@ class BasketCubit extends Cubit<BasketState> {
     loadNotifications();
     loadBanners();
     loadFestivalSettings();
+    loadSupportConfig();
+    loadLoyalty();
   }
 
   Future<void> loadCatalog() async {
@@ -308,6 +313,10 @@ class BasketCubit extends Cubit<BasketState> {
         selectedProductId: productId,
         pdpTab: PdpTab.description,
         sheet: ActiveSheet.none,
+        // Reset any half-typed review from whatever product was open last.
+        reviewRatingInput: 0,
+        reviewCommentInput: '',
+        clearReviewFormError: true,
       ),
     );
     final id = int.tryParse(productId);
@@ -326,6 +335,59 @@ class BasketCubit extends Cubit<BasketState> {
           );
         })
         .catchError((_) {});
+  }
+
+  // ── Product reviews ──────────────────────────────────────────────────
+
+  void setReviewRating(int stars) => emit(state.copyWith(reviewRatingInput: stars));
+
+  void setReviewComment(String value) => emit(state.copyWith(reviewCommentInput: value));
+
+  /// Posts a new review, or — if this signed-in user already has one on
+  /// this product (server enforces one review per product per user) —
+  /// `PATCH`es theirs instead, so re-submitting from the same form edits
+  /// it rather than failing with a uniqueness error. Refetches the product
+  /// afterward so both the new review and the server-recalculated
+  /// `rating`/`ratingsCount` show up immediately (see
+  /// `Product.recalculate_rating` server-side).
+  Future<void> submitProductReview(String productId) async {
+    final id = int.tryParse(productId);
+    if (id == null) return;
+    final stars = state.reviewRatingInput;
+    if (stars == 0) {
+      emit(state.copyWith(reviewFormError: 'Pick a star rating first.'));
+      return;
+    }
+    emit(state.copyWith(reviewSubmitting: true, clearReviewFormError: true));
+    try {
+      final product = productById(state, productId);
+      ApiProductReview? existing;
+      if (product != null && state.myUserId != null) {
+        for (final r in product.reviews) {
+          if (r.userId == state.myUserId) {
+            existing = r;
+            break;
+          }
+        }
+      }
+      final comment = state.reviewCommentInput.trim();
+      if (existing != null) {
+        await api.catalog.updateReview(existing.id, rating: stars, comment: comment);
+      } else {
+        await api.catalog.submitReview(productId: id, rating: stars, comment: comment);
+      }
+      final detail = await api.catalog.fetchProduct(id);
+      emit(
+        state.copyWith(
+          reviewSubmitting: false,
+          reviewRatingInput: 0,
+          reviewCommentInput: '',
+          apiProducts: [for (final p in state.apiProducts) if (p.id == id) detail else p],
+        ),
+      );
+    } on ApiException catch (e) {
+      emit(state.copyWith(reviewSubmitting: false, reviewFormError: e.message));
+    }
   }
 
   /// Takes the whole [BasketCategory] (not just its key) so this can pick a
@@ -466,6 +528,8 @@ class BasketCubit extends Cubit<BasketState> {
           name: profile?.name ?? '',
           email: profile?.email ?? '',
           myReferralCode: profile?.referralCode,
+          myUserId: profile?.id,
+          loyaltyPoints: profile?.loyaltyPoints ?? 0,
           role: role,
         ),
       );
@@ -495,6 +559,8 @@ class BasketCubit extends Cubit<BasketState> {
         state.copyWith(
           authLoading: false,
           myReferralCode: profile.referralCode,
+          myUserId: profile.id,
+          loyaltyPoints: profile.loyaltyPoints,
           role: profile.role,
         ),
       );
@@ -502,6 +568,31 @@ class BasketCubit extends Cubit<BasketState> {
       _loadHomeData();
     } on ApiException catch (e) {
       emit(state.copyWith(authLoading: false, authError: e.message));
+    }
+  }
+
+  /// Saves an edit to the signed-in user's own name/email — unlike
+  /// [finishSetup] (first-time onboarding, `POST`), this `PATCH`s an
+  /// already-completed profile and returns to the account screen instead
+  /// of resetting into the home flow.
+  Future<void> saveProfileEdit() async {
+    final name = state.name.trim();
+    if (name.isEmpty) {
+      emit(state.copyWith(profileFormError: 'Name can\'t be empty'));
+      return;
+    }
+    final email = state.email.trim();
+    if (email.isNotEmpty && !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      emit(state.copyWith(profileFormError: 'Enter a valid email address'));
+      return;
+    }
+    emit(state.copyWith(profileSaving: true, clearProfileFormError: true));
+    try {
+      final profile = await api.auth.updateProfile(name, email: email.isEmpty ? null : email);
+      emit(state.copyWith(profileSaving: false, name: profile.name, email: profile.email));
+      back();
+    } on ApiException catch (e) {
+      emit(state.copyWith(profileSaving: false, profileFormError: e.message));
     }
   }
 
@@ -1067,7 +1158,64 @@ class BasketCubit extends Cubit<BasketState> {
 
   // ── Account sub-pages ────────────────────────────────────────────────
 
+  /// Best-effort, like [loadBanners]/[loadFestivalSettings] — a failed
+  /// fetch just leaves the "Help & support" screen's call/chat/WhatsApp
+  /// buttons disabled rather than blocking anything.
+  Future<void> loadSupportConfig() async {
+    try {
+      final config = await api.support.fetchSupportConfig();
+      emit(state.copyWith(apiSupportConfig: config));
+    } catch (_) {}
+  }
+
   void goToSupport() => go(BasketScreen.support);
 
   void goToNotifications() => go(BasketScreen.notifs);
+
+  // ── Referrals / loyalty ──────────────────────────────────────────────
+
+  void goToReferrals() {
+    go(BasketScreen.referrals);
+    loadReferrals();
+  }
+
+  void goToLoyalty() {
+    go(BasketScreen.loyalty);
+    loadLoyalty();
+  }
+
+  Future<void> loadReferrals() async {
+    try {
+      final summary = await api.auth.fetchReferrals();
+      emit(state.copyWith(apiReferralSummary: summary));
+    } catch (_) {}
+  }
+
+  /// Best-effort, like [loadSupportConfig] — also called from
+  /// [_loadHomeData] so the points balance is ready before the user ever
+  /// opens the loyalty screen (e.g. to show on the account screen).
+  Future<void> loadLoyalty() async {
+    try {
+      final summary = await api.auth.fetchLoyalty();
+      emit(state.copyWith(apiLoyaltySummary: summary, loyaltyPoints: summary.points));
+    } catch (_) {}
+  }
+
+  Future<void> redeemLoyaltyPoints(int points) async {
+    emit(state.copyWith(redeemSubmitting: true, clearRedeemMessage: true));
+    try {
+      final detail = await api.auth.redeemLoyaltyPoints(points);
+      final summary = await api.auth.fetchLoyalty();
+      emit(
+        state.copyWith(
+          redeemSubmitting: false,
+          redeemMessage: detail,
+          apiLoyaltySummary: summary,
+          loyaltyPoints: summary.points,
+        ),
+      );
+    } on ApiException catch (e) {
+      emit(state.copyWith(redeemSubmitting: false, redeemMessage: e.message));
+    }
+  }
 }

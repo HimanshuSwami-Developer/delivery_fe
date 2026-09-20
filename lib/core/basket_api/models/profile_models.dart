@@ -68,6 +68,7 @@ class ApiProfile {
     required this.name,
     required this.email,
     required this.referralCode,
+    required this.loyaltyPoints,
     required this.mobileNumber,
     required this.role,
     required this.addresses,
@@ -77,6 +78,7 @@ class ApiProfile {
   final String name;
   final String email;
   final String referralCode;
+  final int loyaltyPoints;
   final String mobileNumber;
   final String role;
   final List<ApiAddress> addresses;
@@ -88,10 +90,114 @@ class ApiProfile {
         name: json['name'] as String? ?? '',
         email: json['email'] as String? ?? '',
         referralCode: json['referral_code'] as String? ?? '',
+        loyaltyPoints: json['loyalty_points'] as int? ?? 0,
         mobileNumber: json['mobile_number'] as String? ?? '',
         role: json['role'] as String? ?? 'customer',
         addresses: (json['addresses'] as List? ?? [])
             .map((e) => ApiAddress.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// Mirrors `accounts.serializers.ReferralSerializer` — one entry in
+/// `MyReferralsView`'s response.
+class ApiReferral {
+  const ApiReferral({
+    required this.name,
+    required this.joinedAt,
+    required this.rewardCode,
+    required this.rewardAmount,
+    required this.rewardRedeemed,
+  });
+
+  final String name;
+  final DateTime joinedAt;
+  final String? rewardCode;
+  final int rewardAmount;
+  final bool rewardRedeemed;
+
+  factory ApiReferral.fromJson(Map<String, dynamic> json) => ApiReferral(
+        name: json['name'] as String,
+        joinedAt: DateTime.parse(json['joined_at'] as String),
+        rewardCode: json['reward_code'] as String?,
+        rewardAmount: json['reward_amount'] as int? ?? 0,
+        rewardRedeemed: json['reward_redeemed'] as bool? ?? false,
+      );
+}
+
+/// The full `GET /auth/profile/referrals/` response.
+class ReferralSummary {
+  const ReferralSummary({
+    required this.referralCode,
+    required this.totalReferrals,
+    required this.totalRewardsEarned,
+    required this.referrals,
+  });
+
+  final String referralCode;
+  final int totalReferrals;
+  final int totalRewardsEarned;
+  final List<ApiReferral> referrals;
+
+  factory ReferralSummary.fromJson(Map<String, dynamic> json) => ReferralSummary(
+        referralCode: json['referral_code'] as String? ?? '',
+        totalReferrals: json['total_referrals'] as int? ?? 0,
+        totalRewardsEarned: json['total_rewards_earned'] as int? ?? 0,
+        referrals: (json['referrals'] as List? ?? [])
+            .map((e) => ApiReferral.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// Mirrors `accounts.serializers.LoyaltyTransactionSerializer`.
+class ApiLoyaltyTransaction {
+  const ApiLoyaltyTransaction({
+    required this.id,
+    required this.points,
+    required this.reason,
+    required this.note,
+    required this.createdAt,
+  });
+
+  final int id;
+
+  /// Positive = earned, negative = redeemed.
+  final int points;
+
+  /// 'order_reward' | 'redeemed'
+  final String reason;
+  final String note;
+  final DateTime createdAt;
+
+  factory ApiLoyaltyTransaction.fromJson(Map<String, dynamic> json) => ApiLoyaltyTransaction(
+        id: json['id'] as int,
+        points: json['points'] as int,
+        reason: json['reason'] as String,
+        note: json['note'] as String? ?? '',
+        createdAt: DateTime.parse(json['created_at'] as String),
+      );
+}
+
+/// The full `GET /auth/profile/loyalty/` response.
+class LoyaltySummary {
+  const LoyaltySummary({
+    required this.points,
+    required this.minRedeemPoints,
+    required this.pointsToRupee,
+    required this.transactions,
+  });
+
+  final int points;
+  final int minRedeemPoints;
+  final int pointsToRupee;
+  final List<ApiLoyaltyTransaction> transactions;
+
+  factory LoyaltySummary.fromJson(Map<String, dynamic> json) => LoyaltySummary(
+        points: json['points'] as int? ?? 0,
+        minRedeemPoints: json['min_redeem_points'] as int? ?? 50,
+        pointsToRupee: json['points_to_rupee'] as int? ?? 1,
+        transactions: (json['transactions'] as List? ?? [])
+            .map((e) => ApiLoyaltyTransaction.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
 }

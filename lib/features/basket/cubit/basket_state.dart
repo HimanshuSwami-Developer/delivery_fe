@@ -3,6 +3,7 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
+import 'package:fastswipe/core/basket_api/models/support_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/festival_theme.dart';
 
@@ -57,6 +58,12 @@ class BasketState extends Equatable {
     this.email = '',
     this.referralCodeInput = '',
     this.myReferralCode,
+    this.myUserId,
+    this.loyaltyPoints = 0,
+    this.apiReferralSummary,
+    this.apiLoyaltySummary,
+    this.redeemSubmitting = false,
+    this.redeemMessage,
     this.role = 'customer',
     this.couponInput = '',
     this.appliedCoupon,
@@ -71,6 +78,12 @@ class BasketState extends Equatable {
     this.newAddressTag = 'Home',
     this.addressSaving = false,
     this.addressFormError,
+    this.profileSaving = false,
+    this.profileFormError,
+    this.reviewRatingInput = 0,
+    this.reviewCommentInput = '',
+    this.reviewSubmitting = false,
+    this.reviewFormError,
     this.deliveryActionLoading = false,
     this.deliveryActionError,
     this.cancelReason,
@@ -86,6 +99,7 @@ class BasketState extends Equatable {
     this.apiNotifications = const [],
     this.apiBanners = const [],
     this.apiFestivalSettings = const [],
+    this.apiSupportConfig,
     this.paymentPopup,
     this.festivalPopup,
   });
@@ -136,6 +150,32 @@ class BasketState extends Equatable {
   /// returned on the profile — null until the profile has been fetched.
   final String? myReferralCode;
 
+  /// `ApiProfile.id` — null until the profile has been fetched. Used to
+  /// tell "my review" apart from other customers' on a product's review
+  /// list (see `BasketCubit.submitProductReview`).
+  final int? myUserId;
+
+  /// Mirrors `Profile.loyalty_points` — kept in sync on every profile
+  /// fetch/edit; [BasketCubit.loadLoyalty]/[redeemLoyaltyPoints] also
+  /// update it directly so the balance shown elsewhere (e.g. the account
+  /// screen) doesn't need a full profile refetch after redeeming.
+  final int loyaltyPoints;
+
+  /// Who signed up with my code + what each one earned me — null until
+  /// [BasketCubit.loadReferrals] resolves.
+  final ReferralSummary? apiReferralSummary;
+
+  /// Points balance + transaction history — null until
+  /// [BasketCubit.loadLoyalty] resolves.
+  final LoyaltySummary? apiLoyaltySummary;
+
+  /// True while [BasketCubit.redeemLoyaltyPoints] is awaiting the API call.
+  final bool redeemSubmitting;
+
+  /// Success/error feedback from the last redeem attempt, shown inline on
+  /// the loyalty screen.
+  final String? redeemMessage;
+
   /// 'customer' | 'delivery_boy' | 'admin' — mirrors `Profile.role`. Only
   /// used to decide whether the "Deliveries" tab shows; every other screen
   /// in this (customer-facing) app is role-agnostic.
@@ -176,6 +216,25 @@ class BasketState extends Equatable {
   /// inline on the address-edit form.
   final String? addressFormError;
 
+  /// True while [BasketCubit.saveProfileEdit] is awaiting the API call —
+  /// disables the "Save" button on the edit-profile screen.
+  final bool profileSaving;
+
+  /// Validation/API error from the last `saveProfileEdit` attempt, shown
+  /// inline on the edit-profile form.
+  final String? profileFormError;
+
+  /// 0-5 star picker on the PDP's "Write a review" card; 0 means no star
+  /// picked yet.
+  final int reviewRatingInput;
+  final String reviewCommentInput;
+
+  /// True while [BasketCubit.submitProductReview] is awaiting the API call.
+  final bool reviewSubmitting;
+
+  /// Validation/API error from the last review submit attempt.
+  final String? reviewFormError;
+
   /// True while a delivery-partner status update is in flight — disables
   /// the action button on the delivery detail screen.
   final bool deliveryActionLoading;
@@ -212,6 +271,12 @@ class BasketState extends Equatable {
   /// see [FestivalCalendar.activeOn].
   final List<ApiFestivalSetting> apiFestivalSettings;
 
+  /// Admin-set call/WhatsApp/chat contact info for the "Help & support"
+  /// screen — null until [BasketCubit.loadSupportConfig] resolves (a
+  /// best-effort fetch; the screen just renders its buttons disabled
+  /// until then).
+  final ApiSupportConfig? apiSupportConfig;
+
   /// Set once per order/payment outcome; see [PaymentPopup]. Null the rest
   /// of the time — [BasketCubit.clearPaymentPopup] resets it right after
   /// the root widget shows it.
@@ -247,6 +312,13 @@ class BasketState extends Equatable {
     String? email,
     String? referralCodeInput,
     String? myReferralCode,
+    int? myUserId,
+    int? loyaltyPoints,
+    ReferralSummary? apiReferralSummary,
+    LoyaltySummary? apiLoyaltySummary,
+    bool? redeemSubmitting,
+    String? redeemMessage,
+    bool clearRedeemMessage = false,
     String? role,
     String? couponInput,
     String? appliedCoupon,
@@ -263,6 +335,14 @@ class BasketState extends Equatable {
     bool? addressSaving,
     String? addressFormError,
     bool clearAddressFormError = false,
+    bool? profileSaving,
+    String? profileFormError,
+    bool clearProfileFormError = false,
+    int? reviewRatingInput,
+    String? reviewCommentInput,
+    bool? reviewSubmitting,
+    String? reviewFormError,
+    bool clearReviewFormError = false,
     bool? deliveryActionLoading,
     String? deliveryActionError,
     bool clearDeliveryActionError = false,
@@ -280,6 +360,7 @@ class BasketState extends Equatable {
     List<ApiNotification>? apiNotifications,
     List<ApiBanner>? apiBanners,
     List<ApiFestivalSetting>? apiFestivalSettings,
+    ApiSupportConfig? apiSupportConfig,
     PaymentPopup? paymentPopup,
     bool clearPaymentPopup = false,
     FestivalTheme? festivalPopup,
@@ -308,6 +389,12 @@ class BasketState extends Equatable {
       email: email ?? this.email,
       referralCodeInput: referralCodeInput ?? this.referralCodeInput,
       myReferralCode: myReferralCode ?? this.myReferralCode,
+      myUserId: myUserId ?? this.myUserId,
+      loyaltyPoints: loyaltyPoints ?? this.loyaltyPoints,
+      apiReferralSummary: apiReferralSummary ?? this.apiReferralSummary,
+      apiLoyaltySummary: apiLoyaltySummary ?? this.apiLoyaltySummary,
+      redeemSubmitting: redeemSubmitting ?? this.redeemSubmitting,
+      redeemMessage: clearRedeemMessage ? null : (redeemMessage ?? this.redeemMessage),
       role: role ?? this.role,
       couponInput: couponInput ?? this.couponInput,
       appliedCoupon: appliedCoupon ?? this.appliedCoupon,
@@ -322,6 +409,12 @@ class BasketState extends Equatable {
       newAddressTag: newAddressTag ?? this.newAddressTag,
       addressSaving: addressSaving ?? this.addressSaving,
       addressFormError: clearAddressFormError ? null : (addressFormError ?? this.addressFormError),
+      profileSaving: profileSaving ?? this.profileSaving,
+      profileFormError: clearProfileFormError ? null : (profileFormError ?? this.profileFormError),
+      reviewRatingInput: reviewRatingInput ?? this.reviewRatingInput,
+      reviewCommentInput: reviewCommentInput ?? this.reviewCommentInput,
+      reviewSubmitting: reviewSubmitting ?? this.reviewSubmitting,
+      reviewFormError: clearReviewFormError ? null : (reviewFormError ?? this.reviewFormError),
       deliveryActionLoading: deliveryActionLoading ?? this.deliveryActionLoading,
       deliveryActionError: clearDeliveryActionError ? null : (deliveryActionError ?? this.deliveryActionError),
       cancelReason: clearCancelReason ? null : (cancelReason ?? this.cancelReason),
@@ -337,6 +430,7 @@ class BasketState extends Equatable {
       apiNotifications: apiNotifications ?? this.apiNotifications,
       apiBanners: apiBanners ?? this.apiBanners,
       apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
+      apiSupportConfig: apiSupportConfig ?? this.apiSupportConfig,
       paymentPopup: clearPaymentPopup ? null : (paymentPopup ?? this.paymentPopup),
       festivalPopup: clearFestivalPopup ? null : (festivalPopup ?? this.festivalPopup),
     );
@@ -366,6 +460,12 @@ class BasketState extends Equatable {
         email,
         referralCodeInput,
         myReferralCode,
+        myUserId,
+        loyaltyPoints,
+        apiReferralSummary,
+        apiLoyaltySummary,
+        redeemSubmitting,
+        redeemMessage,
         role,
         couponInput,
         appliedCoupon,
@@ -380,6 +480,12 @@ class BasketState extends Equatable {
         newAddressTag,
         addressSaving,
         addressFormError,
+        profileSaving,
+        profileFormError,
+        reviewRatingInput,
+        reviewCommentInput,
+        reviewSubmitting,
+        reviewFormError,
         deliveryActionLoading,
         deliveryActionError,
         cancelReason,
@@ -395,6 +501,7 @@ class BasketState extends Equatable {
         apiNotifications,
         apiBanners,
         apiFestivalSettings,
+        apiSupportConfig,
         paymentPopup,
         festivalPopup,
       ];

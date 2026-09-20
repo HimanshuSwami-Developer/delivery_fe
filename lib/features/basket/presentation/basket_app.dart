@@ -14,8 +14,10 @@ import 'package:fastswipe/features/basket/presentation/screens/coupons_view.dart
 import 'package:fastswipe/features/basket/presentation/screens/delivery_boy_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/delivery_order_detail_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/delivery_slot_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/edit_profile_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/home_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/login_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/loyalty_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/notifications_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/onboarding_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/order_detail_view.dart';
@@ -29,6 +31,7 @@ import 'package:fastswipe/features/basket/presentation/screens/payment_choice_vi
 import 'package:fastswipe/features/basket/presentation/screens/payment_failure_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/product_detail_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/qr_payment_view.dart';
+import 'package:fastswipe/features/basket/presentation/screens/referrals_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/search_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/setup_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/splash_view.dart';
@@ -186,6 +189,7 @@ class _ShoppingShell extends StatelessWidget {
       BasketScreen.pdp => const ProductDetailView(),
       BasketScreen.cart => const CartView(),
       BasketScreen.account => const AccountView(),
+      BasketScreen.editProfile => const EditProfileView(),
       BasketScreen.wish => const WishlistView(),
       BasketScreen.addr => const AddressListView(),
       BasketScreen.addrEdit => const AddressEditView(),
@@ -202,6 +206,8 @@ class _ShoppingShell extends StatelessWidget {
       BasketScreen.coupons => const CouponsView(),
       BasketScreen.notifs => const NotificationsView(),
       BasketScreen.support => const SupportView(),
+      BasketScreen.referrals => const ReferralsView(),
+      BasketScreen.loyalty => const LoyaltyView(),
       BasketScreen.deliveries => const DeliveryBoyView(),
       BasketScreen.deliveryDetail => const DeliveryOrderDetailView(),
       BasketScreen.splash ||

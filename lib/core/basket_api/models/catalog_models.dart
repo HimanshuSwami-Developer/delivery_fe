@@ -46,6 +46,34 @@ class ApiProductImage {
       );
 }
 
+/// Mirrors `catalog.serializers.ProductReviewSerializer`.
+class ApiProductReview {
+  const ApiProductReview({
+    required this.id,
+    required this.userId,
+    required this.userName,
+    required this.rating,
+    required this.comment,
+    required this.createdAt,
+  });
+
+  final int id;
+  final int userId;
+  final String? userName;
+  final int rating;
+  final String comment;
+  final DateTime createdAt;
+
+  factory ApiProductReview.fromJson(Map<String, dynamic> json) => ApiProductReview(
+        id: json['id'] as int,
+        userId: json['user'] as int,
+        userName: json['user_name'] as String?,
+        rating: json['rating'] as int,
+        comment: json['comment'] as String? ?? '',
+        createdAt: DateTime.parse(json['created_at'] as String),
+      );
+}
+
 /// Mirrors `catalog.serializers.ProductListSerializer` (+ the extra detail
 /// fields when fetched via `ProductDetailSerializer`, all nullable here).
 class ApiProduct {
@@ -71,6 +99,7 @@ class ApiProduct {
     this.hsnCode,
     this.gstSlab,
     this.images = const [],
+    this.reviews = const [],
   });
 
   final int id;
@@ -97,6 +126,10 @@ class ApiProduct {
   final String? gstSlab;
   final List<ApiProductImage> images;
 
+  /// Only present on the detail fetch (`ProductDetailSerializer` nests
+  /// these); empty on the lightweight list/grid shape.
+  final List<ApiProductReview> reviews;
+
   factory ApiProduct.fromJson(Map<String, dynamic> json) => ApiProduct(
         id: json['id'] as int,
         name: json['name'] as String,
@@ -120,6 +153,9 @@ class ApiProduct {
         gstSlab: json['gst_slab'] as String?,
         images: (json['images'] as List? ?? [])
             .map((e) => ApiProductImage.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        reviews: (json['reviews'] as List? ?? [])
+            .map((e) => ApiProductReview.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
 }

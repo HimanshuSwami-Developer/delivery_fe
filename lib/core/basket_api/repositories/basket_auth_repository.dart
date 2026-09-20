@@ -126,6 +126,37 @@ class BasketAuthRepository {
     }
   }
 
+  Future<ReferralSummary> fetchReferrals() async {
+    try {
+      final response = await _client.dio.get('/auth/profile/referrals/');
+      return ReferralSummary.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<LoyaltySummary> fetchLoyalty() async {
+    try {
+      final response = await _client.dio.get('/auth/profile/loyalty/');
+      return LoyaltySummary.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Converts points into a personal flat-discount coupon — server-enforced
+  /// minimum/balance checks (see `LoyaltyTransaction.redeem`); a rejection
+  /// surfaces as an [ApiException] with the server's reason (e.g. "Redeem
+  /// at least 50 points at a time.").
+  Future<String> redeemLoyaltyPoints(int points) async {
+    try {
+      final response = await _client.dio.post('/auth/profile/loyalty/redeem/', data: {'points': points});
+      return response.data['detail'] as String;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<ApiAddress>> fetchAddresses() async {
     try {
       final response = await _client.dio.get('/auth/profile/addresses/');

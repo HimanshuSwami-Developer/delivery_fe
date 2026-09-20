@@ -1,9 +1,11 @@
+import 'package:fastswipe/core/basket_api/models/support_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportView extends StatelessWidget {
   const SupportView({super.key});
@@ -11,6 +13,8 @@ class SupportView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
+    final config = context.select((BasketCubit c) => c.state.apiSupportConfig);
+    final replyLabel = config?.replyTimeLabel.isNotEmpty == true ? config!.replyTimeLabel : 'Typical reply in under 2 min';
 
     return Column(
       children: [
@@ -41,7 +45,7 @@ class SupportView extends StatelessWidget {
                 children: [
                   Text('Help & support', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 2),
-                  Text('Typical reply in under 2 min', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
+                  Text(replyLabel, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
                 ],
               ),
             ],
@@ -53,11 +57,25 @@ class SupportView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: _ContactTile(icon: Icons.chat_bubble_outline, label: 'Chat with us', filled: true)),
+                  Expanded(
+                    child: _ContactTile(
+                      icon: Icons.call_outlined,
+                      label: 'Call support',
+                      filled: true,
+                      onTap: config?.phoneNumber.isNotEmpty == true ? () => launchUrl(Uri(scheme: 'tel', path: config!.phoneNumber)) : null,
+                    ),
+                  ),
                   const SizedBox(width: 9),
-                  Expanded(child: _ContactTile(icon: Icons.call_outlined, label: 'Call support', filled: false)),
-                  const SizedBox(width: 9),
-                  Expanded(child: _ContactTile(icon: Icons.circle_outlined, label: 'WhatsApp', filled: false)),
+                  Expanded(
+                    child: _ContactTile(
+                      icon: Icons.circle_outlined,
+                      label: 'WhatsApp',
+                      filled: false,
+                      onTap: config?.whatsappLink.isNotEmpty == true
+                          ? () => launchUrl(Uri.parse(config!.whatsappLink), mode: LaunchMode.externalApplication)
+                          : null,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -91,31 +109,45 @@ class SupportView extends StatelessWidget {
 }
 
 class _ContactTile extends StatelessWidget {
-  const _ContactTile({required this.icon, required this.label, required this.filled});
+  const _ContactTile({required this.icon, required this.label, required this.filled, required this.onTap});
 
   final IconData icon;
   final String label;
   final bool filled;
 
+  /// Null (not just a no-op) when the backend hasn't configured this
+  /// contact method yet — [ApiSupportConfig] fields are blank until an
+  /// admin fills them in — so the tile renders dimmed and untappable
+  /// instead of opening a broken link.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 15),
-      decoration: BoxDecoration(
-        color: filled ? BasketColors.ink : Colors.transparent,
-        border: filled ? null : Border.all(color: BasketColors.ink, width: 1.5),
+    final enabled = onTap != null;
+    return Opacity(
+      opacity: enabled ? 1 : 0.45,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 15, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 15),
+          decoration: BoxDecoration(
+            color: filled ? BasketColors.ink : Colors.transparent,
+            border: filled ? null : Border.all(color: BasketColors.ink, width: 1.5),
+            borderRadius: BorderRadius.circular(15),
           ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 15, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

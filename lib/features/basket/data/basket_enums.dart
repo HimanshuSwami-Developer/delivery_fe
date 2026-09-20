@@ -14,6 +14,7 @@ enum BasketScreen {
   pdp,
   cart,
   account,
+  editProfile,
   wish,
   addr,
   addrEdit,
@@ -30,6 +31,8 @@ enum BasketScreen {
   coupons,
   notifs,
   support,
+  referrals,
+  loyalty,
   deliveries,
   deliveryDetail,
 }

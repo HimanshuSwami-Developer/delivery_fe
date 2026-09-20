@@ -470,6 +470,12 @@ class BasketCatalog {
 
   static const accountRows = <AccountRow>[
     AccountRow(
+      icon: '✎',
+      title: 'Edit profile',
+      sub: 'Name and email',
+      target: BasketScreen.editProfile,
+    ),
+    AccountRow(
       icon: '⬒',
       title: 'My orders',
       sub: 'Track, reorder or return',

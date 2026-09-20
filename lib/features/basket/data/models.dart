@@ -42,6 +42,7 @@ class BasketProduct {
     this.oos = false,
     this.imageUrl = '',
     this.images = const [],
+    this.reviews = const [],
   });
 
   final String id;
@@ -72,6 +73,9 @@ class BasketProduct {
   /// photo at all yet).
   List<String> get galleryImages => images.isNotEmpty ? images : (imageUrl.isEmpty ? const [] : [imageUrl]);
 
+  /// Only populated once the full product detail has loaded — see [images].
+  final List<ApiProductReview> reviews;
+
   int get discountPct => (100 * (1 - price / mrp)).round();
 
   /// [id] is the numeric Django pk stringified — every place in this app
@@ -92,6 +96,7 @@ class BasketProduct {
         oos: p.isOutOfStock,
         imageUrl: p.mainImageUrl,
         images: [for (final img in p.images) img.imageUrl],
+        reviews: p.reviews,
       );
 }
 

@@ -29,4 +29,13 @@ class SupportRepository {
       throw ApiException.from(e);
     }
   }
+
+  Future<ApiSupportConfig> fetchSupportConfig() async {
+    try {
+      final response = await _client.dio.get('/support-contact/');
+      return ApiSupportConfig.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
 }

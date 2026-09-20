@@ -210,4 +210,32 @@ class CatalogRepository {
       throw ApiException.from(e);
     }
   }
+
+  /// One review per (product, user) — server-enforced. Use [updateReview]
+  /// once the signed-in user already has one for this product (see
+  /// `BasketCubit.submitProductReview`, which decides which to call).
+  Future<ApiProductReview> submitReview({required int productId, required int rating, String comment = ''}) async {
+    try {
+      final response = await _client.dio.post('/reviews/', data: {
+        'product': productId,
+        'rating': rating,
+        'comment': comment,
+      });
+      return ApiProductReview.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiProductReview> updateReview(int reviewId, {required int rating, String comment = ''}) async {
+    try {
+      final response = await _client.dio.patch('/reviews/$reviewId/', data: {
+        'rating': rating,
+        'comment': comment,
+      });
+      return ApiProductReview.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
 }

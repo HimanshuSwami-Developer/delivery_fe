@@ -19,6 +19,7 @@ class AccountView extends StatelessWidget {
     final name = context.select((BasketCubit c) => c.state.name);
     final nameLabel = name.isEmpty ? 'Your account' : name;
     final referralCode = context.select((BasketCubit c) => c.state.myReferralCode);
+    final loyaltyPoints = context.select((BasketCubit c) => c.state.loyaltyPoints);
 
     return Column(
       children: [
@@ -66,7 +67,7 @@ class AccountView extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'Your friend gets ₹100 off their first order, you get ₹250 in credits.',
+                      'Your friend gets a ₹100 coupon on their first order, you get a ₹250 coupon.',
                       style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                     ),
                     const SizedBox(height: 12),
@@ -103,7 +104,43 @@ class AccountView extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: cubit.goToReferrals,
+                      child: Text(
+                        'View referral history ›',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2).withValues(alpha: 0.8)),
+                      ),
+                    ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: cubit.goToLoyalty,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                  decoration: glassCard(radius: 15),
+                  child: Row(
+                    children: [
+                      const Text('★', style: TextStyle(fontSize: 15, color: BasketColors.gold)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Loyalty points', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 2),
+                            Text(
+                              '$loyaltyPoints pts · earn on every order, redeem for coupons',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 10),

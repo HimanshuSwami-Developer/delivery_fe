@@ -7,14 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
-/// Shows a UPI QR (a plain `upi://pay` deep link, built client-side — no
-/// backend call needed to display it) for the cart's payable total, then
-/// lets the customer attach a screenshot of the completed payment. Tapping
-/// "Place order" is what actually places it — [BasketCubit.placeQrOrder]
-/// uploads the screenshot as proof and leaves `payment_status` pending for
-/// an admin to verify by hand; there's no gateway callback to trust here.
+/// Shows the merchant's static UPI QR code for the cart's payable total,
+/// then lets the customer attach a screenshot of the completed payment.
+/// Tapping "Place order" is what actually places it —
+/// [BasketCubit.placeQrOrder] uploads the screenshot as proof and leaves
+/// `payment_status` pending for an admin to verify by hand; there's no
+/// gateway callback to trust here.
 class QrPaymentView extends StatefulWidget {
   const QrPaymentView({super.key});
 
@@ -23,11 +22,6 @@ class QrPaymentView extends StatefulWidget {
 }
 
 class _QrPaymentViewState extends State<QrPaymentView> {
-  // TODO: replace with the real merchant UPI VPA before going live — until
-  // then the QR renders but isn't payable.
-  static const String _merchantVpa = '9718751020@ptyes';
-  static const String _merchantName = 'Aapno Bazar';
-
   Uint8List? _screenshotBytes;
   String? _screenshotFilename;
 
@@ -52,17 +46,6 @@ class _QrPaymentViewState extends State<QrPaymentView> {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     final payable = context.select((BasketCubit c) => cartTotals(c.state).payable);
-    final upiUri = Uri(
-      scheme: 'upi',
-      host: 'pay',
-      queryParameters: {
-        'pa': _merchantVpa,
-        'pn': _merchantName,
-        'am': payable.toString(),
-        'cu': 'INR',
-        'tn': 'Aapno Bazar order',
-      },
-    ).toString();
 
     return Column(
       children: [
@@ -111,7 +94,10 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                     border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: QrImageView(data: upiUri, size: 220, gapless: false),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset('assets/scanner.jpeg', width: 220, height: 220, fit: BoxFit.contain),
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
