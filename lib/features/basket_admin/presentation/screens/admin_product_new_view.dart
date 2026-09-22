@@ -44,6 +44,8 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
 
   int? _categoryId;
   bool _categoryInitialized = false;
+  int? _subcategoryId;
+  bool _subcategoryInitialized = false;
   late String _gstSlab = _editing?.gstSlab ?? '5';
   late bool _outOfStock = _editing?.isOutOfStock ?? false;
 
@@ -106,6 +108,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'name': name,
         'brand': _brand.text.trim(),
         'category': _categoryId,
+        'subcategory': _subcategoryId,
         'pack': pack,
         'sku': sku,
         'hsn_code': _hsnCode.text.trim(),
@@ -146,10 +149,26 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
+    final subcategories = context.select((BasketAdminCubit c) => c.state.apiSubcategories);
 
     if (!_categoryInitialized && categories.isNotEmpty) {
       _categoryId = _editing?.categoryId ?? categories.first.id;
       _categoryInitialized = true;
+    }
+
+    final categorySubcategories = [for (final s in subcategories) if (s.categoryId == _categoryId) s];
+
+    // Waits for [_editing]'s own subcategory to actually show up in
+    // [categorySubcategories] before seeding the dropdown's value with it —
+    // assigning it one frame early (before `apiSubcategories` has loaded)
+    // would hand `AdminEditDropdown` a value absent from its `items`, which
+    // trips Flutter's DropdownButton assertion.
+    if (!_subcategoryInitialized && _categoryInitialized) {
+      final wanted = _editing?.subcategoryId;
+      if (wanted == null || categorySubcategories.any((s) => s.id == wanted)) {
+        _subcategoryId = wanted;
+        _subcategoryInitialized = true;
+      }
     }
 
     return SingleChildScrollView(
@@ -195,10 +214,25 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                                     value: _categoryId,
                                     items: [for (final c in categories) c.id],
                                     itemLabel: (id) => categories.firstWhere((c) => c.id == id).name,
-                                    onChanged: (v) => setState(() => _categoryId = v),
+                                    // Whatever subcategory was picked belonged to the old
+                                    // category and won't be a valid item once the list is
+                                    // refiltered, so it resets to "None" rather than
+                                    // silently keeping a mismatched id.
+                                    onChanged: (v) => setState(() {
+                                      _categoryId = v;
+                                      _subcategoryId = null;
+                                    }),
                                   ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+                      AdminEditDropdown<int?>(
+                        label: 'Subcategory (optional)',
+                        value: _subcategoryId,
+                        items: [null, for (final s in categorySubcategories) s.id],
+                        itemLabel: (id) => id == null ? 'None' : categorySubcategories.firstWhere((s) => s.id == id).name,
+                        onChanged: (v) => setState(() => _subcategoryId = v),
                       ),
                       const SizedBox(height: 12),
                       Row(
