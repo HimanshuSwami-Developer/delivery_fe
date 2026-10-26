@@ -1,5 +1,6 @@
 import 'package:fastswipe/core/router/app_router.dart';
 import 'package:fastswipe/core/theme/app_theme.dart';
+import 'package:fastswipe/core/update/app_update_gate.dart';
 import 'package:fastswipe/features/auth/bloc/auth_bloc.dart';
 import 'package:fastswipe/features/auth/data/auth_repository.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class FastSwipeApp extends StatelessWidget {
               // built to support both.
               themeMode: ThemeMode.light,
               routerConfig: router,
+              builder: (context, child) => AppUpdateGate(child: child ?? const SizedBox.shrink()),
             );
           },
         ),
