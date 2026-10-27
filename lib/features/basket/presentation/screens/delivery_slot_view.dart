@@ -90,7 +90,7 @@ class DeliverySlotView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Text(
-                  'Express slots are dispatched from the Koramangala dark store. Scheduled slots arrive within a 2-hour window.',
+                  'Express slots are dispatched from your nearest store. Scheduled slots arrive within a 2-hour window.',
                   style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 ),
               ),

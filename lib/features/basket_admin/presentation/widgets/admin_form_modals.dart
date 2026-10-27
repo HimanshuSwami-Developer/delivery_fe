@@ -78,14 +78,14 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
         AdminEditField(
           label: 'Key',
           controller: _key,
-          hint: 'e.g. atta-rice-dal',
+          hint: 'Enter slug (e.g. atta-rice-dal)',
           // The key is the URL lookup for this category (and what
           // products/banners reference) — changing it after creation
           // would silently break those links, so it's locked once set.
           enabled: _editing == null,
           inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
         ),
-        AdminEditField(label: 'Name', controller: _name, hint: 'Atta, Rice & Dal'),
+        AdminEditField(label: 'Name', controller: _name, hint: 'Enter category name (e.g. Atta, Rice & Dal)'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
       ],
     );
@@ -194,7 +194,7 @@ class _AddSubcategoryModalState extends State<AddSubcategoryModal> {
       onSubmit: () => _submit(cubit),
       submitLabel: _editing == null ? 'Add subcategory' : 'Save changes',
       fields: [
-        AdminEditField(label: 'Name', controller: _name, hint: 'Fresh Vegetables'),
+        AdminEditField(label: 'Name', controller: _name, hint: 'Enter subcategory name (e.g. Fresh Vegetables)'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
         if (_editing != null) ...[
           const SizedBox(height: 4),
@@ -292,13 +292,13 @@ class _AddCouponModalState extends State<AddCouponModal> {
         AdminEditField(
           label: 'Code',
           controller: _code,
-          hint: 'FIRST50',
+          hint: 'Enter coupon code (e.g. FIRST50)',
           // Code is the URL lookup for this coupon — changing it after
           // creation would break the link, so it's locked once set.
           enabled: _editing == null,
           inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
         ),
-        AdminEditField(label: 'Title', controller: _title, hint: '50% off your first order'),
+        AdminEditField(label: 'Title', controller: _title, hint: 'Enter coupon title (e.g. 50% off your first order)'),
         AdminEditField(label: 'Min order value (₹)', controller: _minOrder, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
         AdminEditField(label: 'Flat discount (₹, or leave blank)', controller: _flatDiscount, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
         AdminEditField(label: 'Percent discount (0-100, or leave blank)', controller: _percentDiscount, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
@@ -382,7 +382,7 @@ class _AddBannerModalState extends State<AddBannerModal> {
       onSubmit: () => _submit(cubit),
       submitLabel: _editing == null ? 'Create banner' : 'Save changes',
       fields: [
-        AdminEditField(label: 'Title', controller: _title, hint: 'Fresh fruit, up to 30% off'),
+        AdminEditField(label: 'Title', controller: _title, hint: 'Enter banner title (e.g. Fresh fruit, up to 30% off)'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
         AdminEditDropdown<String>(
           label: 'Placement',
@@ -391,7 +391,7 @@ class _AddBannerModalState extends State<AddBannerModal> {
           itemLabel: (key) => _kBannerPlacements[key]!,
           onChanged: (v) => setState(() => _placement = v ?? _placement),
         ),
-        AdminEditField(label: 'Link screen (optional)', controller: _linkScreen, hint: 'category_list'),
+        AdminEditField(label: 'Link screen (optional)', controller: _linkScreen, hint: 'Enter screen name (e.g. category_list)'),
       ],
     );
   }
@@ -572,9 +572,9 @@ class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
         ),
         Row(
           children: [
-            Expanded(child: AdminEditField(label: 'Starts on (yyyy-mm-dd, optional)', controller: _startsOn, hint: '2026-11-06')),
+            Expanded(child: AdminEditField(label: 'Starts on (yyyy-mm-dd, optional)', controller: _startsOn, hint: 'Enter start date (e.g. 2026-11-06)')),
             const SizedBox(width: 10),
-            Expanded(child: AdminEditField(label: 'Ends on (yyyy-mm-dd, optional)', controller: _endsOn, hint: '2026-11-10')),
+            Expanded(child: AdminEditField(label: 'Ends on (yyyy-mm-dd, optional)', controller: _endsOn, hint: 'Enter end date (e.g. 2026-11-10)')),
           ],
         ),
         _AdminColorField(label: 'Accent colour', controller: _accent),
@@ -587,7 +587,7 @@ class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
           itemLabel: (key) => _kFestivalMotifs[key]!,
           onChanged: (v) => setState(() => _motif = v ?? _motif),
         ),
-        AdminEditField(label: 'Header greeting badge', controller: _greeting, hint: 'Happy Diwali! Festive picks inside ✨'),
+        AdminEditField(label: 'Header greeting badge', controller: _greeting, hint: 'Enter greeting text (e.g. Happy Diwali!)'),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
@@ -599,8 +599,8 @@ class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
             ],
           ),
         ),
-        AdminEditField(label: 'Popup title', controller: _popupTitle, hint: 'Happy Diwali! 🪔'),
-        AdminEditField(label: 'Popup message', controller: _popupMessage, hint: 'Celebrate with festive prices on your favourite picks.', maxLines: 2),
+        AdminEditField(label: 'Popup title', controller: _popupTitle, hint: 'Enter popup title (e.g. Festive offers are live)'),
+        AdminEditField(label: 'Popup message', controller: _popupMessage, hint: 'Enter popup message (e.g. Enjoy festive prices on top picks)', maxLines: 2),
       ],
     );
   }

@@ -27,8 +27,8 @@ class AddressEditView extends StatefulWidget {
 class _AddressEditViewState extends State<AddressEditView> {
   final _houseNoController = TextEditingController();
   final _landmarkController = TextEditingController();
-  final _cityController = TextEditingController(text: 'Bengaluru');
-  final _stateController = TextEditingController(text: 'Karnataka');
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
   final _pincodeController = TextEditingController();
 
   final _mapController = AppMapController();
@@ -36,7 +36,7 @@ class _AddressEditViewState extends State<AddressEditView> {
   Timer? _geocodeDebounce;
 
   LatLng _pinLocation = _defaultCenter;
-  String _resolvedAddress = '4th Block, Koramangala, Bengaluru 560034';
+  String _resolvedAddress = 'Move the pin to your delivery location';
   bool _locating = false;
 
   @override
@@ -99,7 +99,7 @@ class _AddressEditViewState extends State<AddressEditView> {
     final newTag = context.select((BasketCubit c) => c.state.newAddressTag);
     final saving = context.select((BasketCubit c) => c.state.addressSaving);
     final formError = context.select((BasketCubit c) => c.state.addressFormError);
-    final phoneLabel = phone.isEmpty ? '98765 43210' : phone;
+    final name = context.select((BasketCubit c) => c.state.name);
 
     return Column(
       children: [
@@ -197,14 +197,14 @@ class _AddressEditViewState extends State<AddressEditView> {
                   LabeledTextField(
                     label: 'Flat / House no.',
                     controller: _houseNoController,
-                    hintText: '302, Sunrise Residency',
+                    hintText: 'Enter flat / house no. (e.g. 302, Green Apartments)',
                     textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 10),
                   LabeledTextField(
                     label: 'Landmark',
                     controller: _landmarkController,
-                    hintText: 'Near Forum Mall',
+                    hintText: 'Enter a nearby landmark (e.g. Near City Mall)',
                     textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 10),
@@ -214,6 +214,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                         child: LabeledTextField(
                           label: 'City',
                           controller: _cityController,
+                          hintText: 'Enter city (e.g. Pune)',
                           textCapitalization: TextCapitalization.words,
                         ),
                       ),
@@ -222,6 +223,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                         child: LabeledTextField(
                           label: 'State',
                           controller: _stateController,
+                          hintText: 'Enter state (e.g. Maharashtra)',
                           textCapitalization: TextCapitalization.words,
                         ),
                       ),
@@ -231,12 +233,12 @@ class _AddressEditViewState extends State<AddressEditView> {
                   LabeledTextField(
                     label: 'Pincode',
                     controller: _pincodeController,
-                    hintText: '560034',
+                    hintText: 'Enter pincode (e.g. 411001)',
                     keyboardType: TextInputType.number,
                     maxLength: 6,
                   ),
                   const SizedBox(height: 10),
-                  LabeledStaticField(label: 'Receiver', value: 'Aarav · +91 $phoneLabel'),
+                  LabeledStaticField(label: 'Receiver', value: [if (name.isNotEmpty) name, if (phone.isNotEmpty) '+91 $phone'].join(' · ')),
                   const SizedBox(height: 18),
                   Text('Save as', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 9),

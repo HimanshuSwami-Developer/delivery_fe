@@ -15,7 +15,6 @@ class AccountView extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     final phone = context.select((BasketCubit c) => c.state.phone);
-    final phoneLabel = phone.isEmpty ? '98765 43210' : phone;
     final name = context.select((BasketCubit c) => c.state.name);
     final nameLabel = name.isEmpty ? 'Your account' : name;
     final referralCode = context.select((BasketCubit c) => c.state.myReferralCode);
@@ -40,7 +39,7 @@ class AccountView extends StatelessWidget {
                   Text(nameLabel, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                   const SizedBox(height: 3),
                   Text(
-                    '+91 $phoneLabel',
+                    '+91 $phone',
                     style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
                   ),
                 ],

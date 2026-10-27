@@ -100,12 +100,12 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
         AdminEditField(
           label: 'Mobile number',
           controller: _mobile,
-          hint: '+91XXXXXXXXXX',
+          hint: 'Enter mobile number (+91XXXXXXXXXX)',
           keyboardType: TextInputType.phone,
           enabled: _editing == null,
         ),
-        AdminEditField(label: 'Partner code', controller: _partnerCode, hint: 'BSK-DP-2210'),
-        AdminEditField(label: 'Name', controller: _name, hint: 'Ravi Kumar'),
+        AdminEditField(label: 'Partner code', controller: _partnerCode, hint: 'Enter partner code (e.g. BSK-DP-2210)'),
+        AdminEditField(label: 'Name', controller: _name, hint: 'Enter partner name (First and last name)'),
         AdminEditDropdown<String>(
           label: 'Vehicle',
           value: _vehicle,
@@ -120,7 +120,7 @@ class _PartnerFormModalState extends State<PartnerFormModal> {
           itemLabel: (key) => _kStatuses[key]!,
           onChanged: (v) => setState(() => _status = v ?? _status),
         ),
-        AdminEditField(label: 'Photo URL (optional)', controller: _photoUrl, hint: 'https://...'),
+        AdminEditField(label: 'Photo URL (optional)', controller: _photoUrl, hint: 'Enter photo URL (https://...)'),
       ],
     );
   }

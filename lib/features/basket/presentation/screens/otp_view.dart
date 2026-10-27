@@ -114,7 +114,6 @@ class _OtpViewState extends State<OtpView> {
     final phone = context.select((BasketCubit c) => c.state.phone);
     final authError = context.select((BasketCubit c) => c.state.authError);
     final authLoading = context.select((BasketCubit c) => c.state.authLoading);
-    final phoneLabel = phone.isEmpty ? '98765 43210' : phone;
     final full = _joined.length == _otpLength;
     final topInset = MediaQuery.paddingOf(context).top;
 
@@ -159,7 +158,7 @@ class _OtpViewState extends State<OtpView> {
                         children: [
                           const TextSpan(text: 'We sent a 4-digit code to '),
                           TextSpan(
-                            text: '+91 $phoneLabel',
+                            text: '+91 $phone',
                             style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700, color: AapnoBazar.gold),
                           ),
                         ],

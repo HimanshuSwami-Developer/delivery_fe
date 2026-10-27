@@ -61,15 +61,19 @@ class CouponsView extends StatelessWidget {
                             Text(c.code, style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: 1)),
                             FilledButton(
                               style: FilledButton.styleFrom(
-                                backgroundColor: BasketColors.primary,
+                                backgroundColor: applied == c.code ? BasketColors.ink.withValues(alpha: 0.08) : BasketColors.primary,
                                 shape: const StadiumBorder(),
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                 minimumSize: Size.zero,
                               ),
-                              onPressed: () => cubit.applyCouponFromCard(c.code),
+                              onPressed: applied == c.code ? cubit.removeCoupon : () => cubit.applyCouponFromCard(c.code),
                               child: Text(
-                                applied == c.code ? 'Applied' : 'Apply',
-                                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
+                                applied == c.code ? 'Remove' : 'Apply',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: applied == c.code ? BasketColors.ink : Color(0xFFFFFBF2),
+                                ),
                               ),
                             ),
                           ],

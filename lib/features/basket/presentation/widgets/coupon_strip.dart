@@ -16,12 +16,14 @@ class CouponStrip extends StatelessWidget {
     required this.coupons,
     required this.appliedCoupon,
     required this.onApply,
+    required this.onRemove,
     required this.onViewAll,
   });
 
   final List<ApiCoupon> coupons;
   final String? appliedCoupon;
   final ValueChanged<String> onApply;
+  final VoidCallback onRemove;
   final VoidCallback onViewAll;
 
   @override
@@ -88,15 +90,19 @@ class CouponStrip extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: applied ? BasketColors.faint : BasketColors.primary,
+                      backgroundColor: applied ? BasketColors.ink.withValues(alpha: 0.08) : BasketColors.primary,
                       shape: const StadiumBorder(),
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       minimumSize: Size.zero,
                     ),
-                    onPressed: applied ? null : () => onApply(c.code),
+                    onPressed: applied ? onRemove : () => onApply(c.code),
                     child: Text(
-                      applied ? 'Applied' : 'Apply',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
+                      applied ? 'Remove' : 'Apply',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: applied ? BasketColors.ink : Color(0xFFFFFBF2),
+                      ),
                     ),
                   ),
                 ),
@@ -104,6 +110,66 @@ class CouponStrip extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Shown in place of the coupon input once a code is applied: the code,
+/// the amount saved, and a Remove action that clears it from the cart.
+class AppliedCouponBanner extends StatelessWidget {
+  const AppliedCouponBanner({
+    super.key,
+    required this.code,
+    required this.savings,
+    required this.onRemove,
+  });
+
+  final String code;
+  final String savings;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+      decoration: BoxDecoration(
+        color: BasketColors.primarySoft,
+        border: Border.all(color: BasketColors.primary.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(11),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle_rounded, size: 18, color: BasketColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$code applied',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: BasketColors.ink),
+                ),
+                if (savings.isNotEmpty)
+                  Text(
+                    'You save $savings',
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: BasketColors.primary),
+                  ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onRemove,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: Size.zero,
+            ),
+            child: Text(
+              'Remove',
+              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.red.shade700),
+            ),
+          ),
+        ],
       ),
     );
   }

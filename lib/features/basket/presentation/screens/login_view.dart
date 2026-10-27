@@ -114,7 +114,7 @@ class LoginView extends StatelessWidget {
                                         border: InputBorder.none,
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
-                                        hintText: '98765 43210',
+                                        hintText: 'Enter mobile number (10 digits)',
                                       ),
                                     ),
                                   ),

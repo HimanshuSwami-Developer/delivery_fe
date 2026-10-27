@@ -200,11 +200,11 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                     children: [
                       const AdminSectionTitle('Product details'),
                       const SizedBox(height: 14),
-                      AdminEditField(label: 'Product name', controller: _name, hint: 'Aashirvaad Shudh Chakki Atta'),
+                      AdminEditField(label: 'Product name', controller: _name, hint: 'Enter product name (e.g. Aashirvaad Atta)'),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: AdminEditField(label: 'Brand', controller: _brand, hint: 'Aashirvaad')),
+                          Expanded(child: AdminEditField(label: 'Brand', controller: _brand, hint: 'Enter brand (e.g. Aashirvaad)')),
                           const SizedBox(width: 12),
                           Expanded(
                             child: categories.isEmpty
@@ -237,16 +237,16 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: AdminEditField(label: 'Pack size', controller: _pack, hint: '5 kg')),
+                          Expanded(child: AdminEditField(label: 'Pack size', controller: _pack, hint: 'Enter pack size (e.g. 5 kg)')),
                           const SizedBox(width: 12),
-                          Expanded(child: AdminEditField(label: 'SKU code', controller: _sku, hint: 'SKU-1042')),
+                          Expanded(child: AdminEditField(label: 'SKU code', controller: _sku, hint: 'Enter SKU code (e.g. SKU-1042)')),
                         ],
                       ),
                       const SizedBox(height: 12),
                       AdminEditField(
                         label: 'Description',
                         controller: _description,
-                        hint: '100% whole wheat atta, chakki-ground for soft rotis.',
+                        hint: 'Enter product description (e.g. 100% whole wheat atta)',
                         maxLines: 3,
                       ),
                     ],
@@ -269,7 +269,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           AdminEditField(label: 'MRP', controller: _mrp, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
                           AdminEditField(label: 'Selling price', controller: _price, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
                           AdminEditField(label: 'Cost price (opt.)', controller: _costPrice, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
-                          AdminEditField(label: 'HSN code', controller: _hsnCode, hint: '1101'),
+                          AdminEditField(label: 'HSN code', controller: _hsnCode, hint: 'Enter HSN code (e.g. 1101)'),
                         ],
                       ),
                       const SizedBox(height: 14),

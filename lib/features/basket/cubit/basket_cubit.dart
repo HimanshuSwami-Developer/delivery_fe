@@ -801,6 +801,25 @@ class BasketCubit extends Cubit<BasketState> {
     }
   }
 
+  /// Removes the applied coupon from the server-side cart so the order
+  /// that gets placed no longer carries the discount.
+  Future<void> removeCoupon() async {
+    final code = state.appliedCoupon;
+    if (code == null) return;
+    try {
+      await api.cart.removeCoupon();
+      emit(
+        state.copyWith(
+          clearAppliedCoupon: true,
+          couponInput: '',
+          couponMessage: '$code removed.',
+        ),
+      );
+    } on ApiException catch (e) {
+      emit(state.copyWith(couponMessage: e.message));
+    }
+  }
+
   // ── Checkout: address ────────────────────────────────────────────────
 
   void goCheckout() => go(BasketScreen.addr);

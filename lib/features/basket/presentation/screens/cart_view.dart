@@ -246,10 +246,18 @@ class _FullCart extends StatelessWidget {
                         coupons: coupons,
                         appliedCoupon: appliedCoupon,
                         onApply: cubit.applyCouponCode,
+                        onRemove: cubit.removeCoupon,
                         onViewAll: cubit.goToCoupons,
                       ),
                     ],
                     const SizedBox(height: 9),
+                    if (appliedCoupon != null)
+                      AppliedCouponBanner(
+                        code: appliedCoupon,
+                        savings: t.discount > 0 ? moneyLabel(t.discount) : '',
+                        onRemove: cubit.removeCoupon,
+                      )
+                    else
                     Row(
                       children: [
                         Expanded(
@@ -264,7 +272,7 @@ class _FullCart extends StatelessWidget {
                             ),
                             decoration: InputDecoration(
                               isDense: true,
-                              hintText: 'FIRST50 / FRESH10',
+                              hintText: 'Enter coupon code (e.g. FIRST50)',
                               filled: true,
                               fillColor: Color(0xFFFFFBF2),
                               contentPadding: const EdgeInsets.symmetric(
@@ -322,15 +330,17 @@ class _FullCart extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 9),
-                    Text(
-                      couponMessage,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        color: BasketColors.muted,
+                    if (couponMessage.isNotEmpty) ...[
+                      const SizedBox(height: 9),
+                      Text(
+                        couponMessage,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: BasketColors.muted,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

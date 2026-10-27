@@ -220,10 +220,18 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                         coupons: coupons,
                         appliedCoupon: appliedCoupon,
                         onApply: cubit.applyCouponCode,
+                        onRemove: cubit.removeCoupon,
                         onViewAll: cubit.goToCoupons,
                       ),
                     ],
                     const SizedBox(height: 9),
+                    if (appliedCoupon != null)
+                      AppliedCouponBanner(
+                        code: appliedCoupon,
+                        savings: t.discount > 0 ? moneyLabel(t.discount) : '',
+                        onRemove: cubit.removeCoupon,
+                      )
+                    else
                     Row(
                       children: [
                         Expanded(
@@ -234,7 +242,7 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                             style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
                             decoration: InputDecoration(
                               isDense: true,
-                              hintText: 'FIRST50 / FRESH10',
+                              hintText: 'Enter coupon code (e.g. FIRST50)',
                               filled: true,
                               fillColor: Color(0xFFFFFBF2),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
