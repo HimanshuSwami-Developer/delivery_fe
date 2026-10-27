@@ -11,6 +11,9 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.brag-output/
+/brag-output/
+/brag-output-2026-10-27-205126/
 
 # IntelliJ related
 *.iml
