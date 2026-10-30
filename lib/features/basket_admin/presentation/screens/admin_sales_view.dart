@@ -3,6 +3,7 @@ import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_delivered_sales_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,6 +78,8 @@ class AdminSalesView extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 14),
+          const AdminDeliveredSalesSection(),
           const SizedBox(height: 14),
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
           const SizedBox(height: 14),

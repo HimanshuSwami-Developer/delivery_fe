@@ -68,6 +68,10 @@ class BasketAdminState extends Equatable {
     this.dashboardLoading = false,
     this.salesReport,
     this.salesError,
+    this.deliveredSalesPeriod = 'daily',
+    this.deliveredSales,
+    this.deliveredSalesLoading = false,
+    this.deliveredSalesError,
     this.gstReport,
     this.gstError,
     this.storeSettings,
@@ -224,6 +228,12 @@ class BasketAdminState extends Equatable {
   /// left `salesReport` null forever with no way to tell "still loading"
   /// from "failed", so the screen just spun indefinitely.
   final String? salesError;
+
+  /// "Delivered sales" period tab: 'daily' | 'weekly' | 'monthly' | 'yearly'.
+  final String deliveredSalesPeriod;
+  final DeliveredSalesReport? deliveredSales;
+  final bool deliveredSalesLoading;
+  final String? deliveredSalesError;
   final GstReport? gstReport;
   final String? gstError;
 
@@ -301,6 +311,11 @@ class BasketAdminState extends Equatable {
     SalesReport? salesReport,
     String? salesError,
     bool clearSalesError = false,
+    String? deliveredSalesPeriod,
+    DeliveredSalesReport? deliveredSales,
+    bool? deliveredSalesLoading,
+    String? deliveredSalesError,
+    bool clearDeliveredSalesError = false,
     GstReport? gstReport,
     String? gstError,
     bool clearGstError = false,
@@ -364,6 +379,10 @@ class BasketAdminState extends Equatable {
       dashboardLoading: dashboardLoading ?? this.dashboardLoading,
       salesReport: salesReport ?? this.salesReport,
       salesError: clearSalesError ? null : (salesError ?? this.salesError),
+      deliveredSalesPeriod: deliveredSalesPeriod ?? this.deliveredSalesPeriod,
+      deliveredSales: deliveredSales ?? this.deliveredSales,
+      deliveredSalesLoading: deliveredSalesLoading ?? this.deliveredSalesLoading,
+      deliveredSalesError: clearDeliveredSalesError ? null : (deliveredSalesError ?? this.deliveredSalesError),
       gstReport: gstReport ?? this.gstReport,
       gstError: clearGstError ? null : (gstError ?? this.gstError),
       storeSettings: storeSettings ?? this.storeSettings,
@@ -428,6 +447,10 @@ class BasketAdminState extends Equatable {
         dashboardLoading,
         salesReport,
         salesError,
+        deliveredSalesPeriod,
+        deliveredSales,
+        deliveredSalesLoading,
+        deliveredSalesError,
         gstReport,
         gstError,
         storeSettings,

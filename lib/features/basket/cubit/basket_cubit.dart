@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
+import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/profile_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/geo/nominatim_service.dart';
@@ -50,10 +51,17 @@ class BasketCubit extends Cubit<BasketState> {
   StreamSubscription<String>? _tokenRefreshSub;
   bool _hasSession = false;
 
+  // Rider app only — live GPS stream feeding `/orders/{id}/rider_location/`
+  // while [_sharingOrderId] is out for delivery. See [_syncRiderLocationSharing].
+  StreamSubscription<Position>? _riderLocationSub;
+  int? _sharingOrderId;
+  DateTime? _lastRiderLocationSentAt;
+
   @override
   Future<void> close() {
     _splashTimer?.cancel();
     _tokenRefreshSub?.cancel();
+    _riderLocationSub?.cancel();
     return super.close();
   }
 
@@ -1074,6 +1082,71 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final detail = await api.orders.fetchOrder(id);
       emit(state.copyWith(currentOrder: detail));
+      _syncRiderLocationSharing(detail);
+    } catch (_) {}
+  }
+
+  /// Starts streaming this device's GPS to the backend while [order] (one
+  /// assigned to this delivery_boy) is out for delivery, and stops once
+  /// it's delivered/cancelled — this is what the customer's live tracking
+  /// map follows. Uploads are throttled to one every few seconds; the
+  /// customer side interpolates between fixes so the marker still glides.
+  Future<void> _syncRiderLocationSharing(ApiOrder order) async {
+    if (state.role != 'delivery_boy') return;
+    final shouldShare = order.status == 'out_for_delivery';
+    if (!shouldShare) {
+      if (_sharingOrderId == order.id) _stopRiderLocationSharing();
+      return;
+    }
+    if (_sharingOrderId == order.id && _riderLocationSub != null) return;
+    _stopRiderLocationSharing();
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return;
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+    } catch (_) {
+      return;
+    }
+    _sharingOrderId = order.id;
+    _riderLocationSub = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+      ),
+    ).listen((position) => _sendRiderLocation(order.id, position), onError: (_) {});
+  }
+
+  void _stopRiderLocationSharing() {
+    _riderLocationSub?.cancel();
+    _riderLocationSub = null;
+    _sharingOrderId = null;
+    _lastRiderLocationSentAt = null;
+  }
+
+  Future<void> _sendRiderLocation(int orderId, Position position) async {
+    final now = DateTime.now();
+    final last = _lastRiderLocationSentAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 3)) {
+      return;
+    }
+    _lastRiderLocationSentAt = now;
+    try {
+      await api.orders.sendRiderLocation(
+        orderId,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        heading: position.heading >= 0 ? position.heading : null,
+      );
+    } on ApiException catch (e) {
+      // 409 = the order left out_for_delivery elsewhere (e.g. an admin
+      // marked it delivered) — nothing left to share.
+      if (e.statusCode == 409) _stopRiderLocationSharing();
     } catch (_) {}
   }
 
@@ -1093,6 +1166,7 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final updated = await api.orders.setStatus(id, newStatus);
       emit(state.copyWith(deliveryActionLoading: false, currentOrder: updated));
+      _syncRiderLocationSharing(updated);
       loadOrders();
     } on ApiException catch (e) {
       emit(

@@ -246,3 +246,96 @@ class AdminCustomerRow {
         tier: json['tier'] as String,
       );
 }
+
+/// One day/week/month/year bucket of [DeliveredSalesReport].
+class DeliveredSalesRow {
+  const DeliveredSalesRow({
+    required this.periodStart,
+    required this.label,
+    required this.orders,
+    required this.items,
+    required this.subtotal,
+    required this.discount,
+    required this.gst,
+    required this.deliveryFee,
+    required this.revenue,
+    required this.codRevenue,
+    required this.onlineRevenue,
+  });
+
+  final DateTime periodStart;
+  final String label;
+  final int orders;
+  final int items;
+  final int subtotal;
+  final int discount;
+  final int gst;
+  final int deliveryFee;
+  final int revenue;
+  final int codRevenue;
+  final int onlineRevenue;
+
+  factory DeliveredSalesRow.fromJson(Map<String, dynamic> json) => DeliveredSalesRow(
+        periodStart: DateTime.parse(json['period_start'] as String),
+        label: json['label'] as String,
+        orders: json['orders'] as int,
+        items: json['items'] as int,
+        subtotal: json['subtotal'] as int,
+        discount: json['discount'] as int,
+        gst: (json['cgst'] as int) + (json['sgst'] as int),
+        deliveryFee: json['delivery_fee'] as int,
+        revenue: json['revenue'] as int,
+        codRevenue: json['cod_revenue'] as int,
+        onlineRevenue: json['online_revenue'] as int,
+      );
+}
+
+/// Mirrors `DeliveredSalesReportView` — successfully delivered sales only,
+/// grouped by `period` ('daily' | 'weekly' | 'monthly' | 'yearly').
+class DeliveredSalesReport {
+  const DeliveredSalesReport({
+    required this.period,
+    required this.start,
+    required this.end,
+    required this.orders,
+    required this.items,
+    required this.revenue,
+    required this.avgOrderValue,
+    required this.codRevenue,
+    required this.onlineRevenue,
+    required this.gst,
+    this.bestPeriod,
+    required this.rows,
+  });
+
+  final String period;
+  final DateTime start;
+  final DateTime end;
+  final int orders;
+  final int items;
+  final int revenue;
+  final int avgOrderValue;
+  final int codRevenue;
+  final int onlineRevenue;
+  final int gst;
+  final String? bestPeriod;
+  final List<DeliveredSalesRow> rows;
+
+  factory DeliveredSalesReport.fromJson(Map<String, dynamic> json) {
+    final t = json['totals'] as Map<String, dynamic>;
+    return DeliveredSalesReport(
+      period: json['period'] as String,
+      start: DateTime.parse(json['start'] as String),
+      end: DateTime.parse(json['end'] as String),
+      orders: t['orders'] as int,
+      items: t['items'] as int,
+      revenue: t['revenue'] as int,
+      avgOrderValue: t['avg_order_value'] as int,
+      codRevenue: t['cod_revenue'] as int,
+      onlineRevenue: t['online_revenue'] as int,
+      gst: (t['cgst'] as int) + (t['sgst'] as int),
+      bestPeriod: json['best_period'] as String?,
+      rows: (json['rows'] as List).map((e) => DeliveredSalesRow.fromJson(e as Map<String, dynamic>)).toList(),
+    );
+  }
+}

@@ -178,3 +178,51 @@ class ApiOrder {
         cancelledAt: _dt(json['cancelled_at']),
       );
 }
+
+/// Mirrors `orders.serializers.OrderTrackingSerializer` — the lightweight
+/// snapshot the live tracking map polls (`/orders/{id}/tracking/`).
+class ApiOrderTracking {
+  const ApiOrderTracking({
+    required this.id,
+    required this.status,
+    this.deliveryPartnerId,
+    this.deliveryPartnerName,
+    this.latitude,
+    this.longitude,
+    this.riderLatitude,
+    this.riderLongitude,
+    this.riderHeading,
+    this.riderLocationUpdatedAt,
+  });
+
+  final int id;
+  final String status;
+  final int? deliveryPartnerId;
+  final String? deliveryPartnerName;
+
+  /// Delivery drop-pin, if the order was placed against one.
+  final double? latitude;
+  final double? longitude;
+
+  /// Rider's last reported GPS fix — null until the rider app has sent one
+  /// while the order is out for delivery.
+  final double? riderLatitude;
+  final double? riderLongitude;
+  final double? riderHeading;
+  final DateTime? riderLocationUpdatedAt;
+
+  bool get hasRiderLocation => riderLatitude != null && riderLongitude != null;
+
+  factory ApiOrderTracking.fromJson(Map<String, dynamic> json) => ApiOrderTracking(
+        id: json['id'] as int,
+        status: json['status'] as String,
+        deliveryPartnerId: json['delivery_partner'] as int?,
+        deliveryPartnerName: json['delivery_partner_name'] as String?,
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
+        riderLatitude: (json['rider_latitude'] as num?)?.toDouble(),
+        riderLongitude: (json['rider_longitude'] as num?)?.toDouble(),
+        riderHeading: (json['rider_heading'] as num?)?.toDouble(),
+        riderLocationUpdatedAt: ApiOrder._dt(json['rider_location_updated_at']),
+      );
+}

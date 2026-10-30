@@ -145,6 +145,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadNotifications();
       case AdminPage.sales:
         loadSales();
+        loadDeliveredSales();
       case AdminPage.gst:
         loadGst();
         if (state.storeSettings == null) loadStoreSettings();
@@ -661,6 +662,21 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       // way to tell "still loading" from "failed" — the screen just spun
       // indefinitely instead of showing what actually went wrong.
       emit(state.copyWith(salesError: e.message));
+    }
+  }
+
+  /// Loads the "Delivered sales" report for [period] (or the current tab).
+  Future<void> loadDeliveredSales([String? period]) async {
+    final p = period ?? state.deliveredSalesPeriod;
+    emit(state.copyWith(deliveredSalesPeriod: p, deliveredSalesLoading: true, clearDeliveredSalesError: true));
+    try {
+      final report = await api.reports.fetchDeliveredSales(period: p);
+      // A faster tab switch may have superseded this request.
+      if (state.deliveredSalesPeriod != p) return;
+      emit(state.copyWith(deliveredSales: report, deliveredSalesLoading: false));
+    } on ApiException catch (e) {
+      if (state.deliveredSalesPeriod != p) return;
+      emit(state.copyWith(deliveredSalesLoading: false, deliveredSalesError: e.message));
     }
   }
 

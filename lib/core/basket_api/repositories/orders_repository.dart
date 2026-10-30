@@ -45,6 +45,36 @@ class OrdersRepository {
     }
   }
 
+  /// Status + the rider's last GPS fix — polled by the live tracking map.
+  /// See `OrderViewSet.tracking`.
+  Future<ApiOrderTracking> fetchTracking(int id) async {
+    try {
+      final response = await _client.dio.get('/orders/$id/tracking/');
+      return ApiOrderTracking.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Rider app only — reports this device's position for an order that's
+  /// out for delivery. See `OrderViewSet.rider_location`.
+  Future<void> sendRiderLocation(
+    int id, {
+    required double latitude,
+    required double longitude,
+    double? heading,
+  }) async {
+    try {
+      await _client.dio.post('/orders/$id/rider_location/', data: {
+        'latitude': latitude,
+        'longitude': longitude,
+        'heading': ?heading,
+      });
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// [paymentScreenshotBytes]/[paymentScreenshotFilename] are QR checkout
   /// only — proof of the UPI payment the customer already made, uploaded
   /// to Cloudinary server-side and stored on the order for admin review

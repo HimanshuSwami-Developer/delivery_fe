@@ -37,6 +37,37 @@ class ReportsRepository {
     }
   }
 
+  /// Successfully delivered sales grouped by [period] ('daily' | 'weekly' |
+  /// 'monthly' | 'yearly'); [start]/[end] default server-side to a trailing
+  /// window per period. See `DeliveredSalesReportView`.
+  Future<DeliveredSalesReport> fetchDeliveredSales({required String period, String? start, String? end}) async {
+    try {
+      final response = await _client.dio.get('/admin/reports/sales/delivered/', queryParameters: {
+        'period': period,
+        'start': ?start,
+        'end': ?end,
+      });
+      return DeliveredSalesReport.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// .xlsx bytes of [fetchDeliveredSales] — Summary, every delivered order,
+  /// and products sold. See `DeliveredSalesExportView`.
+  Future<List<int>> fetchDeliveredSalesExcel({required String period, String? start, String? end}) async {
+    try {
+      final response = await _client.dio.get<List<int>>(
+        '/admin/reports/sales/delivered/export/',
+        queryParameters: {'period': period, 'start': ?start, 'end': ?end},
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data!;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// CSV bytes for the "⤓ Export CSV" button on the Sales reports screen —
   /// same numbers as [fetchSales], see `SalesReportExportView`.
   Future<List<int>> fetchSalesExportCsv({int months = 6}) async {
