@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
@@ -48,7 +50,10 @@ class AdminSalesView extends StatelessWidget {
 
     final monthMax = report.monthlyRevenue.isEmpty
         ? 1
-        : report.monthlyRevenue.map((m) => m.revenue).reduce((a, b) => a > b ? a : b).clamp(1, 1 << 62).toInt();
+        // Floor of 1 so a month of ₹0 can't divide by zero. (Not
+        // `.clamp(1, 1 << 62)` — on web ints are JS numbers, `1 << 62` is 0,
+        // and clamp(1, 0) throws, greying out the whole screen.)
+        : math.max(1, report.monthlyRevenue.map((m) => m.revenue).reduce((a, b) => a > b ? a : b));
     final catMax = report.topCategories.isEmpty
         ? 0
         : report.topCategories.map((c) => c.revenue).reduce((a, b) => a > b ? a : b);
