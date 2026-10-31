@@ -96,6 +96,7 @@ class BasketState extends Equatable {
     this.ordersLoading = false,
     this.currentOrder,
     this.apiCoupons = const [],
+    this.deliverySettings = ApiDeliverySettings.fallback,
     this.apiNotifications = const [],
     this.apiBanners = const [],
     this.apiFestivalSettings = const [],
@@ -263,6 +264,10 @@ class BasketState extends Equatable {
   final ApiOrder? currentOrder;
 
   final List<ApiCoupon> apiCoupons;
+
+  /// Admin-controlled delivery fee / free-delivery threshold — see
+  /// [BasketCubit.loadDeliverySettings].
+  final ApiDeliverySettings deliverySettings;
   final List<ApiNotification> apiNotifications;
 
   /// Home-carousel promo banners (`Banner.placement == 'home_carousel'`).
@@ -364,6 +369,7 @@ class BasketState extends Equatable {
     bool? ordersLoading,
     ApiOrder? currentOrder,
     List<ApiCoupon>? apiCoupons,
+    ApiDeliverySettings? deliverySettings,
     List<ApiNotification>? apiNotifications,
     List<ApiBanner>? apiBanners,
     List<ApiFestivalSetting>? apiFestivalSettings,
@@ -435,6 +441,7 @@ class BasketState extends Equatable {
       ordersLoading: ordersLoading ?? this.ordersLoading,
       currentOrder: currentOrder ?? this.currentOrder,
       apiCoupons: apiCoupons ?? this.apiCoupons,
+      deliverySettings: deliverySettings ?? this.deliverySettings,
       apiNotifications: apiNotifications ?? this.apiNotifications,
       apiBanners: apiBanners ?? this.apiBanners,
       apiFestivalSettings: apiFestivalSettings ?? this.apiFestivalSettings,
@@ -507,6 +514,7 @@ class BasketState extends Equatable {
         ordersLoading,
         currentOrder,
         apiCoupons,
+        deliverySettings,
         apiNotifications,
         apiBanners,
         apiFestivalSettings,

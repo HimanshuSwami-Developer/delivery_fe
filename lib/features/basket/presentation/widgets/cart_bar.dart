@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/free_delivery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +15,7 @@ class CartBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.select((BasketCubit c) => cartTotals(c.state));
-    final free = 'Inclusive of all taxes';
+    final free = freeDeliveryHint(t);
 
     return Material(
       color: Colors.transparent,

@@ -1,4 +1,5 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
+import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
@@ -22,6 +23,7 @@ class ProductDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     final p = context.select((BasketCubit c) => pdpProduct(c.state));
+    final delivery = context.select((BasketCubit c) => c.state.deliverySettings);
     final cartQty = context.select((BasketCubit c) => c.state.cart[p.id] ?? 0);
     final pdpQty = cartQty > 0 ? cartQty : 1;
     final wished = context.select((BasketCubit c) => c.state.wishlist.contains(p.id));
@@ -141,7 +143,7 @@ class ProductDetailView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          const Expanded(child: _InfoTile(title: 'Delivery fee', sub: '₹19 per order')),
+                          Expanded(child: _InfoTile(title: 'Delivery fee', sub: _deliveryFeeLine(delivery))),
                           const SizedBox(width: 8),
                           const Expanded(child: _InfoTile(title: 'Easy returns', sub: 'On the doorstep')),
                         ],
@@ -722,4 +724,10 @@ class _StepButton extends StatelessWidget {
       ),
     );
   }
+}
+
+String _deliveryFeeLine(ApiDeliverySettings d) {
+  if (d.deliveryFee == 0) return 'Always free';
+  if (d.freeDeliveryEnabled) return 'FREE above ${moneyLabel(d.freeDeliveryAbove)}';
+  return '${moneyLabel(d.deliveryFee)} per order';
 }

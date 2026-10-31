@@ -117,19 +117,43 @@ class BasketTotals {
     required this.discount,
     required this.total,
     required this.itemCount,
+    required this.deliveryFee,
+    required this.standardDeliveryFee,
+    required this.freeDeliveryEnabled,
+    required this.freeDeliveryAbove,
   });
 
   final int subtotal;
   final int mrpTotal;
   final int discount;
+
+  /// Items minus coupon discount, plus [deliveryFee].
   final int total;
   final int itemCount;
 
-  int get savings => mrpTotal - subtotal + discount;
+  /// What this basket is charged for delivery (0 once it's free).
+  final int deliveryFee;
 
-  /// Item price minus coupon discount, full stop — no GST or delivery fee
-  /// added on top here (those are charged server-side and appear only on
-  /// the order/invoice afterward, by design).
+  /// The admin-set flat fee, shown struck-through once delivery is free.
+  final int standardDeliveryFee;
+  final bool freeDeliveryEnabled;
+  final int freeDeliveryAbove;
+
+  bool get hasFreeDelivery => itemCount > 0 && deliveryFee == 0;
+
+  /// How much more (item total) unlocks free delivery — 0 once reached or
+  /// when there's no free-delivery offer.
+  int get amountToFreeDelivery =>
+      !freeDeliveryEnabled || subtotal >= freeDeliveryAbove ? 0 : freeDeliveryAbove - subtotal;
+
+  /// 0–1 progress toward the free-delivery threshold.
+  double get freeDeliveryProgress =>
+      !freeDeliveryEnabled || freeDeliveryAbove <= 0 ? 1 : (subtotal / freeDeliveryAbove).clamp(0.0, 1.0);
+
+  int get savings => mrpTotal - subtotal + discount + (hasFreeDelivery ? standardDeliveryFee : 0);
+
+  /// Items minus coupon discount plus delivery fee. GST is still charged
+  /// server-side and appears only on the order/invoice afterward.
   int get payable => total;
 }
 
@@ -157,13 +181,21 @@ BasketTotals cartTotals(BasketState state) {
         : (coupon.flatDiscount ?? 0);
   }
   final afterDiscount = subtotal - discount;
-  final total = afterDiscount < 0 ? 0 : afterDiscount;
+  final delivery = state.deliverySettings;
+  // Same rule (and same pre-coupon item total) as the server's
+  // `StoreSettings.delivery_fee_for`, so the fee shown is the fee charged.
+  final deliveryFee = delivery.feeFor(subtotal);
+  final total = (afterDiscount < 0 ? 0 : afterDiscount) + deliveryFee;
   return BasketTotals(
     subtotal: subtotal,
     mrpTotal: mrpTotal,
     discount: discount,
     total: total,
     itemCount: itemCount,
+    deliveryFee: deliveryFee,
+    standardDeliveryFee: delivery.deliveryFee,
+    freeDeliveryEnabled: delivery.freeDeliveryEnabled,
+    freeDeliveryAbove: delivery.freeDeliveryAbove,
   );
 }
 

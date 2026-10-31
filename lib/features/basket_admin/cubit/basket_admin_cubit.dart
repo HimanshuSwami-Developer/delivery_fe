@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/delivery_models.dart';
+import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
@@ -143,6 +144,8 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadFestivalSettings();
       case AdminPage.notifs:
         loadNotifications();
+      case AdminPage.delivery:
+        loadDeliverySettings();
       case AdminPage.sales:
         loadSales();
         loadDeliveredSales();
@@ -720,6 +723,29 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       return true;
     } on ApiException catch (e) {
       emit(state.copyWith(storeSettingsSaving: false, storeSettingsError: e.message));
+      return false;
+    }
+  }
+
+  // ── Delivery charges ────────────────────────────────────────────────
+
+  Future<void> loadDeliverySettings() async {
+    try {
+      final settings = await api.reports.fetchDeliverySettings();
+      emit(state.copyWith(deliverySettings: settings, clearDeliverySettingsError: true));
+    } on ApiException catch (e) {
+      emit(state.copyWith(deliverySettingsError: e.message));
+    }
+  }
+
+  Future<bool> saveDeliverySettings(ApiDeliverySettings settings) async {
+    emit(state.copyWith(deliverySettingsSaving: true, clearDeliverySettingsError: true));
+    try {
+      final saved = await api.reports.updateDeliverySettings(settings);
+      emit(state.copyWith(deliverySettings: saved, deliverySettingsSaving: false));
+      return true;
+    } on ApiException catch (e) {
+      emit(state.copyWith(deliverySettingsSaving: false, deliverySettingsError: e.message));
       return false;
     }
   }

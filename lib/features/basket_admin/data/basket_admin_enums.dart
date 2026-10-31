@@ -13,6 +13,7 @@ enum AdminPage {
   productNew,
   categories,
   inventory,
+  delivery,
   customers,
   partners,
   coupons,

@@ -7,6 +7,7 @@ import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/step_progress.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/free_delivery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -304,6 +305,8 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                           ? '− ${moneyLabel(t.discount)}'
                           : '—',
                     ),
+                    const SizedBox(height: 8),
+                    DeliveryFeeBillRow(t: t),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,

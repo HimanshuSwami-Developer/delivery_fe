@@ -137,6 +137,7 @@ class BasketCubit extends Cubit<BasketState> {
     loadGpsLocation();
     loadOrders();
     loadCoupons();
+    loadDeliverySettings();
     loadNotifications();
     loadBanners();
     loadFestivalSettings();
@@ -261,6 +262,16 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final coupons = await api.promotions.fetchCoupons(isActive: true);
       emit(state.copyWith(apiCoupons: coupons));
+    } catch (_) {}
+  }
+
+  /// Admin-set delivery fee / free-delivery threshold. Also re-fetched
+  /// whenever the cart opens, so a change in the admin console shows up
+  /// without an app restart.
+  Future<void> loadDeliverySettings() async {
+    try {
+      final settings = await api.orders.fetchDeliverySettings();
+      emit(state.copyWith(deliverySettings: settings));
     } catch (_) {}
   }
 

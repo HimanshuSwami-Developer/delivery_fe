@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/screens/admin_delivery_settings_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_banners_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_categories_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_coupons_view.dart';
@@ -138,6 +139,7 @@ class _AdminPage extends StatelessWidget {
       AdminPage.productNew => const AdminProductNewView(),
       AdminPage.categories => const AdminCategoriesView(),
       AdminPage.inventory => const AdminInventoryView(),
+      AdminPage.delivery => const AdminDeliverySettingsView(),
       AdminPage.customers => const AdminCustomersView(),
       AdminPage.partners => const AdminPartnersView(),
       AdminPage.coupons => const AdminCouponsView(),

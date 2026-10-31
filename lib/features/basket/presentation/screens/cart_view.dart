@@ -5,6 +5,7 @@ import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/free_delivery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,13 @@ class _CartViewState extends State<CartView> {
   late final TextEditingController _coupon = TextEditingController(
     text: context.read<BasketCubit>().state.couponInput,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    // Pick up any delivery-fee change made in the admin console since launch.
+    context.read<BasketCubit>().loadDeliverySettings();
+  }
 
   @override
   void dispose() {
@@ -227,6 +235,8 @@ class _FullCart extends StatelessWidget {
                   child: _CartItemRow(product: p, qty: cartMap[p.id] ?? 0),
                 ),
               const SizedBox(height: 7),
+              FreeDeliveryProgressCard(t: t),
+              const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(13),
                 decoration: glassCard(radius: 16),
@@ -361,6 +371,8 @@ class _FullCart extends StatelessWidget {
                           ? '− ${moneyLabel(t.discount)}'
                           : '—',
                     ),
+                    const SizedBox(height: 8),
+                    DeliveryFeeBillRow(t: t),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,

@@ -43,6 +43,7 @@ import 'package:fastswipe/features/basket/presentation/widgets/cart_bar.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/filter_sheet.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/festival_overlay.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/payment_result_popup.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/free_delivery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -174,6 +175,8 @@ class _ShoppingShell extends StatelessWidget {
           if (showCartBar) const Positioned(left: 14, right: 14, bottom: 14, child: CartBar()),
           if (sheet == ActiveSheet.filter) const FilterSheet(),
           if (sheet == ActiveSheet.cancelOrReturn) const CancelSheet(),
+          // Party-popper burst when the cart crosses into free delivery.
+          const Positioned.fill(child: FreeDeliveryCelebration()),
         ],
       ),
       bottomNavigationBar: showBottomNav ? const BasketBottomNav() : null,

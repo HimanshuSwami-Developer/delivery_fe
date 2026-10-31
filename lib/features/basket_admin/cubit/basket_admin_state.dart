@@ -75,6 +75,9 @@ class BasketAdminState extends Equatable {
     this.gstReport,
     this.gstError,
     this.storeSettings,
+    this.deliverySettings,
+    this.deliverySettingsSaving = false,
+    this.deliverySettingsError,
     this.storeSettingsSaving = false,
     this.storeSettingsError,
   });
@@ -241,6 +244,11 @@ class BasketAdminState extends Equatable {
   /// the GST screen's settings panel — see [BasketAdminCubit.loadStoreSettings]
   /// / [BasketAdminCubit.saveStoreSettings].
   final StoreGstSettings? storeSettings;
+
+  /// "Delivery charges" page — see [BasketAdminCubit.loadDeliverySettings].
+  final ApiDeliverySettings? deliverySettings;
+  final bool deliverySettingsSaving;
+  final String? deliverySettingsError;
   final bool storeSettingsSaving;
   final String? storeSettingsError;
 
@@ -320,6 +328,10 @@ class BasketAdminState extends Equatable {
     String? gstError,
     bool clearGstError = false,
     StoreGstSettings? storeSettings,
+    ApiDeliverySettings? deliverySettings,
+    bool? deliverySettingsSaving,
+    String? deliverySettingsError,
+    bool clearDeliverySettingsError = false,
     bool? storeSettingsSaving,
     String? storeSettingsError,
     bool clearStoreSettingsError = false,
@@ -386,6 +398,9 @@ class BasketAdminState extends Equatable {
       gstReport: gstReport ?? this.gstReport,
       gstError: clearGstError ? null : (gstError ?? this.gstError),
       storeSettings: storeSettings ?? this.storeSettings,
+      deliverySettings: deliverySettings ?? this.deliverySettings,
+      deliverySettingsSaving: deliverySettingsSaving ?? this.deliverySettingsSaving,
+      deliverySettingsError: clearDeliverySettingsError ? null : (deliverySettingsError ?? this.deliverySettingsError),
       storeSettingsSaving: storeSettingsSaving ?? this.storeSettingsSaving,
       storeSettingsError: clearStoreSettingsError ? null : (storeSettingsError ?? this.storeSettingsError),
     );
@@ -454,6 +469,9 @@ class BasketAdminState extends Equatable {
         gstReport,
         gstError,
         storeSettings,
+        deliverySettings,
+        deliverySettingsSaving,
+        deliverySettingsError,
         storeSettingsSaving,
         storeSettingsError,
       ];

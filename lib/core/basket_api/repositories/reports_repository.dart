@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fastswipe/core/api/api_client.dart';
 import 'package:fastswipe/core/api/api_exception.dart';
+import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/basket_api/models/report_models.dart';
 
 /// Admin-only aggregate reports, computed live server-side from real
@@ -130,6 +131,27 @@ class ReportsRepository {
     try {
       final response = await _client.dio.patch('/admin/reports/settings/', data: settings.toJson());
       return StoreGstSettings.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Delivery fee + free-delivery threshold for the "Delivery charges"
+  /// page — see `DeliverySettingsView`.
+  Future<ApiDeliverySettings> fetchDeliverySettings() async {
+    try {
+      final response = await _client.dio.get('/admin/reports/delivery-settings/');
+      return ApiDeliverySettings.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  /// Takes effect on the very next cart fetch/order — no deploy needed.
+  Future<ApiDeliverySettings> updateDeliverySettings(ApiDeliverySettings settings) async {
+    try {
+      final response = await _client.dio.patch('/admin/reports/delivery-settings/', data: settings.toJson());
+      return ApiDeliverySettings.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       throw ApiException.from(e);
     }

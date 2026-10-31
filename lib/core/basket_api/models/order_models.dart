@@ -226,3 +226,48 @@ class ApiOrderTracking {
         riderLocationUpdatedAt: ApiOrder._dt(json['rider_location_updated_at']),
       );
 }
+
+/// Mirrors `reports.serializers.DeliverySettingsSerializer` — the
+/// admin-controlled delivery fee and free-delivery threshold, served
+/// publicly at `/orders/delivery_settings/` and edited at
+/// `/admin/reports/delivery-settings/`.
+class ApiDeliverySettings {
+  const ApiDeliverySettings({
+    required this.deliveryFee,
+    required this.freeDeliveryEnabled,
+    required this.freeDeliveryAbove,
+  });
+
+  /// Used until the real settings load — matches the backend defaults.
+  static const fallback = ApiDeliverySettings(deliveryFee: 19, freeDeliveryEnabled: true, freeDeliveryAbove: 199);
+
+  final int deliveryFee;
+  final bool freeDeliveryEnabled;
+  final int freeDeliveryAbove;
+
+  /// Same rule as `StoreSettings.delivery_fee_for` server-side.
+  int feeFor(int itemTotal) {
+    if (itemTotal <= 0) return 0;
+    if (freeDeliveryEnabled && itemTotal >= freeDeliveryAbove) return 0;
+    return deliveryFee;
+  }
+
+  ApiDeliverySettings copyWith({int? deliveryFee, bool? freeDeliveryEnabled, int? freeDeliveryAbove}) =>
+      ApiDeliverySettings(
+        deliveryFee: deliveryFee ?? this.deliveryFee,
+        freeDeliveryEnabled: freeDeliveryEnabled ?? this.freeDeliveryEnabled,
+        freeDeliveryAbove: freeDeliveryAbove ?? this.freeDeliveryAbove,
+      );
+
+  factory ApiDeliverySettings.fromJson(Map<String, dynamic> json) => ApiDeliverySettings(
+        deliveryFee: json['delivery_fee'] as int,
+        freeDeliveryEnabled: json['free_delivery_enabled'] as bool? ?? true,
+        freeDeliveryAbove: json['free_delivery_above'] as int,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'delivery_fee': deliveryFee,
+        'free_delivery_enabled': freeDeliveryEnabled,
+        'free_delivery_above': freeDeliveryAbove,
+      };
+}

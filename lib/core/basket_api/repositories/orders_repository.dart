@@ -36,6 +36,17 @@ class OrdersRepository {
     }
   }
 
+  /// Admin-set delivery fee + free-delivery threshold — public, see
+  /// `OrderViewSet.delivery_settings`.
+  Future<ApiDeliverySettings> fetchDeliverySettings() async {
+    try {
+      final response = await _client.dio.get('/orders/delivery_settings/');
+      return ApiDeliverySettings.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<ApiOrder> fetchOrder(int id) async {
     try {
       final response = await _client.dio.get('/orders/$id/');
