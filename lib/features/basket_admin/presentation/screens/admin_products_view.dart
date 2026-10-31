@@ -39,13 +39,10 @@ class AdminProductsView extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: AdminSpace.xs,
-                  runSpacing: AdminSpace.xs,
-                  children: [
-                    AdminPillButton(label: 'All', selected: catTab == 'All', onTap: () => cubit.setCatTab('All')),
-                    for (final c in categories) AdminPillButton(label: c.name, selected: catTab == c.key, onTap: () => cubit.setCatTab(c.key)),
-                  ],
+                child: AdminPillTabs<String>(
+                  tabs: [('All', 'All'), for (final c in categories) (c.key, c.name)],
+                  selected: catTab,
+                  onSelected: cubit.setCatTab,
                 ),
               ),
               const SizedBox(width: AdminSpace.xs),

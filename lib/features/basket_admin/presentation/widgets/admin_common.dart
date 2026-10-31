@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,18 +28,20 @@ class AdminResponsiveGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final maxWidth = constraints.maxWidth;
-      var cols = ((maxWidth + spacing) / (minTileWidth + spacing)).floor();
-      if (cols < 1) cols = 1;
-      if (cols > children.length) cols = children.length;
-      final tileWidth = (maxWidth - spacing * (cols - 1)) / cols;
-      return Wrap(
-        spacing: spacing,
-        runSpacing: runSpacing,
-        children: [for (final c in children) SizedBox(width: tileWidth, child: c)],
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        var cols = ((maxWidth + spacing) / (minTileWidth + spacing)).floor();
+        if (cols < 1) cols = 1;
+        if (cols > children.length) cols = children.length;
+        final tileWidth = (maxWidth - spacing * (cols - 1)) / cols;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: runSpacing,
+          children: [for (final c in children) SizedBox(width: tileWidth, child: c)],
+        );
+      },
+    );
   }
 }
 
@@ -46,12 +49,7 @@ class AdminResponsiveGrid extends StatelessWidget {
 /// the source design's `grid-template-columns: 1.1fr 1.5fr ...` tables —
 /// every data table/header row in the console is built from this.
 class AdminGridRow extends StatelessWidget {
-  const AdminGridRow({
-    super.key,
-    required this.flex,
-    required this.children,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-  });
+  const AdminGridRow({super.key, required this.flex, required this.children, this.crossAxisAlignment = CrossAxisAlignment.center});
 
   final List<double> flex;
   final List<Widget> children;
@@ -63,21 +61,13 @@ class AdminGridRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: crossAxisAlignment,
       children: [
-        for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) const SizedBox(width: 12),
-          Expanded(flex: (flex[i] * 100).round(), child: children[i]),
-        ],
+        for (var i = 0; i < children.length; i++) ...[if (i > 0) const SizedBox(width: 12), Expanded(flex: (flex[i] * 100).round(), child: children[i])],
       ],
     );
   }
 }
 
-TextStyle _tableHeaderStyle() => GoogleFonts.manrope(
-      fontSize: 10.5,
-      fontWeight: FontWeight.w700,
-      color: AdminColors.faint,
-      letterSpacing: 0.6,
-    );
+TextStyle _tableHeaderStyle() => GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w700, color: AdminColors.faint, letterSpacing: 0.6);
 
 /// A table header row: uppercase, faint, bottom-bordered — matches every
 /// data table's header in the source design.
@@ -148,6 +138,7 @@ class AdminIconActionButton extends StatelessWidget {
   const AdminIconActionButton({super.key, required this.icon, required this.onTap, this.color = AdminColors.faint, this.size = 32});
 
   final IconData icon;
+
   /// Nullable like any other Material button's `onPressed` — pass null to
   /// render it disabled (e.g. while a modal is submitting) instead of just
   /// swapping in a no-op that would still show tap feedback.
@@ -187,8 +178,15 @@ class AdminChipBadge extends StatelessWidget {
     final s = adminChipStyle(label);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: AdminSpace.xxs),
-      decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(AdminRadius.pill)),
-      child: Text(label, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: s.fg)),
+      decoration: BoxDecoration(
+        color: s.bg,
+        border: Border.all(color: s.border),
+        borderRadius: BorderRadius.circular(AdminRadius.pill),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: s.fg),
+      ),
     );
   }
 }
@@ -211,9 +209,56 @@ class AdminPillButton extends StatelessWidget {
       child: Container(
         height: 32,
         padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(AdminRadius.pill)),
-        child: Text(label, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: s.fg)),
+        decoration: BoxDecoration(
+          color: s.bg,
+          border: Border.all(color: s.border),
+          borderRadius: BorderRadius.circular(AdminRadius.pill),
+        ),
+        // `widthFactor: 1` keeps the pill hugging its label — a plain
+        // `alignment`/`Center` would stretch it to the full width of a
+        // Wrap/Column, turning every tab into a full-width bar.
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            label,
+            style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: s.fg),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A single-row, horizontally scrolling strip of [AdminPillButton] tabs —
+/// for filter sets that can grow long (category tabs, order statuses), so
+/// they never wrap into a tall block of pills above the table.
+class AdminPillTabs<T> extends StatelessWidget {
+  const AdminPillTabs({super.key, required this.tabs, required this.selected, required this.onSelected});
+
+  /// (value, label) per tab, in order.
+  final List<(T, String)> tabs;
+  final T selected;
+  final ValueChanged<T> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 32,
+      // Mouse drag too (not just touch/trackpad) — the console runs mostly
+      // on desktop web, where a wheel-only horizontal list is awkward.
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(
+          context,
+        ).copyWith(dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad, PointerDeviceKind.stylus}),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: tabs.length,
+          separatorBuilder: (_, _) => const SizedBox(width: AdminSpace.xs),
+          itemBuilder: (_, i) {
+            final (value, label) = tabs[i];
+            return AdminPillButton(label: label, selected: value == selected, onTap: () => onSelected(value));
+          },
+        ),
       ),
     );
   }
@@ -222,15 +267,7 @@ class AdminPillButton extends StatelessWidget {
 /// Dashboard-style stat tile with a label, a colored delta chip, a big
 /// value, and a sub-line — used for the 4 KPI cards on the dashboard.
 class AdminKpiCard extends StatelessWidget {
-  const AdminKpiCard({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.sub,
-    required this.delta,
-    required this.chipBg,
-    required this.chipFg,
-  });
+  const AdminKpiCard({super.key, required this.label, required this.value, required this.sub, required this.delta, required this.chipBg, required this.chipFg});
 
   final String label;
   final String value;
@@ -259,14 +296,23 @@ class AdminKpiCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: chipBg, borderRadius: BorderRadius.circular(AdminRadius.pill)),
-                child: Text(delta, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: chipFg)),
+                child: Text(
+                  delta,
+                  style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: chipFg),
+                ),
               ),
             ],
           ),
           const SizedBox(height: AdminSpace.sm),
-          Text(value, style: GoogleFonts.manrope(fontSize: 27, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink)),
+          Text(
+            value,
+            style: GoogleFonts.manrope(fontSize: 27, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink),
+          ),
           const SizedBox(height: AdminSpace.xxs),
-          Text(sub, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+          Text(
+            sub,
+            style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
+          ),
         ],
       ),
     );
@@ -295,9 +341,15 @@ class AdminStatCard extends StatelessWidget {
             style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
           ),
           const SizedBox(height: AdminSpace.sm),
-          Text(value, style: GoogleFonts.manrope(fontSize: 25, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink)),
+          Text(
+            value,
+            style: GoogleFonts.manrope(fontSize: 25, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink),
+          ),
           const SizedBox(height: AdminSpace.xxs),
-          Text(sub, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+          Text(
+            sub,
+            style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
+          ),
         ],
       ),
     );
@@ -325,11 +377,12 @@ class AdminToggle extends StatelessWidget {
         height: height,
         padding: const EdgeInsets.all(2),
         alignment: on ? Alignment.centerRight : Alignment.centerLeft,
-        decoration: BoxDecoration(
-          color: on ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(99),
+        decoration: BoxDecoration(color: on ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(99)),
+        child: Container(
+          width: knob,
+          height: knob,
+          decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle),
         ),
-        child: Container(width: knob, height: knob, decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle)),
       ),
     );
   }
@@ -352,7 +405,10 @@ class AdminMiniStat extends StatelessWidget {
           style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
         ),
         const SizedBox(height: 5),
-        Text(value, style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: AdminColors.ink)),
+        Text(
+          value,
+          style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: AdminColors.ink),
+        ),
       ],
     );
   }
@@ -398,7 +454,10 @@ class AdminSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: GoogleFonts.manrope(fontSize: size, fontWeight: FontWeight.w800, color: AdminColors.ink));
+    return Text(
+      text,
+      style: GoogleFonts.manrope(fontSize: size, fontWeight: FontWeight.w800, color: AdminColors.ink),
+    );
   }
 }
 
@@ -451,14 +510,7 @@ class AdminEditField extends StatelessWidget {
 /// A labeled dropdown in the same shape as [AdminEditField], for form
 /// fields that pick from a fixed set (vehicle, status) instead of free text.
 class AdminEditDropdown<T> extends StatelessWidget {
-  const AdminEditDropdown({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.items,
-    required this.itemLabel,
-    required this.onChanged,
-  });
+  const AdminEditDropdown({super.key, required this.label, required this.value, required this.items, required this.itemLabel, required this.onChanged});
 
   final String label;
   final T? value;
@@ -557,7 +609,10 @@ class AdminFormModal extends StatelessWidget {
                           children: [
                             Text(title, style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                             const SizedBox(height: AdminSpace.xxs),
-                            Text(subtitle, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+                            Text(
+                              subtitle,
+                              style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted),
+                            ),
                           ],
                         ),
                       ),
@@ -577,34 +632,28 @@ class AdminFormModal extends StatelessWidget {
                     child: ListView(
                       shrinkWrap: true,
                       padding: EdgeInsets.zero,
-                      children: [for (var i = 0; i < fields.length; i++) ...[if (i > 0) const SizedBox(height: AdminSpace.md), fields[i]]],
+                      children: [
+                        for (var i = 0; i < fields.length; i++) ...[if (i > 0) const SizedBox(height: AdminSpace.md), fields[i]],
+                      ],
                     ),
                   ),
                   if (error != null) ...[
                     const SizedBox(height: AdminSpace.sm),
-                    Text(error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error)),
+                    Text(
+                      error!,
+                      style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error),
+                    ),
                   ],
                   const SizedBox(height: AdminSpace.xl),
                   Row(
                     children: [
                       Expanded(
-                        child: AdminButton.secondary(
-                          label: 'Cancel',
-                          size: AdminButtonSize.large,
-                          expand: true,
-                          onPressed: loading ? null : onCancel,
-                        ),
+                        child: AdminButton.secondary(label: 'Cancel', size: AdminButtonSize.large, expand: true, onPressed: loading ? null : onCancel),
                       ),
                       const SizedBox(width: AdminSpace.sm),
                       Expanded(
                         flex: 2,
-                        child: AdminButton(
-                          label: submitLabel,
-                          size: AdminButtonSize.large,
-                          expand: true,
-                          loading: loading,
-                          onPressed: onSubmit,
-                        ),
+                        child: AdminButton(label: submitLabel, size: AdminButtonSize.large, expand: true, loading: loading, onPressed: onSubmit),
                       ),
                     ],
                   ),

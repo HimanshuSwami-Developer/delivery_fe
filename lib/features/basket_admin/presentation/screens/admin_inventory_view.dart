@@ -80,16 +80,12 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
           const SizedBox(height: AdminSpace.section),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: AdminSpace.xs,
-                  runSpacing: AdminSpace.xs,
-                  children: [
-                    AdminPillButton(label: 'All', selected: catTab == 'All', onTap: () => cubit.setStockCatTab('All')),
-                    for (final c in categories) AdminPillButton(label: c.name, selected: catTab == c.key, onTap: () => cubit.setStockCatTab(c.key)),
-                  ],
+                child: AdminPillTabs<String>(
+                  tabs: [('All', 'All'), for (final c in categories) (c.key, c.name)],
+                  selected: catTab,
+                  onSelected: cubit.setStockCatTab,
                 ),
               ),
               const SizedBox(width: AdminSpace.xs),

@@ -33,12 +33,10 @@ class AdminOrdersView extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: AdminSpace.xs,
-                  runSpacing: AdminSpace.xs,
-                  children: [
-                    for (final s in _kStatusTabs) AdminPillButton(label: s, selected: status == s, onTap: () => cubit.setStatus(s)),
-                  ],
+                child: AdminPillTabs<String>(
+                  tabs: [for (final s in _kStatusTabs) (s, s)],
+                  selected: status,
+                  onSelected: cubit.setStatus,
                 ),
               ),
               const SizedBox(width: AdminSpace.xs),
