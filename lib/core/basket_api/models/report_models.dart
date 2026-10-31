@@ -204,19 +204,24 @@ class GstReport {
 /// seller's own GST profile, editable from the admin console's GST
 /// settings panel and printed on every generated invoice/GSTR-3B summary.
 class StoreGstSettings {
-  const StoreGstSettings({required this.businessName, required this.address, required this.gstin});
+  const StoreGstSettings({required this.businessName, required this.address, required this.gstin, this.invoicePrefix = 'LTC'});
 
   final String businessName;
   final String address;
   final String gstin;
 
+  /// Invoice series prefix — invoices are numbered `<prefix>/<FY>/0001`.
+  final String invoicePrefix;
+
   factory StoreGstSettings.fromJson(Map<String, dynamic> json) => StoreGstSettings(
         businessName: json['business_name'] as String? ?? '',
         address: json['address'] as String? ?? '',
         gstin: json['gstin'] as String? ?? '',
+        invoicePrefix: json['invoice_prefix'] as String? ?? 'LTC',
       );
 
-  Map<String, dynamic> toJson() => {'business_name': businessName, 'address': address, 'gstin': gstin};
+  Map<String, dynamic> toJson() =>
+      {'business_name': businessName, 'address': address, 'gstin': gstin, 'invoice_prefix': invoicePrefix};
 }
 
 /// Mirrors `accounts.views.AdminCustomerListView`'s JSON.

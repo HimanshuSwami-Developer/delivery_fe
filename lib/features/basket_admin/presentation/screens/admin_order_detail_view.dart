@@ -66,7 +66,12 @@ class AdminOrderDetailView extends StatelessWidget {
                               children: [
                                 Text(order.orderNumber, style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                                 const SizedBox(height: AdminSpace.xxs),
-                                Text('${_timeOf(order.createdAt)} · ${order.paymentMode.toUpperCase()}',
+                                Text(
+                                    [
+                                      _timeOf(order.createdAt),
+                                      order.paymentMode.toUpperCase(),
+                                      if (order.invoiceNumber != null) 'Invoice ${order.invoiceNumber}',
+                                    ].join(' · '),
                                     style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                               ],
                             ),

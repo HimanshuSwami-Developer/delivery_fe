@@ -80,6 +80,7 @@ class ApiOrder {
   const ApiOrder({
     required this.id,
     required this.orderNumber,
+    this.invoiceNumber,
     required this.status,
     required this.paymentMode,
     required this.itemCount,
@@ -118,6 +119,10 @@ class ApiOrder {
 
   final int id;
   final String orderNumber;
+
+  /// GST invoice number, e.g. LTC/26-27/0001 — null on orders placed
+  /// before the invoice series existed.
+  final String? invoiceNumber;
 
   /// 'new' | 'packed' | 'out_for_delivery' | 'delivered' | 'cancelled'
   final String status;
@@ -173,6 +178,7 @@ class ApiOrder {
   factory ApiOrder.fromJson(Map<String, dynamic> json) => ApiOrder(
         id: json['id'] as int,
         orderNumber: json['order_number'] as String,
+        invoiceNumber: json['invoice_number'] as String?,
         status: json['status'] as String,
         paymentMode: json['payment_mode'] as String,
         itemCount: json['item_count'] as int? ?? 0,

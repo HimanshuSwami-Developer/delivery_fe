@@ -186,6 +186,7 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
   final _nameCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _gstinCtrl = TextEditingController();
+  final _prefixCtrl = TextEditingController();
   StoreGstSettings? _synced;
 
   @override
@@ -206,6 +207,7 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
     _nameCtrl.text = settings.businessName;
     _addressCtrl.text = settings.address;
     _gstinCtrl.text = settings.gstin;
+    _prefixCtrl.text = settings.invoicePrefix;
   }
 
   @override
@@ -213,12 +215,18 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
     _nameCtrl.dispose();
     _addressCtrl.dispose();
     _gstinCtrl.dispose();
+    _prefixCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
     final ok = await widget.onSave(
-      StoreGstSettings(businessName: _nameCtrl.text.trim(), address: _addressCtrl.text.trim(), gstin: _gstinCtrl.text.trim()),
+      StoreGstSettings(
+        businessName: _nameCtrl.text.trim(),
+        address: _addressCtrl.text.trim(),
+        gstin: _gstinCtrl.text.trim().toUpperCase(),
+        invoicePrefix: _prefixCtrl.text.trim().toUpperCase(),
+      ),
     );
     if (ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GST settings saved.')));
@@ -235,7 +243,8 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
         children: [
           const AdminSectionTitle('GST settings'),
           const SizedBox(height: AdminSpace.xxs),
-          Text('Printed on every invoice, GSTR-1 and GSTR-3B export — editing these takes effect immediately.',
+          Text('Printed on every invoice, GSTR-1 and GSTR-3B export — editing these takes effect immediately. '
+              'Invoices are numbered <prefix>/<financial year>/0001, e.g. LTC/26-27/0001, restarting every April.',
               style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
           const SizedBox(height: AdminSpace.md),
           LayoutBuilder(builder: (context, constraints) {
@@ -244,6 +253,7 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
               _field('Business name', _nameCtrl),
               _field('GSTIN', _gstinCtrl),
               _field('Address', _addressCtrl, maxLines: 2),
+              _field('Invoice prefix', _prefixCtrl),
             ];
             if (narrow) {
               return Column(children: [for (final f in fields) Padding(padding: const EdgeInsets.only(bottom: AdminSpace.sm), child: f)]);
@@ -256,6 +266,8 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
                 Expanded(child: fields[1]),
                 const SizedBox(width: AdminSpace.sm),
                 Expanded(flex: 2, child: fields[2]),
+                const SizedBox(width: AdminSpace.sm),
+                Expanded(child: fields[3]),
               ],
             );
           }),
