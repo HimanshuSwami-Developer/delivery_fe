@@ -4,6 +4,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,12 +28,12 @@ class FreeDeliveryProgressCard extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(BasketSpace.sm),
       decoration: BoxDecoration(
-        color: unlocked ? _green.withValues(alpha: 0.1) : _cream,
-        borderRadius: BorderRadius.circular(16),
+        color: unlocked ? _green.withValues(alpha: 0.1) : BasketSurface.card,
+        borderRadius: BorderRadius.circular(BasketRadius.md),
         border: Border.all(
-          color: unlocked ? _green.withValues(alpha: 0.45) : BasketColors.ink.withValues(alpha: 0.1),
+          color: unlocked ? _green.withValues(alpha: 0.45) : BasketSurface.border,
         ),
       ),
       child: Column(
@@ -52,7 +53,7 @@ class FreeDeliveryProgressCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 22),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
@@ -79,9 +80,9 @@ class FreeDeliveryProgressCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: BasketSpace.sm),
           ClipRRect(
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(BasketRadius.sm),
             child: TweenAnimationBuilder<double>(
               tween: Tween(end: t.freeDeliveryProgress),
               duration: const Duration(milliseconds: 600),
@@ -94,7 +95,7 @@ class FreeDeliveryProgressCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: BasketSpace.xs),
           Text(
             unlocked
                 ? 'You saved ${moneyLabel(t.standardDeliveryFee)} on delivery'
@@ -131,7 +132,7 @@ class DeliveryFeeBillRow extends StatelessWidget {
                       moneyLabel(t.standardDeliveryFee),
                       style: label.copyWith(decoration: TextDecoration.lineThrough, color: BasketColors.faint),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: BasketSpace.xxs),
                     Text('FREE', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: _green)),
                   ],
                 )

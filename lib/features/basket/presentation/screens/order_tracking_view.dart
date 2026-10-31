@@ -7,6 +7,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/app_map.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const _cream = Color(0xFFFFFBF2);
@@ -61,6 +63,12 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
   Timer? _pollTimer;
   ApiOrderTracking? _tracking;
   bool _polling = false;
+
+  /// False until the first poll (and the full-order refresh it triggers)
+  /// has finished — the screen shows a skeleton until then instead of a
+  /// flash of "— · 0 items" and a stale stage. Set on failure too, so a
+  /// network error falls back to whatever the cubit already has.
+  bool _firstLoadDone = false;
 
   // ── Route state ──
   // The path the rider marker travels along. Before pickup it's the road
@@ -182,7 +190,10 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
     if (_polling) return;
     final cubit = context.read<BasketCubit>();
     final id = cubit.state.currentOrder?.id;
-    if (id == null) return;
+    if (id == null) {
+      if (!_firstLoadDone) setState(() => _firstLoadDone = true);
+      return;
+    }
     _polling = true;
     try {
       final tracking = await cubit.api.orders.fetchTracking(id);
@@ -190,17 +201,22 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
       final statusChanged =
           tracking.status != _tracking?.status ||
           tracking.deliveryPartnerId != _tracking?.deliveryPartnerId;
-      setState(() => _tracking = tracking);
       // Status moved on server-side — refresh the full order so the
-      // timeline/headline (driven by the cubit) follow.
+      // timeline/headline (driven by the cubit) follow. Awaited before
+      // the setState below so the first real frame is fully up to date.
       if (statusChanged) await cubit.refreshTracking();
       if (!mounted) return;
+      setState(() {
+        _tracking = tracking;
+        _firstLoadDone = true;
+      });
       if (tracking.status == 'delivered' || tracking.status == 'cancelled') {
         _pollTimer?.cancel();
       }
       _syncRoute();
     } catch (_) {
       // Transient — the next tick retries.
+      if (mounted && !_firstLoadDone) setState(() => _firstLoadDone = true);
     } finally {
       _polling = false;
     }
@@ -416,10 +432,10 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
   @override
   Widget build(BuildContext context) {
     final storeLocation = _storeLocation;
-    if (storeLocation == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
     final cubit = context.read<BasketCubit>();
+    if (storeLocation == null || !_firstLoadDone) {
+      return _TrackingSkeleton(onBack: cubit.back, pulse: _pulse);
+    }
     final stage = context.select((BasketCubit c) => c.state.trackingStage);
     final order = context.select((BasketCubit c) => c.state.currentOrder);
     final customerLocation = _customerLocation;
@@ -517,14 +533,14 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
           ),
         ),
         Positioned(
-          top: MediaQuery.paddingOf(context).top + 8,
-          left: 14,
-          right: 14,
+          top: MediaQuery.paddingOf(context).top + BasketSpace.xs,
+          left: BasketSpace.gutter,
+          right: BasketSpace.gutter,
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 40,
                   height: 40,
@@ -542,8 +558,8 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
           ),
         ),
         Positioned(
-          right: 14,
-          bottom: MediaQuery.sizeOf(context).height * 0.24 + 14,
+          right: BasketSpace.gutter,
+          bottom: MediaQuery.sizeOf(context).height * 0.24 + BasketSpace.md,
           child: Column(
             children: [
               if (riderAssigned && stage == 2) ...[
@@ -583,9 +599,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
               width: double.infinity,
               decoration: BoxDecoration(
                 color: _cream,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(26),
-                ),
+                borderRadius: BasketRadius.sheet,
                 boxShadow: [
                   BoxShadow(
                     color: BasketColors.ink.withValues(alpha: 0.12),
@@ -596,16 +610,21 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
               ),
               child: ListView(
                 controller: scrollController,
-                padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
+                padding: const EdgeInsets.fromLTRB(
+                  BasketSpace.gutter,
+                  BasketSpace.sm,
+                  BasketSpace.gutter,
+                  BasketSpace.lg,
+                ),
                 children: [
                   Center(
                     child: Container(
                       width: 34,
                       height: 4,
-                      margin: const EdgeInsets.only(bottom: 14),
+                      margin: const EdgeInsets.only(bottom: BasketSpace.sm),
                       decoration: BoxDecoration(
                         color: BasketColors.ink.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(9),
+                        borderRadius: BorderRadius.circular(BasketRadius.sm),
                       ),
                     ),
                   ),
@@ -619,9 +638,9 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
                       distanceLabel: _distanceLabel(stage),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: BasketSpace.sm),
                   _StageProgressBar(stage: stage),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: BasketSpace.md),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 350),
                     child: riderAssigned
@@ -632,7 +651,7 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
                           )
                         : const _AssigningRiderCard(key: ValueKey('none')),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: BasketSpace.lg),
                   for (var i = 0; i < BasketCatalog.trackingSteps.length; i++)
                     _TimelineStep(
                       title: BasketCatalog.trackingSteps[i].title,
@@ -642,53 +661,22 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
                       isLast: i == BasketCatalog.trackingSteps.length - 1,
                       pulse: _pulse,
                     ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: BasketSpace.xs),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: BasketColors.ink,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(13),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            minimumSize: Size.zero,
-                          ),
+                        child: BasketButton.secondary(
+                          label: 'Refresh status',
+                          size: BasketButtonSize.medium,
                           onPressed: _poll,
-                          child: Text(
-                            'Refresh status',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
-                              color: BasketColors.ink,
-                            ),
-                          ),
                         ),
                       ),
-                      const SizedBox(width: 9),
+                      const SizedBox(width: BasketSpace.sm),
                       Expanded(
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(13),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            minimumSize: Size.zero,
-                          ),
+                        child: BasketButton(
+                          label: 'Get help',
+                          size: BasketButtonSize.medium,
                           onPressed: cubit.goToSupport,
-                          child: Text(
-                            'Get help',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
-                              color: _cream,
-                            ),
-                          ),
                         ),
                       ),
                     ],
@@ -762,6 +750,81 @@ class _OrderTrackingViewState extends State<OrderTrackingView>
 
 // ── Sheet pieces ─────────────────────────────────────────────────────
 
+/// Loading state: the real screen's layout — map area, sheet header,
+/// progress bar, rider card, timeline — as shimmering bones (same
+/// `Skeletonizer` look as home), with a working back button.
+class _TrackingSkeleton extends StatelessWidget {
+  const _TrackingSkeleton({required this.onBack, required this.pulse});
+
+  final VoidCallback onBack;
+  final Animation<double> pulse;
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = BasketCatalog.trackingSteps;
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Skeletonizer(
+            effect: ShimmerEffect(baseColor: BasketColors.divider, highlightColor: BasketColors.surface),
+            child: Column(
+              children: [
+                const Expanded(child: Bone(width: double.infinity)),
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: _cream, borderRadius: BasketRadius.sheet),
+                  padding: EdgeInsets.fromLTRB(
+                    BasketSpace.gutter,
+                    BasketSpace.lg,
+                    BasketSpace.gutter,
+                    BasketSpace.lg + MediaQuery.paddingOf(context).bottom,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SheetHeader(stage: 0, orderLine: 'ORD-000000 · 3 items', etaMinutes: BasketCubit.etaMinutes, distanceLabel: null),
+                      const SizedBox(height: BasketSpace.sm),
+                      const _StageProgressBar(stage: 1),
+                      const SizedBox(height: BasketSpace.md),
+                      const _RiderCard(name: 'Rider name', subtitle: 'Will pick up your order shortly'),
+                      const SizedBox(height: BasketSpace.lg),
+                      for (var i = 0; i < 2; i++)
+                        _TimelineStep(
+                          title: steps[i].title,
+                          sub: steps[i].sub,
+                          done: false,
+                          current: false,
+                          isLast: i == 1,
+                          pulse: pulse,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + BasketSpace.xs,
+          left: BasketSpace.gutter,
+          child: InkWell(
+            onTap: onBack,
+            borderRadius: BorderRadius.circular(BasketRadius.pill),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(color: BasketColors.ink, shape: BoxShape.circle),
+              alignment: Alignment.center,
+              child: const Icon(Icons.arrow_back, color: _cream, size: 18),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
 class _SheetHeader extends StatelessWidget {
   const _SheetHeader({
     required this.stage,
@@ -817,7 +880,7 @@ class _SheetHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: BasketSpace.xxs),
               Text(
                 distanceLabel == null
                     ? orderLine
@@ -836,7 +899,7 @@ class _SheetHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: BasketColors.ink,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BasketRadius.card,
             ),
             child: Column(
               children: [
@@ -892,10 +955,10 @@ class _StageProgressBar extends StatelessWidget {
     return Row(
       children: [
         for (var i = 0; i < 4; i++) ...[
-          if (i > 0) const SizedBox(width: 5),
+          if (i > 0) const SizedBox(width: BasketSpace.xxs),
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(BasketRadius.sm),
               child: Container(
                 height: 5,
                 color: BasketColors.ink.withValues(alpha: 0.1),
@@ -933,22 +996,22 @@ class _RiderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(BasketSpace.sm),
+      decoration: const BoxDecoration(
         color: BasketColors.ink,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BasketRadius.card,
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(99),
+            borderRadius: BorderRadius.circular(BasketRadius.pill),
             child: const SizedBox(
               width: 42,
               height: 42,
               child: ImageSlot(shape: ImageSlotShape.circle, mini: true),
             ),
           ),
-          const SizedBox(width: 11),
+          const SizedBox(width: BasketSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -995,11 +1058,8 @@ class _AssigningRiderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.12)),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      padding: const EdgeInsets.all(BasketSpace.md),
+      decoration: basketCard(),
       child: Row(
         children: [
           const SizedBox(
@@ -1105,10 +1165,10 @@ class _TimelineStep extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: BasketSpace.sm),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 14, top: 1),
+              padding: const EdgeInsets.only(bottom: BasketSpace.sm, top: 1),
               child: Row(
                 children: [
                   Expanded(
@@ -1168,17 +1228,11 @@ class _LiveChip extends StatelessWidget {
         ? const Color(0xFF22C55E)
         : BasketColors.faint;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: _cream,
-        borderRadius: BorderRadius.circular(99),
-        boxShadow: [
-          BoxShadow(
-            color: BasketColors.ink.withValues(alpha: 0.14),
-            blurRadius: 8,
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(
+        horizontal: BasketSpace.sm,
+        vertical: BasketSpace.xs,
       ),
+      decoration: basketCard(radius: BasketRadius.pill, elevated: true),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1213,7 +1267,7 @@ class _LiveChip extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: BasketSpace.xs),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(

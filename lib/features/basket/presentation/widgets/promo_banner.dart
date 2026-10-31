@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,7 +23,7 @@ class PromoBanner extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.read<BasketCubit>().openBanner(banner),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(BasketRadius.xl),
         child: SizedBox(
           width: double.infinity,
           height: height,
@@ -47,13 +48,13 @@ class PromoBanner extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: 16,
-                right: 16,
-                bottom: 14,
+                left: BasketSpace.md,
+                right: BasketSpace.md,
+                bottom: BasketSpace.md,
                 child: Row(
                   children: [
                     Container(width: 6, height: 6, decoration: const BoxDecoration(color: BasketColors.gold, shape: BoxShape.circle)),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: BasketSpace.xs),
                     Expanded(
                       child: Text(
                         banner.title,
@@ -88,7 +89,7 @@ class PromoBannerRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: PromoBanner(banner: banners[0], height: 150)),
-        const SizedBox(width: 10),
+        const SizedBox(width: BasketSpace.sm),
         Expanded(child: PromoBanner(banner: banners[1], height: 150)),
       ],
     );

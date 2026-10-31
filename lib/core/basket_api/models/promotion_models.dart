@@ -14,6 +14,8 @@ class ApiCoupon {
     required this.usedCount,
     required this.discountGiven,
     required this.isValidNow,
+    required this.usableByMe,
+    this.unavailableReason,
   });
 
   final int id;
@@ -30,6 +32,16 @@ class ApiCoupon {
   final int discountGiven;
   final bool isValidNow;
 
+  /// Whether the signed-in customer can apply this coupon — false when it's
+  /// expired/paused, they've already used it, or it's a personal coupon
+  /// that's been redeemed. Excludes the cart-dependent minimum order (see
+  /// `couponAvailability`). Falls back to [isValidNow] on an older backend.
+  final bool usableByMe;
+
+  /// Server's short reason when [usableByMe] is false ("Already used",
+  /// "Expired", …).
+  final String? unavailableReason;
+
   factory ApiCoupon.fromJson(Map<String, dynamic> json) => ApiCoupon(
         id: json['id'] as int,
         code: json['code'] as String,
@@ -44,6 +56,8 @@ class ApiCoupon {
         usedCount: json['used_count'] as int? ?? 0,
         discountGiven: json['discount_given'] as int? ?? 0,
         isValidNow: json['is_valid_now'] as bool? ?? true,
+        usableByMe: json['usable_by_me'] as bool? ?? (json['is_valid_now'] as bool? ?? true),
+        unavailableReason: json['unavailable_reason'] as String?,
       );
 }
 

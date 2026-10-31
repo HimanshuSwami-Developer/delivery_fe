@@ -2,11 +2,44 @@ import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+const _shimmer = ShimmerEffect(
+  baseColor: BasketColors.divider,
+  highlightColor: BasketColors.surface,
+);
+
+/// Bones on the navy header — light-on-dark so they stay visible.
+final _shimmerOnDark = ShimmerEffect(
+  baseColor: Color(0xFFFFFBF2).withValues(alpha: 0.18),
+  highlightColor: Color(0xFFFFFBF2).withValues(alpha: 0.32),
+);
+
+/// Placeholder shape the skeleton is drawn from while the order loads.
+const _skeletonDetail = OrderDetail(
+  id: 'ORD-000000',
+  statusLabel: 'Out for delivery',
+  date: '31 Oct, 1:45 PM',
+  isLive: false,
+  isClosed: false,
+  returnable: false,
+  showInvoice: true,
+  items: [
+    ('Product name here', '1 kg', 1, 120),
+    ('Another product', '500 g', 2, 60),
+    ('Third product name', '1 pc', 1, 45),
+  ],
+  subtotalLabel: '₹285',
+  discountLabel: '—',
+  totalLabel: '₹285',
+  paidLabel: 'Paid · COD',
+);
 
 /// Named to avoid colliding with [OrderDetail], the selector's resolved
 /// data class this screen renders.
@@ -16,9 +49,18 @@ class OrderDetailScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
-    final detail = context.select(
+    // Opened from the orders list: until the fetched detail for *this*
+    // order lands, [currentOrder] is null or the previously opened order —
+    // show a skeleton instead of that empty/stale data.
+    final loading = context.select((BasketCubit c) {
+      final selected = c.state.selectedOrderId;
+      return selected != null &&
+          c.state.currentOrder?.id.toString() != selected;
+    });
+    final resolved = context.select(
       (BasketCubit c) => resolveOrderDetail(c.state),
     );
+    final detail = loading ? _skeletonDetail : resolved;
     final etaLeft = context.select(
       (BasketCubit c) =>
           etaLeftForStage(c.state.trackingStage, eta: BasketCubit.etaMinutes),
@@ -34,17 +76,17 @@ class OrderDetailScreenView extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
-            18,
-            MediaQuery.paddingOf(context).top + 12,
-            18,
-            16,
+            BasketSpace.gutter,
+            MediaQuery.paddingOf(context).top + BasketSpace.sm,
+            BasketSpace.gutter,
+            BasketSpace.md,
           ),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -63,351 +105,296 @@ class OrderDetailScreenView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    detail.id,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFFFFBF2),
+              const SizedBox(width: BasketSpace.xs),
+              Skeletonizer(
+                enabled: loading,
+                effect: _shimmerOnDark,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      detail.id,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFFFFBF2),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    detail.statusLabel,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
+                    const SizedBox(height: 2),
+                    Text(
+                      detail.statusLabel,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
-            children: [
-              if (detail.isLive)
-                GestureDetector(
-                  onTap: cubit.goToTrack,
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: BasketColors.ink,
-                      borderRadius: BorderRadius.circular(16),
+          child: Skeletonizer(
+            enabled: loading,
+            effect: _shimmer,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                BasketSpace.gutter,
+                BasketSpace.md,
+                BasketSpace.gutter,
+                BasketSpace.lg,
+              ),
+              children: [
+                if (detail.isLive)
+                  GestureDetector(
+                    onTap: cubit.goToTrack,
+                    child: Container(
+                      padding: const EdgeInsets.all(BasketSpace.md),
+                      decoration: BoxDecoration(
+                        color: BasketColors.ink,
+                        borderRadius: BasketRadius.card,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Live tracking',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFFFFBF2),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '$riderName · $etaLeft min away',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(
+                                    0xFFFFFBF2,
+                                  ).withValues(alpha: 0.55),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '›',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFFFFBF2),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(BasketSpace.md),
+                    decoration: basketCard(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Live tracking',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFFFFFBF2),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Order placed ${detail.date}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$riderName · $etaLeft min away',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: Color(
-                                  0xFFFFFBF2,
-                                ).withValues(alpha: 0.55),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Add the same items back to your basket',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: BasketColors.muted,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          '›',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFFFFBF2),
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: BasketSpace.sm),
+                        BasketButton(
+                          label: 'Reorder',
+                          size: BasketButtonSize.small,
+                          expand: false,
+                          onPressed: cubit.reorder,
                         ),
                       ],
                     ),
                   ),
-                )
-              else
+                const SizedBox(height: BasketSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: glassCard(radius: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  padding: const EdgeInsets.all(BasketSpace.md),
+                  decoration: basketCard(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Order placed ${detail.date}',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Add the same items back to your basket',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: BasketColors.muted,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        'Items',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                      FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: BasketColors.primary,
-                          shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 9,
+                      const SizedBox(height: BasketSpace.sm),
+                      for (final (name, pack, qty, rate) in detail.items)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: BasketSpace.xs,
                           ),
-                          minimumSize: Size.zero,
-                        ),
-                        onPressed: cubit.reorder,
-                        child: Text(
-                          'Reorder',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFFFFBF2),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  BasketRadius.md,
+                                ),
+                                child: const SizedBox(
+                                  width: 44,
+                                  height: 44,
+                                  child: ImageSlot(mini: true),
+                                ),
+                              ),
+                              const SizedBox(width: BasketSpace.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '$pack · ×$qty',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w500,
+                                        color: BasketColors.faint,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                moneyLabel(rate * qty),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: BasketSpace.section),
+                Container(
+                  padding: const EdgeInsets.all(BasketSpace.md),
+                  decoration: basketCard(),
+                  child: Column(
+                    children: [
+                      _Row(label: 'Item total', value: detail.subtotalLabel),
+                      const SizedBox(height: BasketSpace.xs),
+                      _Row(label: 'Discount', value: detail.discountLabel),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: BasketSpace.sm),
+                        child: Divider(height: 1, color: BasketSurface.border),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            detail.paidLabel,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Text(
+                            detail.totalLabel,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              const SizedBox(height: 11),
-              Container(
-                padding: const EdgeInsets.all(13),
-                decoration: glassCard(radius: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Items',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
+                if (detail.showInvoice && orderId != null) ...[
+                  const SizedBox(height: BasketSpace.section),
+                  SizedBox(
+                    width: double.infinity,
+                    child: _DownloadTile(
+                      label: 'Receipt',
+                      onTap: () => downloadOrderReceipt(
+                        context,
+                        orders: cubit.api.orders,
+                        orderId: orderId,
+                        orderNumber: detail.id,
                       ),
-                    ),
-                    const SizedBox(height: 11),
-                    for (final (name, pack, qty, rate) in detail.items)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 9),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: const SizedBox(
-                                width: 44,
-                                height: 44,
-                                child: ImageSlot(mini: true),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '$pack · ×$qty',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w500,
-                                      color: BasketColors.faint,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              moneyLabel(rate * qty),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 11),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: glassCard(radius: 16),
-                child: Column(
-                  children: [
-                    _Row(label: 'Item total', value: detail.subtotalLabel),
-                    const SizedBox(height: 8),
-                    _Row(label: 'Discount', value: detail.discountLabel),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      height: 1,
-                      color: BasketColors.ink.withValues(alpha: 0.09),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          detail.paidLabel,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        Text(
-                          detail.totalLabel,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (detail.showInvoice && orderId != null) ...[
-                const SizedBox(height: 11),
-                SizedBox(
-                  width: double.infinity,
-                  child: _DownloadTile(
-                    label: 'Receipt',
-                    onTap: () => downloadOrderReceipt(
-                      context,
-                      orders: cubit.api.orders,
-                      orderId: orderId,
-                      orderNumber: detail.id,
                     ),
                   ),
-                ),
-              ],
-              if (detail.isLive) ...[
-                const SizedBox(height: 11),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                            color: BasketColors.ink,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          minimumSize: Size.zero,
-                        ),
-                        onPressed: cubit.openCancelSheet,
-                        child: Text(
-                          'Cancel order',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: BasketColors.ink,
-                          ),
+                ],
+                if (detail.isLive) ...[
+                  const SizedBox(height: BasketSpace.section),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: BasketButton(
+                          label: 'Cancel order',
+                          variant: BasketButtonVariant.danger,
+                          size: BasketButtonSize.medium,
+                          onPressed: cubit.openCancelSheet,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 9),
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                            color: BasketColors.ink,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          minimumSize: Size.zero,
-                        ),
-                        onPressed: cubit.openReturnSheet,
-                        child: Text(
-                          'Return items',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: BasketColors.ink,
-                          ),
+                      const SizedBox(width: BasketSpace.sm),
+                      Expanded(
+                        child: BasketButton.secondary(
+                          label: 'Return items',
+                          size: BasketButtonSize.medium,
+                          onPressed: cubit.openReturnSheet,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ] else if (detail.returnable) ...[
-                const SizedBox(height: 11),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: BasketColors.ink,
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                    ),
+                    ],
+                  ),
+                ] else if (detail.returnable) ...[
+                  const SizedBox(height: BasketSpace.section),
+                  BasketButton.secondary(
+                    label: 'Return items',
+                    size: BasketButtonSize.medium,
                     onPressed: cubit.openReturnSheet,
-                    child: Text(
-                      'Return items',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: BasketColors.ink,
-                      ),
-                    ),
+                  ),
+                ],
+                const SizedBox(height: BasketSpace.xs),
+                Center(
+                  child: BasketButton.text(
+                    label: 'Need help with this order?',
+                    onPressed: cubit.goToSupport,
                   ),
                 ),
               ],
-              Center(
-                child: TextButton(
-                  onPressed: cubit.goToSupport,
-                  child: Text(
-                    'Need help with this order?',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: BasketColors.muted,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],
@@ -426,12 +413,11 @@ class _DownloadTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        decoration: BoxDecoration(
-          color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-          borderRadius: BorderRadius.circular(15),
+        padding: const EdgeInsets.symmetric(
+          horizontal: BasketSpace.md,
+          vertical: BasketSpace.sm,
         ),
+        decoration: basketCard(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

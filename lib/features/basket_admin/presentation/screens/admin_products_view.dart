@@ -3,6 +3,7 @@ import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -39,41 +40,24 @@ class AdminProductsView extends StatelessWidget {
             children: [
               Expanded(
                 child: Wrap(
-                  spacing: 9,
-                  runSpacing: 9,
+                  spacing: AdminSpace.xs,
+                  runSpacing: AdminSpace.xs,
                   children: [
                     AdminPillButton(label: 'All', selected: catTab == 'All', onTap: () => cubit.setCatTab('All')),
                     for (final c in categories) AdminPillButton(label: c.name, selected: catTab == c.key, onTap: () => cubit.setCatTab(c.key)),
                   ],
                 ),
               ),
-              const SizedBox(width: 9),
-              OutlinedButton(
-                onPressed: cubit.goCategories,
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: Color(0xFFFFFBF2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('Manage categories', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-              ),
-              const SizedBox(width: 9),
-              FilledButton(
-                onPressed: cubit.goProductNew,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('+ Add product', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-              ),
+              const SizedBox(width: AdminSpace.xs),
+              AdminButton.secondary(label: 'Manage categories', onPressed: cubit.goCategories),
+              const SizedBox(width: AdminSpace.xs),
+              AdminButton(label: '+ Add product', onPressed: cubit.goProductNew),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           Container(
-            padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
-            decoration: adminGlassCard(),
+            clipBehavior: Clip.antiAlias,
+            decoration: adminCard(),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(
@@ -83,7 +67,7 @@ class AdminProductsView extends StatelessWidget {
                     const AdminTableHeader(flex: _kFlex, labels: ['Product', 'Category', 'SKU', 'MRP', 'Price', 'Status', '']),
                     if (rows.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.lg),
                         child: Text('No products in this category yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                       ),
                     for (final p in rows)
@@ -128,8 +112,8 @@ class _ProductRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            const SizedBox(width: 38, height: 38, child: ImageSlot(shape: ImageSlotShape.rounded, radius: 10, mini: true)),
-            const SizedBox(width: 11),
+            const SizedBox(width: 38, height: 38, child: ImageSlot(shape: ImageSlotShape.rounded, radius: AdminRadius.sm, mini: true)),
+            const SizedBox(width: AdminSpace.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +129,7 @@ class _ProductRow extends StatelessWidget {
                             style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),
                       ),
                       if (p.isOutOfStock) ...[
-                        const SizedBox(width: 6),
+                        const SizedBox(width: AdminSpace.xs),
                         AdminChipBadge('Out of stock'),
                       ],
                     ],
@@ -174,7 +158,7 @@ class _ProductRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AdminToggle(on: p.isActive, onTap: onToggleActive),
-                  const SizedBox(width: 7),
+                  const SizedBox(width: AdminSpace.xs),
                   Text(p.isActive ? 'Live' : 'Paused',
                       style: GoogleFonts.manrope(
                           fontSize: 11.5, fontWeight: FontWeight.w700, color: p.isActive ? AdminColors.ink : AdminColors.faint)),
@@ -187,8 +171,8 @@ class _ProductRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AdminIconActionButton(icon: Icons.edit_outlined, onTap: onEdit),
-            const SizedBox(width: 8),
-            AdminIconActionButton(icon: Icons.delete_outline, onTap: onDelete, color: const Color(0xFFC0392B)),
+            const SizedBox(width: AdminSpace.xs),
+            AdminIconActionButton(icon: Icons.delete_outline, onTap: onDelete, color: AdminSurface.error),
           ],
         ),
       ],
@@ -213,14 +197,8 @@ Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiPro
       title: Text('Delete "${p.name}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
       content: Text('SKU ${p.sku} — this can\'t be undone.', style: GoogleFonts.manrope(fontSize: 13)),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
-        ),
+        AdminButton.secondary(label: 'Cancel', onPressed: () => Navigator.of(dialogContext).pop(false)),
+        AdminButton(label: 'Delete', variant: AdminButtonVariant.danger, onPressed: () => Navigator.of(dialogContext).pop(true)),
       ],
     ),
   );

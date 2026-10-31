@@ -1,4 +1,5 @@
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,21 +61,21 @@ class _BrandPanel extends StatelessWidget {
           Row(
             children: [
               Text('Aapno Bazar', style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-              const SizedBox(width: 10),
+              const SizedBox(width: AdminSpace.sm),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
+                padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.xxs),
+                decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(AdminRadius.pill)),
                 child: Text('ADMIN', style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w700, color: AdminColors.ink, letterSpacing: 1.6)),
               ),
             ],
           ),
-          SizedBox(height: compact ? 24 : 0),
+          SizedBox(height: compact ? AdminSpace.xl : 0),
           if (!compact) const Spacer(),
           Text(
             'Every store,\nevery order,\none console.',
             style: GoogleFonts.manrope(fontSize: compact ? 30 : 44, fontWeight: FontWeight.w800, height: 1.15, color: Color(0xFFFFFBF2), letterSpacing: -1.2),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: AdminSpace.md),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Text(
@@ -82,10 +83,10 @@ class _BrandPanel extends StatelessWidget {
               style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w500, height: 1.6, color: Color(0xFFFFFBF2).withValues(alpha: 0.5)),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AdminSpace.xxl),
           const Wrap(
-            spacing: 34,
-            runSpacing: 18,
+            spacing: AdminSpace.xxl,
+            runSpacing: AdminSpace.md,
             children: [
               _BrandStat(value: '24×7', label: 'Fast delivery'),
               _BrandStat(value: '5,142', label: 'SKUs'),
@@ -109,7 +110,7 @@ class _BrandStat extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: GoogleFonts.manrope(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-        const SizedBox(height: 5),
+        const SizedBox(height: AdminSpace.xxs),
         Text(
           label.toUpperCase(),
           style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.45), letterSpacing: 0.6),
@@ -147,18 +148,18 @@ class _SignInPanelState extends State<_SignInPanel> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AdminSpace.xxl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Sign in', style: GoogleFonts.manrope(fontSize: 27, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: AdminColors.ink)),
-            const SizedBox(height: 8),
+            const SizedBox(height: AdminSpace.xs),
             Text(
               otpSent ? 'Enter your admin access code' : 'Use your Basket operations mobile number',
               style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: AdminSpace.xxl),
             if (!otpSent)
               _AdminTextField(
                 label: 'Work mobile number',
@@ -182,41 +183,28 @@ class _SignInPanelState extends State<_SignInPanel> {
                     onChanged: cubit.setOtpCode,
                     onSubmitted: (_) => cubit.verifyOtp(),
                   ),
-                  const SizedBox(height: 10),
-                  TextButton(
+                  const SizedBox(height: AdminSpace.xs),
+                  AdminButton(
+                    label: 'Change number',
+                    variant: AdminButtonVariant.text,
+                    size: AdminButtonSize.small,
                     onPressed: loading ? null : cubit.editMobileNumber,
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    child: Text('Change number', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   ),
                 ],
               ),
             if (error != null) ...[
-              const SizedBox(height: 14),
-              Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+              const SizedBox(height: AdminSpace.sm),
+              Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error)),
             ],
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: loading ? null : (otpSent ? cubit.verifyOtp : cubit.sendOtp),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                ),
-                child: loading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                      )
-                    : Text(
-                        otpSent ? 'Verify & sign in' : 'Continue',
-                        style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                      ),
-              ),
+            const SizedBox(height: AdminSpace.xl),
+            AdminButton(
+              label: otpSent ? 'Verify & sign in' : 'Continue',
+              size: AdminButtonSize.large,
+              expand: true,
+              loading: loading,
+              onPressed: otpSent ? cubit.verifyOtp : cubit.sendOtp,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AdminSpace.md),
             Text(
               'Access is scoped by role — only accounts marked as admin get past the code.',
               style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.6, color: AdminColors.faint),
@@ -249,41 +237,23 @@ class _AdminTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(13)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              label.toUpperCase(),
-              style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
-            ),
-          ),
-          TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            enabled: enabled,
-            onChanged: onChanged,
-            onSubmitted: onSubmitted,
-            autofocus: true,
-            style: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
-            decoration: InputDecoration(
-              isDense: true,
-              filled: false,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 5),
-              hintText: hint,
-              hintStyle: GoogleFonts.manrope(fontSize: 14.5, fontWeight: FontWeight.w700, color: AdminColors.faint),
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AdminFieldLabel(label),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          enabled: enabled,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          autofocus: true,
+          cursorColor: AdminColors.ink,
+          style: adminInputText(),
+          decoration: adminInputDecoration(hintText: hint, enabled: enabled),
+        ),
+      ],
     );
   }
 }

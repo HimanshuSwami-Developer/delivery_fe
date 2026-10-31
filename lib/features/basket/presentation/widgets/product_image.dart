@@ -1,4 +1,5 @@
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// every screen with a product grid/list/detail (home, category browse,
 /// search, cart, product detail).
 class ProductImage extends StatelessWidget {
-  const ProductImage({super.key, required this.height, this.imageUrl = '', this.discountPct = 0, this.radius = 14});
+  const ProductImage({super.key, required this.height, this.imageUrl = '', this.discountPct = 0, this.radius = BasketRadius.md});
 
   final double height;
   final String imageUrl;
@@ -43,11 +44,11 @@ class ProductImage extends StatelessWidget {
                 ),
               if (discountPct > 0)
                 Positioned(
-                  left: 6,
-                  top: 6,
+                  left: BasketSpace.xs,
+                  top: BasketSpace.xs,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: const BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.all(Radius.circular(99))),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: 3),
+                    decoration: const BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.all(Radius.circular(BasketRadius.pill))),
                     child: Text(
                       '$discountPct% OFF',
                       style: GoogleFonts.plusJakartaSans(fontSize: 8.5, fontWeight: FontWeight.w800, color: BasketColors.primary),
@@ -62,7 +63,7 @@ class ProductImage extends StatelessWidget {
   }
 }
 
-/// Small rounded-square version for compact rows/lists (subcategory rail,
+/// Small rounded-square (12px corners) version for compact rows/lists (subcategory rail,
 /// last-order card, cart/wishlist/search rows) where the discount badge
 /// doesn't fit. Shows the real photo via [imageUrl] when there is one.
 class ProductImageMini extends StatelessWidget {
@@ -77,13 +78,13 @@ class ProductImageMini extends StatelessWidget {
     final placeholder = Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(size * 0.28)),
+      decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(BasketRadius.md)),
       alignment: Alignment.center,
       child: Icon(icon, size: size * 0.44, color: BasketColors.faint),
     );
     if (imageUrl.isEmpty) return placeholder;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(size * 0.28),
+      borderRadius: BorderRadius.circular(BasketRadius.md),
       child: Image.network(
         imageUrl,
         width: size,

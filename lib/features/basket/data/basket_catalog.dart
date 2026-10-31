@@ -441,30 +441,28 @@ class BasketCatalog {
     ),
   };
 
+  /// Order matters — `OnboardingView` pairs each index with its animated
+  /// illustration (scooter, basket, coupon, live map).
   static const onboarding = <OnboardSlide>[
     OnboardSlide(
-      badge: 'Fresh from the mandi',
-      title: 'Your neighbourhood bazar, now in your pocket',
-      body:
-          'Handpicked fruits, vegetables and daily staples sourced every morning from local sellers you already trust.',
-      slotLabel: 'Onboarding illustration 1',
-      icon: Icons.eco_rounded,
+      title: 'Groceries delivered in minutes',
+      body: 'Fruits, vegetables, dairy and daily essentials brought to your door, fast.',
+      tint: Color(0xFFFFF4DC),
     ),
     OnboardSlide(
-      badge: '15-minute delivery',
-      title: 'Delivered before the kettle boils',
-      body:
-          'Riders from the store closest to you bring your order in 15 minutes flat — with live tracking from cart to doorstep.',
-      slotLabel: 'Onboarding illustration 2',
-      icon: Icons.bolt_rounded,
+      title: 'Fresh from local stores',
+      body: 'Hand-picked fruits and vegetables, checked for quality before they reach you.',
+      tint: Color(0xFFF6EFE0),
     ),
     OnboardSlide(
-      badge: 'Everyday savings',
-      title: 'Bazar prices, no bargaining needed',
-      body:
-          'Weekly wholesale rates, family packs and a running total that never surprises you at checkout.',
-      slotLabel: 'Onboarding illustration 3',
-      icon: Icons.price_check_rounded,
+      title: 'Deals on every order',
+      body: 'Save with coupons, daily offers and rewards when you refer friends.',
+      tint: Color(0xFFFDEBD8),
+    ),
+    OnboardSlide(
+      title: 'Track live, pay your way',
+      body: 'Follow your order in real time and pay by UPI or cash on delivery.',
+      tint: Color(0xFFE8EEF7),
     ),
   ];
 
@@ -484,13 +482,13 @@ class BasketCatalog {
     AccountRow(
       icon: '◈',
       title: 'Saved addresses',
-      sub: 'Home, Work + 1 more',
+      sub: 'Manage delivery addresses', // replaced live in AccountView
       target: BasketScreen.addr,
     ),
     AccountRow(
       icon: '✧',
       title: 'My coupons',
-      sub: '2 available',
+      sub: 'Offers you can apply', // replaced live in AccountView
       target: BasketScreen.coupons,
     ),
     AccountRow(

@@ -1,3 +1,4 @@
+import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/aapno_bazar_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -211,7 +212,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Groceries in 15 minutes',
+                      'Groceries in ${BasketCubit.etaMinutes} minutes',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

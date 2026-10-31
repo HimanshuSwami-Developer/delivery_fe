@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/free_delivery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,20 +21,15 @@ class CartBar extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(BasketRadius.lg),
         onTap: () => context.read<BasketCubit>().go(BasketScreen.cart),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
+          padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: BasketSpace.sm),
+          decoration: basketCard(
+            radius: BasketRadius.lg,
             color: BasketColors.ink.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: BasketColors.ink.withValues(alpha: 0.4),
-                blurRadius: 34,
-                offset: const Offset(0, 16),
-              ),
-            ],
+            border: false,
+            elevated: true,
           ),
           child: Row(
             children: [
@@ -63,10 +59,10 @@ class CartBar extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
                 decoration: BoxDecoration(
                   color: Color(0xFFFFFBF2),
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(BasketRadius.pill),
                 ),
                 child: Text(
                   'View basket',

@@ -4,6 +4,7 @@ import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/data/basket_api_bundle.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/screens/account_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/address_edit_view.dart';
 import 'package:fastswipe/features/basket/presentation/screens/address_list_view.dart';
@@ -72,19 +73,8 @@ class BasketApp extends StatelessWidget {
       // the button minimum sizes here rather than auditing every call site.
       child: Builder(
         builder: (context) {
-          final theme = Theme.of(context);
           return Theme(
-            data: theme.copyWith(
-              filledButtonTheme: FilledButtonThemeData(
-                style: FilledButton.styleFrom(minimumSize: Size.zero),
-              ),
-              outlinedButtonTheme: OutlinedButtonThemeData(
-                style: OutlinedButton.styleFrom(minimumSize: Size.zero),
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(minimumSize: Size.zero),
-              ),
-            ),
+            data: basketTheme(Theme.of(context)),
             child: const _BasketRoot(),
           );
         },
@@ -112,10 +102,14 @@ class _BasketRoot extends StatelessWidget {
     // routes back through the same `cubit.back()` the on-screen back arrows
     // use — critically, that also stops `back()`'s "nothing to pop -> go
     // home" fallback from ever firing on a pre-auth screen and skipping
-    // login/OTP.
+    // login/OTP. Login is also a root right after `signOut()`, which lands
+    // there with an empty history.
     final atRoot = context.select(
       (BasketCubit c) =>
-          c.state.history.isEmpty && (c.state.screen == BasketScreen.home || c.state.screen == BasketScreen.splash),
+          c.state.history.isEmpty &&
+          (c.state.screen == BasketScreen.home ||
+              c.state.screen == BasketScreen.splash ||
+              c.state.screen == BasketScreen.login),
     );
     return MultiBlocListener(
       listeners: [

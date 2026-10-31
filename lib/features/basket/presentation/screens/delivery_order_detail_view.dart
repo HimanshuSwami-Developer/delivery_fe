@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,13 +38,13 @@ class DeliveryOrderDetailView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -56,17 +57,17 @@ class DeliveryOrderDetailView extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text(order.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(BasketRadius.lg),
                 child: SizedBox(
                   height: 200,
                   width: double.infinity,
@@ -90,33 +91,25 @@ class DeliveryOrderDetailView extends StatelessWidget {
               ),
               if (hasLocation) ...[
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => launchUrl(
-                      Uri.parse('https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                    icon: const Icon(Icons.map_outlined, size: 16),
-                    label: Text('Open in Google Maps', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: BasketColors.ink, width: 1.4),
-                      foregroundColor: BasketColors.ink,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                BasketButton.secondary(
+                  icon: Icons.map_outlined,
+                  label: 'Open in Google Maps',
+                  size: BasketButtonSize.medium,
+                  onPressed: () => launchUrl(
+                    Uri.parse('https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}'),
+                    mode: LaunchMode.externalApplication,
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(15),
-                decoration: glassCard(),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Customer', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: BasketSpace.sm),
                     Row(
                       children: [
                         Expanded(
@@ -138,7 +131,7 @@ class DeliveryOrderDetailView extends StatelessWidget {
                         if (order.customerMobile != null)
                           InkWell(
                             onTap: () => launchUrl(Uri(scheme: 'tel', path: order.customerMobile)),
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(BasketRadius.pill),
                             child: Container(
                               width: 38,
                               height: 38,
@@ -168,19 +161,19 @@ class DeliveryOrderDetailView extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(15),
-                decoration: glassCard(),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Order', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: BasketSpace.sm),
                     _SummaryRow('Items', '${order.itemCount}'),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: BasketSpace.xs),
                     _SummaryRow('Payment', '${order.paymentMode.toUpperCase()} · ${order.paymentStatus}'),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: BasketSpace.xs),
                     _SummaryRow('Total', '₹${order.total}'),
                   ],
                 ),
@@ -190,41 +183,31 @@ class DeliveryOrderDetailView extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: BasketButton.secondary(
+                        icon: Icons.receipt_long_outlined,
+                        label: 'GST invoice',
+                        size: BasketButtonSize.medium,
                         onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
-                        icon: const Icon(Icons.receipt_long_outlined, size: 16),
-                        label: Text('GST invoice', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: BasketColors.ink, width: 1.4),
-                          foregroundColor: BasketColors.ink,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: BasketSpace.xs),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: BasketButton.secondary(
+                        icon: Icons.print_outlined,
+                        label: 'Print receipt',
+                        size: BasketButtonSize.medium,
                         onPressed: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
-                        icon: const Icon(Icons.print_outlined, size: 16),
-                        label: Text('Print receipt', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: BasketColors.ink, width: 1.4),
-                          foregroundColor: BasketColors.ink,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
                       ),
                     ),
                   ],
                 ),
               ],
-              const SizedBox(height: 18),
+              const SizedBox(height: BasketSpace.xl),
               if (done)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: BoxDecoration(color: BasketColors.divider, borderRadius: BorderRadius.circular(13)),
+                  height: 52,
+                  decoration: BoxDecoration(color: BasketColors.divider, borderRadius: BorderRadius.circular(BasketRadius.md)),
                   alignment: Alignment.center,
                   child: Text(
                     order.status == 'delivered' ? 'Delivered ✓' : 'Cancelled',
@@ -232,31 +215,13 @@ class DeliveryOrderDetailView extends StatelessWidget {
                   ),
                 )
               else
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: actionLoading
-                        ? null
-                        : () => cubit.updateDeliveryStatus(order.status == 'packed' ? 'out_for_delivery' : 'delivered'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: BasketColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    child: actionLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                          )
-                        : Text(
-                            order.status == 'packed' ? 'Start delivery' : 'Mark delivered',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                          ),
-                  ),
+                BasketButton(
+                  label: order.status == 'packed' ? 'Start delivery' : 'Mark delivered',
+                  onPressed: () => cubit.updateDeliveryStatus(order.status == 'packed' ? 'out_for_delivery' : 'delivered'),
+                  loading: actionLoading,
                 ),
               if (actionError != null) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: BasketSpace.xs),
                 Text(actionError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.error)),
               ],
             ],

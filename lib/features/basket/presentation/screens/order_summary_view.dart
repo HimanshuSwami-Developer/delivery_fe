@@ -3,6 +3,7 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
@@ -45,7 +46,8 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
     );
     final couponInput = context.select((BasketCubit c) => c.state.couponInput);
     final couponMessage = context.select((BasketCubit c) => c.state.couponMessage);
-    final coupons = context.select((BasketCubit c) => c.state.apiCoupons);
+    final coupons = usableCouponsFirst(context.select((BasketCubit c) => c.state.apiCoupons));
+    final cartSubtotal = context.select((BasketCubit c) => cartTotals(c.state).subtotal);
 
     if (_coupon.text != couponInput) {
       _coupon.value = TextEditingValue(
@@ -75,10 +77,10 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
-            18,
-            MediaQuery.paddingOf(context).top + 12,
-            18,
-            16,
+            BasketSpace.gutter,
+            MediaQuery.paddingOf(context).top + BasketSpace.sm,
+            BasketSpace.gutter,
+            BasketSpace.md,
           ),
           decoration: darkHeaderDecoration(),
           child: Column(
@@ -88,7 +90,7 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                 children: [
                   InkWell(
                     onTap: cubit.back,
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(BasketRadius.pill),
                     child: Container(
                       width: 34,
                       height: 34,
@@ -107,7 +109,7 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: BasketSpace.sm),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -132,30 +134,30 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.md),
               const StepProgress(step: 3),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
               _SummaryCard(
                 title: 'Deliver to · ${addr.label}',
                 sub: addr.line,
                 onChange: cubit.goToAddress,
               ),
-              const SizedBox(height: 11),
+              const SizedBox(height: BasketSpace.section),
               _SummaryCard(
                 title: 'Slot · $slotLabel',
                 sub: slotSub,
                 onChange: cubit.goToSlot,
               ),
-              const SizedBox(height: 11),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: glassCard(radius: 16),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -166,13 +168,13 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 11),
+                    const SizedBox(height: BasketSpace.sm),
                     SizedBox(
                       height: 76,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: items.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        separatorBuilder: (_, _) => const SizedBox(width: BasketSpace.xs),
                         itemBuilder: (context, i) {
                           final (p, qty) = items[i];
                           return SizedBox(
@@ -181,13 +183,13 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(11),
+                                  borderRadius: BorderRadius.circular(BasketRadius.md),
                                   child: ProductImageMini(
                                     size: 56,
                                     imageUrl: p.imageUrl,
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: BasketSpace.xxs),
                                 Text(
                                   '×$qty',
                                   style: GoogleFonts.plusJakartaSans(
@@ -204,10 +206,10 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 11),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: glassCard(radius: 16),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -216,16 +218,17 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                       style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
                     ),
                     if (coupons.isNotEmpty) ...[
-                      const SizedBox(height: 9),
+                      const SizedBox(height: BasketSpace.xs),
                       CouponStrip(
                         coupons: coupons,
                         appliedCoupon: appliedCoupon,
                         onApply: cubit.applyCouponCode,
                         onRemove: cubit.removeCoupon,
                         onViewAll: cubit.goToCoupons,
+                        cartSubtotal: cartSubtotal,
                       ),
                     ],
-                    const SizedBox(height: 9),
+                    const SizedBox(height: BasketSpace.xs),
                     if (appliedCoupon != null)
                       AppliedCouponBanner(
                         code: appliedCoupon,
@@ -240,46 +243,22 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                             controller: _coupon,
                             onChanged: cubit.setCouponInput,
                             textCapitalization: TextCapitalization.characters,
-                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.ink),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              hintText: 'Enter coupon code (e.g. FIRST50)',
-                              filled: true,
-                              fillColor: Color(0xFFFFFBF2),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: const BorderSide(color: BasketColors.primary, width: 1.6),
-                              ),
-                            ),
+                            cursorColor: BasketColors.primary,
+                            style: basketInputText(),
+                            decoration: basketInputDecoration(hintText: 'Enter coupon code (e.g. FIRST50)', dense: true),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                            minimumSize: Size.zero,
-                          ),
+                        const SizedBox(width: BasketSpace.xs),
+                        BasketButton(
+                          label: 'Apply',
+                          size: BasketButtonSize.medium,
+                          expand: false,
                           onPressed: cubit.applyCoupon,
-                          child: Text(
-                            'Apply',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
-                          ),
                         ),
                       ],
                     ),
                     if (couponMessage.isNotEmpty) ...[
-                      const SizedBox(height: 9),
+                      const SizedBox(height: BasketSpace.xs),
                       Text(
                         couponMessage,
                         style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
@@ -288,10 +267,10 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 11),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(14),
-                decoration: glassCard(radius: 16),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   children: [
                     _TotalRow(
@@ -307,10 +286,9 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
                     ),
                     const SizedBox(height: 8),
                     DeliveryFeeBillRow(t: t),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      height: 1,
-                      color: BasketColors.ink.withValues(alpha: 0.09),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: BasketSpace.sm),
+                      child: Divider(height: 1, color: BasketSurface.border),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -337,66 +315,39 @@ class _OrderSummaryViewState extends State<OrderSummaryView> {
             ],
           ),
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(
-              top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07)),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        moneyLabel(t.payable),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
+        BasketBottomBar(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      moneyLabel(t.payable),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
                       ),
-                      Text(
-                        t.savings > 0
-                            ? 'You save ${moneyLabel(t.savings)}'
-                            : 'Inclusive of all taxes',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          color: BasketColors.faint,
-                        ),
+                    ),
+                    Text(
+                      t.savings > 0
+                          ? 'You save ${moneyLabel(t.savings)}'
+                          : 'Inclusive of all taxes',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
+                        color: BasketColors.faint,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 14,
-                    ),
-                  ),
-                  onPressed: cubit.goToPaymentChoice,
-                  child: Text(
-                    'Place order',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFFFFFBF2),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              BasketButton(
+                label: 'Place order',
+                expand: false,
+                onPressed: cubit.goToPaymentChoice,
+              ),
+            ],
           ),
         ),
       ],
@@ -418,8 +369,8 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: glassCard(radius: 16),
+      padding: const EdgeInsets.all(BasketSpace.md),
+      decoration: basketCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -435,20 +386,14 @@ class _SummaryCard extends StatelessWidget {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: onChange,
-                child: Text(
-                  'Change',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                    color: BasketColors.muted,
-                  ),
-                ),
+              BasketButton.text(
+                label: 'Change',
+                size: BasketButtonSize.small,
+                onPressed: onChange,
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: BasketSpace.xxs),
           Text(
             sub,
             style: GoogleFonts.plusJakartaSans(

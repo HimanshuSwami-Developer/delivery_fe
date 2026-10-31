@@ -443,7 +443,7 @@ class BasketCubit extends Cubit<BasketState> {
         screen: BasketScreen.cart,
         couponInput:
             code ??
-            (state.apiCoupons.isNotEmpty ? state.apiCoupons.first.code : ''),
+            (firstUsableCoupon(state)?.code ?? ''),
         sheet: ActiveSheet.none,
       ),
     );
@@ -614,9 +614,16 @@ class BasketCubit extends Cubit<BasketState> {
     }
   }
 
+  /// Lands on login directly — not a bare `BasketState()`, whose default
+  /// screen is `splash`: the splash timer only fires once per launch, so
+  /// nothing would ever move off it again. Onboarding was already seen to
+  /// get this far, so it's skipped. Store-wide delivery settings survive
+  /// since they aren't per-user.
   Future<void> signOut() async {
+    _stopRiderLocationSharing();
+    _hasSession = false;
     await api.auth.logout();
-    emit(const BasketState());
+    emit(BasketState(screen: BasketScreen.login, deliverySettings: state.deliverySettings));
   }
 
   static String _digitsOnly(String value) =>
@@ -1032,6 +1039,9 @@ class BasketCubit extends Cubit<BasketState> {
         ),
       );
       loadOrders();
+      // A one-per-customer coupon just got used — refresh so it shows as
+      // "Already used" everywhere.
+      loadCoupons();
     } on ApiException catch (e) {
       await delayFuture;
       emit(
@@ -1069,8 +1079,16 @@ class BasketCubit extends Cubit<BasketState> {
     if (id == null) return;
     try {
       final detail = await api.orders.fetchOrder(id);
-      emit(state.copyWith(currentOrder: detail));
-    } catch (_) {}
+      emit(state.copyWith(
+        currentOrder: detail,
+        trackingStage: _statusToStage[detail.status] ?? state.trackingStage,
+      ));
+    } catch (_) {
+      // Fall back to the list's copy (no line items) so the screen's
+      // skeleton — shown until [currentOrder] is this order — still clears.
+      final listed = state.apiOrders.where((o) => o.id == id).firstOrNull;
+      if (listed != null) emit(state.copyWith(currentOrder: listed));
+    }
   }
 
   // ── Delivery partner ─────────────────────────────────────────────────
@@ -1197,7 +1215,12 @@ class BasketCubit extends Cubit<BasketState> {
   };
 
   Future<void> goToTrack() async {
+    // Start from the stage the order we already hold says, not whatever a
+    // previous order left in [BasketState.trackingStage] — the tracking
+    // screen shows a skeleton until its first live poll lands anyway.
+    final known = _statusToStage[state.currentOrder?.status];
     go(BasketScreen.track);
+    if (known != null) emit(state.copyWith(trackingStage: known));
     await refreshTracking();
   }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/app_map.dart';
 import 'package:flutter/material.dart';
@@ -120,8 +121,8 @@ class _AddressEditViewState extends State<AddressEditView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(9)),
+                      padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: 6),
+                      decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(BasketRadius.sm)),
                       child: Text('Drag to set pin', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                     ),
                     Container(width: 2, height: 16, color: BasketColors.ink),
@@ -138,11 +139,11 @@ class _AddressEditViewState extends State<AddressEditView> {
                 ),
               ),
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 8,
-                left: 14,
+                top: MediaQuery.paddingOf(context).top + BasketSpace.xs,
+                left: BasketSpace.gutter,
                 child: InkWell(
                   onTap: cubit.back,
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(BasketRadius.pill),
                   child: Container(
                     width: 36,
                     height: 36,
@@ -153,26 +154,15 @@ class _AddressEditViewState extends State<AddressEditView> {
                 ),
               ),
               Positioned(
-                right: 14,
-                bottom: 14,
-                child: InkWell(
-                  onTap: _locating ? null : _useMyLocation,
-                  borderRadius: BorderRadius.circular(11),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFFFBF2).withValues(alpha: 0.92),
-                      border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: _locating
-                        ? const SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: CircularProgressIndicator(strokeWidth: 1.5),
-                          )
-                        : Text('◎ Use my location', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700)),
-                  ),
+                right: BasketSpace.gutter,
+                // Clears the 20px the details panel below overlaps the map by.
+                bottom: BasketSpace.xxl,
+                child: BasketButton.secondary(
+                  label: '◎ Use my location',
+                  size: BasketButtonSize.small,
+                  expand: false,
+                  loading: _locating,
+                  onPressed: _useMyLocation,
                 ),
               ),
             ],
@@ -183,31 +173,31 @@ class _AddressEditViewState extends State<AddressEditView> {
             offset: const Offset(0, -20),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+              padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
               decoration: BoxDecoration(
                 color: Color(0xFFFFFBF2).withValues(alpha: 0.85),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: BasketRadius.sheet,
               ),
               child: ListView(
                 children: [
                   Text('Add address details', style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: BasketSpace.xxs),
                   Text(_resolvedAddress, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: BasketSpace.md),
                   LabeledTextField(
                     label: 'Flat / House no.',
                     controller: _houseNoController,
                     hintText: 'Enter flat / house no. (e.g. 302, Green Apartments)',
                     textCapitalization: TextCapitalization.words,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: BasketSpace.md),
                   LabeledTextField(
                     label: 'Landmark',
                     controller: _landmarkController,
                     hintText: 'Enter a nearby landmark (e.g. Near City Mall)',
                     textCapitalization: TextCapitalization.words,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: BasketSpace.md),
                   Row(
                     children: [
                       Expanded(
@@ -218,7 +208,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                           textCapitalization: TextCapitalization.words,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: BasketSpace.sm),
                       Expanded(
                         child: LabeledTextField(
                           label: 'State',
@@ -229,7 +219,7 @@ class _AddressEditViewState extends State<AddressEditView> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: BasketSpace.md),
                   LabeledTextField(
                     label: 'Pincode',
                     controller: _pincodeController,
@@ -237,55 +227,43 @@ class _AddressEditViewState extends State<AddressEditView> {
                     keyboardType: TextInputType.number,
                     maxLength: 6,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: BasketSpace.md),
                   LabeledStaticField(label: 'Receiver', value: [if (name.isNotEmpty) name, if (phone.isNotEmpty) '+91 $phone'].join(' · ')),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: BasketSpace.lg),
                   Text('Save as', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 9),
+                  const SizedBox(height: BasketSpace.xs),
                   Row(
                     children: [
                       for (final tag in _tags) ...[
                         _TagPill(label: tag, selected: newTag == tag, onTap: () => cubit.setNewAddressTag(tag)),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: BasketSpace.xs),
                       ],
                     ],
                   ),
                   if (formError != null) ...[
-                    const SizedBox(height: 14),
+                    const SizedBox(height: BasketSpace.sm),
                     Text(formError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
                   ],
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: BasketColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: saving
-                          ? null
-                          : () => cubit.submitNewAddress(
-                                houseNo: _houseNoController.text,
-                                landmark: _landmarkController.text,
-                                city: _cityController.text,
-                                stateName: _stateController.text,
-                                pincode: _pincodeController.text,
-                                latitude: _pinLocation.latitude,
-                                longitude: _pinLocation.longitude,
-                              ),
-                      child: saving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                            )
-                          : Text('Save address', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-                    ),
-                  ),
                 ],
               ),
             ),
+          ),
+        ),
+        BasketBottomBar(
+          child: BasketButton(
+            label: 'Save address',
+            loading: saving,
+            onPressed: saving
+                ? null
+                : () => cubit.submitNewAddress(
+                      houseNo: _houseNoController.text,
+                      landmark: _landmarkController.text,
+                      city: _cityController.text,
+                      stateName: _stateController.text,
+                      pincode: _pincodeController.text,
+                      latitude: _pinLocation.latitude,
+                      longitude: _pinLocation.longitude,
+                    ),
           ),
         ),
       ],
@@ -306,11 +284,11 @@ class _TagPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: BasketSpace.xs),
         decoration: BoxDecoration(
           color: style.bg,
           border: Border.all(color: style.border),
-          borderRadius: BorderRadius.circular(99),
+          borderRadius: BorderRadius.circular(BasketRadius.pill),
         ),
         child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: style.fg)),
       ),

@@ -1,10 +1,23 @@
 import 'package:fastswipe/core/theme/app_colors.dart';
 import 'package:fastswipe/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
+
+  /// Status bar with white (light) icons and a transparent background, so
+  /// the app's navy headers run up behind it. Applied app-wide (root
+  /// `AnnotatedRegion` in `app.dart`) and on [AppBarTheme] — an AppBar
+  /// otherwise picks dark/light icons from its own background colour and
+  /// would override the root setting. `statusBarBrightness` is the iOS
+  /// equivalent (dark = light content).
+  static const statusBarStyle = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+  );
 
   static const _lightScheme = ColorScheme(
     brightness: Brightness.light,
@@ -47,6 +60,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       textTheme: GoogleFonts.interTextTheme(),
       appBarTheme: AppBarTheme(
+        systemOverlayStyle: statusBarStyle,
         backgroundColor: AppColors.surface.withValues(alpha: 0.8),
         elevation: 0,
         scrolledUnderElevation: 1,

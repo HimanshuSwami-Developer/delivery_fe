@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,10 +37,10 @@ class CancelSheet extends StatelessWidget {
           child: SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 26),
+              padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.xl),
               decoration: BoxDecoration(
                 color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+                borderRadius: BasketRadius.sheet,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -49,19 +50,19 @@ class CancelSheet extends StatelessWidget {
                     isReturn ? 'Return items' : 'Cancel this order?',
                     style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: BasketSpace.xs),
                   Text(
                     isReturn
                         ? 'Pick a reason. Refunds reach your original payment method in 3–5 working days.'
                         : 'Free to cancel until the rider picks up your order. Refunds are instant to UPI.',
                     style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: BasketSpace.md),
                   Column(
                     children: [
                       for (final r in reasons)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                           child: _ReasonTile(
                             label: r,
                             selected: reason == r,
@@ -70,36 +71,19 @@ class CancelSheet extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: BasketSpace.xs),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            minimumSize: Size.zero,
-                          ),
-                          onPressed: cubit.closeSheet,
-                          child: Text('Keep order', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink)),
-                        ),
+                        child: BasketButton.secondary(label: 'Keep order', onPressed: cubit.closeSheet),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: BasketSpace.sm),
                       Expanded(
                         flex: 2,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.error,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            minimumSize: Size.zero,
-                          ),
+                        child: BasketButton(
+                          label: isReturn ? 'Request return' : 'Cancel order',
+                          variant: BasketButtonVariant.danger,
                           onPressed: cubit.confirmCancel,
-                          child: Text(
-                            isReturn ? 'Request return' : 'Cancel order',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                          ),
                         ),
                       ),
                     ],
@@ -127,12 +111,8 @@ class _ReasonTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: selected ? BasketColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
-          border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.12), width: 1.5),
-          borderRadius: BorderRadius.circular(13),
-        ),
+        padding: const EdgeInsets.all(BasketSpace.sm),
+        decoration: basketCard(selected: selected),
         child: Row(
           children: [
             Container(
@@ -144,7 +124,7 @@ class _ReasonTile extends StatelessWidget {
                 border: Border.all(color: BasketColors.ink, width: 1.5),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: BasketSpace.sm),
             Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600)),
           ],
         ),

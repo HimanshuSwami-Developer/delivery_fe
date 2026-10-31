@@ -4,11 +4,11 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/festival_theme.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/festival_overlay.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_card.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/promo_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,119 +48,72 @@ class HomeView extends StatelessWidget {
         const _HomeHeader(),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.only(top: 18, bottom: 120),
+            padding: const EdgeInsets.only(top: BasketSpace.md, bottom: 120),
             children: [
               if (topBanner != null) ...[
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBanner(banner: topBanner)),
-                const SizedBox(height: 22),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter), child: PromoBanner(banner: topBanner)),
+                const SizedBox(height: BasketSpace.xl),
               ],
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                 child: _SectionHeader(title: 'Shop by category', action: 'See all', onAction: () => cubit.go(BasketScreen.cats)),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.sm),
               SizedBox(
                 height: 106,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                   itemCount: categories.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 14),
+                  separatorBuilder: (_, _) => const SizedBox(width: BasketSpace.sm),
                   itemBuilder: (context, i) => _CategoryChip(category: categories[i]),
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: BasketSpace.xl),
               if (BasketCubit.showBuyAgain && buyAgain.isNotEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                   child: _SectionHeader(title: 'Buy again', action: 'See all', onAction: () {}),
                 ),
-                const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  // `IntrinsicHeight` (not a fixed-height `SizedBox`) so the
-                  // row's height comes from its tallest card's actual
-                  // content — a fixed height either clips a longer product
-                  // name/rows or leaves dead space under a shorter one.
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < buyAgain.length; i++) ...[
-                          if (i > 0) const SizedBox(width: 10),
-                          _BuyAgainCard(product: buyAgain[i]),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
+                const SizedBox(height: BasketSpace.sm),
+                ProductRail(products: buyAgain, cardWidth: 132, padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter)),
                 const Padding(
-                  padding: EdgeInsets.fromLTRB(18, 14, 18, 0),
+                  padding: EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.section, BasketSpace.gutter, 0),
                   child: _LastOrderCard(),
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: BasketSpace.xl),
               ],
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                 child: _SectionHeader(title: 'Under ₹99 store', action: 'See all', onAction: () {}),
               ),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < under99.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 10),
-                        _PriceCard(product: under99[i], width: 132),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
+              const SizedBox(height: BasketSpace.sm),
+              ProductRail(products: under99, cardWidth: 140, padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter)),
               const Padding(
-                padding: EdgeInsets.fromLTRB(18, 18, 18, 0),
+                padding: EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.xl, BasketSpace.gutter, 0),
                 child: _CouponBanner(),
               ),
               if (midBanner != null) ...[
-                const SizedBox(height: 24),
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBanner(banner: midBanner)),
+                const SizedBox(height: BasketSpace.xl),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter), child: PromoBanner(banner: midBanner)),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: BasketSpace.xl),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                 child: _SectionHeader(title: 'Recommended for you', action: '', onAction: () {}),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.sm),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                // A `Wrap` of fixed-width cards, not a `GridView` with a
-                // fixed `childAspectRatio` — the aspect ratio forced every
-                // card into the same box regardless of how many lines its
-                // name/pack/rating actually needed, clipping longer content
-                // and leaving dead space under shorter content. Each card
-                // sizes to its own content height here (see
-                // `_RecommendedCard`'s `mainAxisSize: min`); rows aren't
-                // height-matched across the two columns, same as most
-                // grocery-app "recommended" grids.
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final cardWidth = (constraints.maxWidth - 12) / 2;
-                    return Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        for (final product in recommended)
-                          SizedBox(width: cardWidth, child: _RecommendedCard(product: product)),
-                      ],
-                    );
-                  },
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
+                // Not a `GridView` with a fixed `childAspectRatio` (that clipped long
+                // names or left dead space under short ones): each pair of cards is
+                // as tall as its taller card, prices pinned to the bottom — see
+                // `ProductGrid`.
+                child: ProductGrid(products: recommended),
               ),
               if (bottomBanners.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: PromoBannerRow(banners: bottomBanners)),
+                const SizedBox(height: BasketSpace.xl),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter), child: PromoBannerRow(banners: bottomBanners)),
               ],
             ],
           ),
@@ -203,64 +156,44 @@ class _HomeSkeleton extends StatelessWidget {
             child: Skeletonizer(
               effect: ShimmerEffect(baseColor: BasketColors.divider, highlightColor: BasketColors.surface),
               child: ListView(
-                padding: const EdgeInsets.only(top: 18, bottom: 120),
+                padding: const EdgeInsets.only(top: BasketSpace.md, bottom: 120),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Container(height: 132, decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(20))),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
+                    child: Container(height: 132, decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(BasketRadius.xl))),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: BasketSpace.xl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                     child: _SectionHeader(title: 'Shop by category', action: 'See all', onAction: () {}),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: BasketSpace.sm),
                   SizedBox(
                     height: 106,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                       itemCount: categories.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 14),
+                      separatorBuilder: (_, _) => const SizedBox(width: BasketSpace.sm),
                       itemBuilder: (context, i) => _CategoryChip(category: categories[i]),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: BasketSpace.xl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                     child: _SectionHeader(title: 'Under ₹99 store', action: 'See all', onAction: () {}),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 226,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      itemCount: products.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 10),
-                      itemBuilder: (context, i) => _PriceCard(product: products[i], width: 132),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: BasketSpace.sm),
+                  ProductRail(products: products, cardWidth: 140, padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter)),
+                  const SizedBox(height: BasketSpace.xl),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
                     child: _SectionHeader(title: 'Recommended for you', action: '', onAction: () {}),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: BasketSpace.sm),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: products.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 0.66,
-                      ),
-                      itemBuilder: (context, i) => _RecommendedCard(product: products[i]),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter),
+                    child: ProductGrid(products: products),
                   ),
                 ],
               ),
@@ -282,10 +215,10 @@ class _HomeHeader extends StatelessWidget {
     final festivalSettings = context.select((BasketCubit c) => c.state.apiFestivalSettings);
     final festival = FestivalCalendar.activeToday(settings: festivalSettings);
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl)),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 18),
+        padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
         decoration: BoxDecoration(gradient: festival?.gradient ?? BasketColors.headerGradient),
         child: Stack(
           children: [
@@ -319,10 +252,10 @@ class _HomeHeader extends StatelessWidget {
                             ],
                           ),
                           if (festival != null) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: BasketSpace.xs),
                             FestivalBadge(theme: festival),
                           ],
-                          const SizedBox(height: 5),
+                          const SizedBox(height: BasketSpace.xxs),
                           GestureDetector(
                             onTap: cubit.goToAddress,
                             child: Column(
@@ -334,7 +267,7 @@ class _HomeHeader extends StatelessWidget {
                                       'Home',
                                       style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
                                     ),
-                                    const SizedBox(width: 5),
+                                    const SizedBox(width: BasketSpace.xxs),
                                     Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
                                   ],
                                 ),
@@ -352,7 +285,7 @@ class _HomeHeader extends StatelessWidget {
                     ),
                     InkWell(
                       onTap: cubit.goToNotifications,
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(BasketRadius.pill),
                       child: Container(
                         width: 40,
                         height: 40,
@@ -367,21 +300,23 @@ class _HomeHeader extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: BasketSpace.md),
                 InkWell(
                   onTap: () => cubit.go(BasketScreen.search),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BasketRadius.input,
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md),
                     decoration: BoxDecoration(
-                      color: Color(0xFFFFFBF2),
-                      borderRadius: BorderRadius.circular(14),
+                      color: BasketSurface.card,
+                      border: Border.all(color: BasketSurface.borderStrong),
+                      borderRadius: BasketRadius.input,
                     ),
                     child: Row(
                       children: [
                         Icon(Icons.search_rounded, size: 18, color: BasketColors.muted),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: BasketSpace.xs),
                         Text(
                           'Search "atta, milk, dal"',
                           style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: BasketColors.muted),
@@ -410,97 +345,16 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
       children: [
         Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: BasketColors.ink)),
         if (action.isNotEmpty)
-          GestureDetector(
-            onTap: onAction,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(action, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.primary)),
-                Icon(Icons.chevron_right_rounded, size: 15, color: BasketColors.primary),
-              ],
-            ),
+          BasketButton.text(
+            label: action,
+            size: BasketButtonSize.small,
+            trailingIcon: Icons.chevron_right_rounded,
+            onPressed: onAction,
           ),
       ],
-    );
-  }
-}
-
-class _RatingPill extends StatelessWidget {
-  const _RatingPill({required this.rating});
-
-  final double rating;
-
-  @override
-  Widget build(BuildContext context) {
-    if (rating <= 0) return const SizedBox.shrink();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.star_rounded, size: 13, color: BasketColors.gold),
-        const SizedBox(width: 2),
-        Text(rating.toStringAsFixed(1), style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
-      ],
-    );
-  }
-}
-
-class _BuyAgainCard extends StatelessWidget {
-  const _BuyAgainCard({required this.product});
-
-  final BasketProduct product;
-
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<BasketCubit>();
-    return GestureDetector(
-      onTap: () => cubit.openProduct(product.id),
-      child: Container(
-        width: 108,
-        padding: const EdgeInsets.all(8),
-        decoration: productCardDecoration(radius: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProductImage(height: 66, imageUrl: product.imageUrl),
-            const SizedBox(height: 7),
-            SizedBox(
-              height: 28,
-              child: Text(
-                product.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
-              ),
-            ),
-            Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-            const SizedBox(height: 7),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: BasketColors.primary,
-                  foregroundColor: Color(0xFFFFFBF2),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  minimumSize: Size.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                  elevation: 0,
-                ),
-                onPressed: () => cubit.bump(product.id, 1),
-                child: Text(
-                  'ADD ${moneyLabel(product.price)}',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -514,18 +368,18 @@ class _LastOrderCard extends StatelessWidget {
     if (last == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(BasketSpace.sm),
       decoration: glassCard(radius: 18),
       child: Row(
         children: [
           Container(
             width: 46,
             height: 46,
-            decoration: BoxDecoration(color: BasketColors.primarySoft, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: BasketColors.primarySoft, borderRadius: BorderRadius.circular(BasketRadius.md)),
             alignment: Alignment.center,
             child: Icon(Icons.receipt_long_rounded, size: 20, color: BasketColors.primary),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: BasketSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,15 +393,11 @@ class _LastOrderCard extends StatelessWidget {
               ],
             ),
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: BasketColors.primary,
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              minimumSize: Size.zero,
-            ),
+          BasketButton(
+            label: 'Repeat',
+            size: BasketButtonSize.small,
+            expand: false,
             onPressed: context.read<BasketCubit>().repeatOrder,
-            child: Text('Repeat', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
           ),
         ],
       ),
@@ -560,17 +410,18 @@ class _CouponBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final coupon = context.select((BasketCubit c) => c.state.apiCoupons.isNotEmpty ? c.state.apiCoupons.first : null);
+    // Never promote a coupon this customer can't use (already used, expired).
+    final coupon = context.select((BasketCubit c) => firstUsableCoupon(c.state));
     if (coupon == null) return const SizedBox.shrink();
 
     return GestureDetector(
       onTap: () => context.read<BasketCubit>().openCoupons(code: coupon.code),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.all(BasketSpace.md),
         decoration: BoxDecoration(
           color: BasketColors.accentTeal,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(BasketRadius.lg),
         ),
         child: Stack(
           children: [
@@ -588,17 +439,17 @@ class _CouponBanner extends StatelessWidget {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(11)),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(BasketRadius.md)),
                   alignment: Alignment.center,
                   child: const Icon(Icons.local_offer_rounded, size: 19, color: BasketColors.accentTeal),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: BasketSpace.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${coupon.code} · ${coupon.title}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: BasketSpace.xxs),
                       Text(
                         'Tap to apply at checkout',
                         style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
@@ -607,8 +458,8 @@ class _CouponBanner extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-                  decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(99)),
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(BasketRadius.pill)),
                   child: Text('Apply', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                 ),
               ],
@@ -638,14 +489,14 @@ class _CategoryChip extends StatelessWidget {
               height: 64,
               decoration: BoxDecoration(
                 color: BasketColors.primarySoft,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: BasketColors.primary.withValues(alpha: 0.12)),
+                borderRadius: BorderRadius.circular(BasketRadius.xl),
+                border: Border.all(color: BasketSurface.border),
               ),
               alignment: Alignment.center,
               child: category.imageUrl.isEmpty
                   ? const Text('🛒', style: TextStyle(fontSize: 28))
                   : ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(BasketRadius.xl),
                       child: Image.network(
                         category.imageUrl,
                         width: double.infinity,
@@ -655,7 +506,7 @@ class _CategoryChip extends StatelessWidget {
                       ),
                     ),
             ),
-            const SizedBox(height: 7),
+            const SizedBox(height: BasketSpace.xs),
             SizedBox(
               height: 30,
               child: Text(
@@ -673,109 +524,3 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-class _PriceCard extends StatelessWidget {
-  const _PriceCard({required this.product, required this.width});
-
-  final BasketProduct product;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.read<BasketCubit>().openProduct(product.id),
-      child: Container(
-        width: width,
-        padding: const EdgeInsets.all(9),
-        decoration: productCardDecoration(radius: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProductImage(height: 84, imageUrl: product.imageUrl, discountPct: product.discountPct),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 30,
-              child: Text(
-                product.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
-                    if (product.mrp > product.price)
-                      Text(
-                        moneyLabel(product.mrp),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
-                      ),
-                  ],
-                ),
-                AddQtyControl(product: product),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RecommendedCard extends StatelessWidget {
-  const _RecommendedCard({required this.product});
-
-  final BasketProduct product;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.read<BasketCubit>().openProduct(product.id),
-      child: Container(
-        padding: const EdgeInsets.all(9),
-        decoration: productCardDecoration(radius: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProductImage(height: 96, imageUrl: product.imageUrl, discountPct: product.discountPct),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 30,
-              child: Text(
-                product.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(product.pack, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-                ),
-                _RatingPill(rating: product.rating),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
-                AddQtyControl(product: product),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

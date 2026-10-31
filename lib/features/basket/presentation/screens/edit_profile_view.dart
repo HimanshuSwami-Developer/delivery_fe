@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
 import 'package:flutter/material.dart';
@@ -47,13 +48,13 @@ class _EditProfileViewState extends State<EditProfileView> {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -66,14 +67,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text('Edit profile', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.lg, BasketSpace.gutter, BasketSpace.lg),
             children: [
               LabeledTextField(
                 label: 'Full name',
@@ -82,7 +83,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 textCapitalization: TextCapitalization.words,
                 hintText: 'Enter your full name (First and last name)',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.md),
               LabeledTextField(
                 label: 'Email (optional)',
                 controller: _emailController,
@@ -90,42 +91,20 @@ class _EditProfileViewState extends State<EditProfileView> {
                 keyboardType: TextInputType.emailAddress,
                 hintText: 'Enter your email (example@gmail.com)',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.md),
               LabeledStaticField(label: 'Mobile number', value: '+91 $phone', muted: true),
               if (formError != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: BasketSpace.sm),
                 Text(formError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: BasketColors.error)),
               ],
             ],
           ),
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: BasketColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                onPressed: saving ? null : cubit.saveProfileEdit,
-                child: saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                      )
-                    : Text('Save changes', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-              ),
-            ),
+        BasketBottomBar(
+          child: BasketButton(
+            label: 'Save changes',
+            loading: saving,
+            onPressed: saving ? null : cubit.saveProfileEdit,
           ),
         ),
       ],

@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,13 +33,13 @@ class OrdersView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
-          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl))),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -51,7 +52,7 @@ class OrdersView extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text('My orders', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
@@ -63,11 +64,11 @@ class OrdersView extends StatelessWidget {
             child: IgnorePointer(
               ignoring: showSkeleton,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+                padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
                 children: [
                   for (final row in listRows)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: BasketSpace.section),
                       child: _OrderCard(row: row, onTap: () => cubit.openOrderDetail(row.id)),
                     ),
                 ],
@@ -91,13 +92,8 @@ class _OrderCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.12), blurRadius: 20, offset: const Offset(0, 8))],
-        ),
+        padding: const EdgeInsets.all(BasketSpace.md),
+        decoration: basketCard(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,14 +102,14 @@ class _OrderCard extends StatelessWidget {
               children: [
                 Text(row.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800)),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: BasketSpace.xxs),
                   decoration: BoxDecoration(
                     color: switch ((row.isLive, row.statusLabel)) {
                       (true, _) => BasketColors.primary,
                       (false, 'Cancelled') => BasketColors.errorSoft,
                       (false, _) => BasketColors.primarySoft,
                     },
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(BasketRadius.pill),
                   ),
                   child: Text(
                     row.statusLabel,
@@ -130,12 +126,12 @@ class _OrderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 7),
+            const SizedBox(height: BasketSpace.xs),
             Text(
               '${row.dateLabel} · ${row.itemCount} items',
               style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: BasketSpace.sm),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

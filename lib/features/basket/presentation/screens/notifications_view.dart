@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,13 +36,13 @@ class NotificationsView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -54,32 +55,32 @@ class NotificationsView extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text('Notifications', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
               for (final n in notifications)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: BasketSpace.section),
                   child: Container(
-                    padding: const EdgeInsets.all(13),
-                    decoration: glassCard(radius: 15),
+                    padding: const EdgeInsets.all(BasketSpace.md),
+                    decoration: basketCard(),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           width: 32,
                           height: 32,
-                          decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(BasketRadius.md)),
                           alignment: Alignment.center,
                           child: Text(_iconFor(n.audience), style: const TextStyle(fontSize: 13, color: Color(0xFFFFFBF2))),
                         ),
-                        const SizedBox(width: 11),
+                        const SizedBox(width: BasketSpace.sm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +88,7 @@ class NotificationsView extends StatelessWidget {
                               Text(n.title, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
                               const SizedBox(height: 4),
                               Text(n.body, style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: BasketSpace.xs),
                               Text(_relativeTime(n.sentAt), style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w600, color: BasketColors.faint)),
                             ],
                           ),

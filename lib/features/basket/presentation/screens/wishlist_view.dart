@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +23,13 @@ class WishlistView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -41,7 +42,7 @@ class WishlistView extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -60,12 +61,12 @@ class WishlistView extends StatelessWidget {
           child: items.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(30),
+                    padding: const EdgeInsets.all(BasketSpace.xxl),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Nothing saved yet', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: BasketSpace.xs),
                         Text(
                           'Tap the heart on any product to keep it here.',
                           textAlign: TextAlign.center,
@@ -76,11 +77,11 @@ class WishlistView extends StatelessWidget {
                   ),
                 )
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+                  padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
                   children: [
                     for (final p in items)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 9),
+                        padding: const EdgeInsets.only(bottom: BasketSpace.section),
                         child: _WishRow(product: p),
                       ),
                   ],
@@ -100,7 +101,7 @@ class _WishRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(BasketSpace.sm),
       decoration: glassCard(radius: 16),
       child: Row(
         children: [
@@ -108,7 +109,7 @@ class _WishRow extends StatelessWidget {
             onTap: () => cubit.openProduct(product.id),
             child: ProductImageMini(size: 58, imageUrl: product.imageUrl),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: BasketSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +117,7 @@ class _WishRow extends StatelessWidget {
                 Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 3),
                 Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-                const SizedBox(height: 4),
+                const SizedBox(height: BasketSpace.xxs),
                 Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
@@ -128,17 +129,12 @@ class _WishRow extends StatelessWidget {
                 onTap: () => cubit.removeFromWishlist(product.id),
                 child: Text('✕', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
               ),
-              const SizedBox(height: 6),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: BasketColors.ink, width: 1.4),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
+              const SizedBox(height: BasketSpace.xs),
+              BasketButton.secondary(
+                label: 'ADD',
+                size: BasketButtonSize.small,
+                expand: false,
                 onPressed: () => cubit.addToCart(product.id),
-                child: Text('ADD', style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w800)),
               ),
             ],
           ),

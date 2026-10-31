@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +27,7 @@ class DeliveryBoyView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 20),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.lg),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
@@ -45,7 +46,7 @@ class DeliveryBoyView extends StatelessWidget {
               ),
               InkWell(
                 onTap: cubit.loadOrders,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 36,
                   height: 36,
@@ -70,14 +71,14 @@ class DeliveryBoyView extends StatelessWidget {
                   : RefreshIndicator(
                       onRefresh: cubit.loadOrders,
                       child: ListView(
-                        padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+                        padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
                         children: [
                           if (active.isNotEmpty) ...[
                             _SectionLabel('Active'),
                             const SizedBox(height: 8),
                             for (final o in active)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.only(bottom: BasketSpace.section),
                                 child: _DeliveryCard(order: o, onTap: () => cubit.openDeliveryDetail(o.id.toString())),
                               ),
                             const SizedBox(height: 8),
@@ -87,7 +88,7 @@ class DeliveryBoyView extends StatelessWidget {
                             const SizedBox(height: 8),
                             for (final o in done)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.only(bottom: BasketSpace.section),
                                 child: _DeliveryCard(order: o, onTap: () => cubit.openDeliveryDetail(o.id.toString())),
                               ),
                           ],
@@ -133,8 +134,8 @@ class _DeliveryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(13),
-        decoration: glassCard(),
+        padding: const EdgeInsets.all(BasketSpace.md),
+        decoration: basketCard(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -143,10 +144,10 @@ class _DeliveryCard extends StatelessWidget {
               children: [
                 Text(order.orderNumber, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800)),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: BasketSpace.xxs),
                   decoration: BoxDecoration(
                     color: done ? BasketColors.divider : BasketColors.primary,
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(BasketRadius.pill),
                   ),
                   child: Text(
                     _statusLabels[order.status] ?? order.status,
@@ -165,7 +166,7 @@ class _DeliveryCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: BasketSpace.xs),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

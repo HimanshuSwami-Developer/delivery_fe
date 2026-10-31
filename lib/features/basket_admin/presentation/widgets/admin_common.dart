@@ -1,3 +1,4 @@
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,8 +16,8 @@ class AdminResponsiveGrid extends StatelessWidget {
     super.key,
     required this.children,
     this.minTileWidth = 260,
-    this.spacing = 14,
-    this.runSpacing = 14,
+    this.spacing = AdminSpace.section,
+    this.runSpacing = AdminSpace.section,
   });
 
   final List<Widget> children;
@@ -89,8 +90,11 @@ class AdminTableHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 14, 10, 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.09)))),
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.sm),
+      decoration: const BoxDecoration(
+        color: AdminSurface.subtle,
+        border: Border(bottom: BorderSide(color: AdminSurface.border)),
+      ),
       child: AdminGridRow(
         flex: flex,
         children: [for (final l in labels) Text(l.toUpperCase(), style: _tableHeaderStyle())],
@@ -125,10 +129,10 @@ class AdminTableRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final grid = AdminGridRow(flex: flex, children: children);
     final row = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.sm),
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.06))),
+        border: const Border(bottom: BorderSide(color: AdminSurface.border)),
       ),
       child: boundHeight ? IntrinsicHeight(child: grid) : grid,
     );
@@ -156,14 +160,15 @@ class AdminIconActionButton extends StatelessWidget {
     final disabled = onTap == null;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(9),
+      borderRadius: BorderRadius.circular(AdminRadius.sm),
       child: Container(
         width: size,
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: AdminColors.ink.withValues(alpha: disabled ? 0.06 : 0.12)),
-          borderRadius: BorderRadius.circular(9),
+          color: AdminSurface.card,
+          border: Border.all(color: disabled ? AdminSurface.border : AdminSurface.borderStrong),
+          borderRadius: BorderRadius.circular(AdminRadius.sm),
         ),
         child: Icon(icon, size: 16, color: disabled ? color.withValues(alpha: 0.4) : color),
       ),
@@ -181,8 +186,8 @@ class AdminChipBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = adminChipStyle(label);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(99)),
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: AdminSpace.xxs),
+      decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(AdminRadius.pill)),
       child: Text(label, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: s.fg)),
     );
   }
@@ -202,10 +207,12 @@ class AdminPillButton extends StatelessWidget {
     final s = adminPillStyle(selected);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(99),
+      borderRadius: BorderRadius.circular(AdminRadius.pill),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 9),
-        decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(99)),
+        height: 32,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: s.bg, border: Border.all(color: s.border), borderRadius: BorderRadius.circular(AdminRadius.pill)),
         child: Text(label, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: s.fg)),
       ),
     );
@@ -235,8 +242,8 @@ class AdminKpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(17),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -251,14 +258,14 @@ class AdminKpiCard extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(color: chipBg, borderRadius: BorderRadius.circular(99)),
+                decoration: BoxDecoration(color: chipBg, borderRadius: BorderRadius.circular(AdminRadius.pill)),
                 child: Text(delta, style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: chipFg)),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AdminSpace.sm),
           Text(value, style: GoogleFonts.manrope(fontSize: 27, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink)),
-          const SizedBox(height: 6),
+          const SizedBox(height: AdminSpace.xxs),
           Text(sub, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
         ],
       ),
@@ -278,8 +285,8 @@ class AdminStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(17),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -287,9 +294,9 @@ class AdminStatCard extends StatelessWidget {
             label.toUpperCase(),
             style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
           ),
-          const SizedBox(height: 11),
+          const SizedBox(height: AdminSpace.sm),
           Text(value, style: GoogleFonts.manrope(fontSize: 25, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: AdminColors.ink)),
-          const SizedBox(height: 5),
+          const SizedBox(height: AdminSpace.xxs),
           Text(sub, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
         ],
       ),
@@ -351,7 +358,8 @@ class AdminMiniStat extends StatelessWidget {
   }
 }
 
-/// A boxed key/value field used on the Add Product form.
+/// A read-only key/value field used on the Add Product form — label above,
+/// value in a box the same size/border as an [AdminEditField] input.
 class AdminFieldBox extends StatelessWidget {
   const AdminFieldBox({super.key, required this.label, required this.value, this.valueColor});
 
@@ -361,24 +369,22 @@ class AdminFieldBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2),
-        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AdminFieldLabel(label),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            color: AdminSurface.subtle,
+            border: Border.all(color: AdminSurface.border),
+            borderRadius: BorderRadius.circular(AdminRadius.md),
           ),
-          const SizedBox(height: 5),
-          Text(value, style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: valueColor ?? AdminColors.ink)),
-        ],
-      ),
+          child: Text(value, style: adminInputText().copyWith(color: valueColor ?? AdminColors.ink)),
+        ),
+      ],
     );
   }
 }
@@ -396,10 +402,10 @@ class AdminSectionTitle extends StatelessWidget {
   }
 }
 
-/// The editable twin of [AdminFieldBox] — same boxed "LABEL above value"
-/// shape, but a real [TextField] instead of static text. Used by every
-/// add/edit form in the console (product, category, partner, coupon,
-/// banner) so they all share one input look.
+/// The standard admin form field: small label above an outlined input
+/// ([adminInputDecoration]). Used by every add/edit form in the console
+/// (product, category, partner, coupon, banner, settings) so they all share
+/// one input look.
 class AdminEditField extends StatelessWidget {
   const AdminEditField({
     super.key,
@@ -422,51 +428,28 @@ class AdminEditField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2),
-        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              label.toUpperCase(),
-              style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
-            ),
-          ),
-          TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            inputFormatters: inputFormatters,
-            maxLines: maxLines,
-            enabled: enabled,
-            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
-            decoration: InputDecoration(
-              isDense: true,
-              filled: false,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 5),
-              hintText: hint,
-              hintStyle: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.faint),
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AdminFieldLabel(label),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          maxLines: maxLines,
+          enabled: enabled,
+          cursorColor: AdminColors.ink,
+          style: adminInputText(),
+          decoration: adminInputDecoration(hintText: hint, enabled: enabled),
+        ),
+      ],
     );
   }
 }
 
-/// A labeled dropdown in the same boxed shape as [AdminEditField], for the
-/// handful of form fields that pick from a fixed set (vehicle, status)
-/// instead of free text.
+/// A labeled dropdown in the same shape as [AdminEditField], for form
+/// fields that pick from a fixed set (vehicle, status) instead of free text.
 class AdminEditDropdown<T> extends StatelessWidget {
   const AdminEditDropdown({
     super.key,
@@ -485,37 +468,27 @@ class AdminEditDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2),
-        border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              label.toUpperCase(),
-              style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w600, color: AdminColors.faint, letterSpacing: 0.6),
-            ),
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<T>(
-              value: value,
-              isDense: true,
-              isExpanded: true,
-              icon: const Icon(Icons.expand_more, size: 16, color: AdminColors.faint),
-              style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
-              items: [for (final item in items) DropdownMenuItem(value: item, child: Text(itemLabel(item)))],
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AdminFieldLabel(label),
+        DropdownButtonFormField<T>(
+          // Keyed on the value: a FormField only reads `initialValue` once,
+          // so an outside change (reset, edit-another-row) re-creates it.
+          key: ValueKey(value),
+          initialValue: value,
+          isDense: true,
+          isExpanded: true,
+          icon: const Icon(Icons.expand_more, size: 18, color: AdminColors.muted),
+          style: adminInputText(),
+          dropdownColor: AdminSurface.card,
+          borderRadius: BorderRadius.circular(AdminRadius.md),
+          decoration: adminInputDecoration(),
+          items: [for (final item in items) DropdownMenuItem(value: item, child: Text(itemLabel(item)))],
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }
@@ -568,13 +541,9 @@ class AdminFormModal extends StatelessWidget {
             // once it's the thing actually running out of room.
             constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: MediaQuery.sizeOf(context).height * 0.9),
             child: Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                color: Color(0xFFFFFBF2).withValues(alpha: 0.98),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [BoxShadow(color: AdminColors.ink.withValues(alpha: 0.3), blurRadius: 60, offset: const Offset(0, 30))],
-              ),
+              margin: const EdgeInsets.all(AdminSpace.lg),
+              padding: const EdgeInsets.all(AdminSpace.xl),
+              decoration: adminCard(radius: AdminRadius.lg, border: false, elevated: true),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -587,15 +556,15 @@ class AdminFormModal extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(title, style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: AdminSpace.xxs),
                             Text(subtitle, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                           ],
                         ),
                       ),
-                      AdminIconActionButton(icon: Icons.close, onTap: loading ? null : onCancel, size: 30),
+                      AdminIconActionButton(icon: Icons.close, onTap: loading ? null : onCancel, size: 32),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AdminSpace.lg),
                   // `ListView(shrinkWrap: true)`, not `SingleChildScrollView`
                   // — the latter has no shrinkWrap and always greedily
                   // fills whatever height `Flexible` offers, which would
@@ -608,44 +577,33 @@ class AdminFormModal extends StatelessWidget {
                     child: ListView(
                       shrinkWrap: true,
                       padding: EdgeInsets.zero,
-                      children: [for (var i = 0; i < fields.length; i++) ...[if (i > 0) const SizedBox(height: 12), fields[i]]],
+                      children: [for (var i = 0; i < fields.length; i++) ...[if (i > 0) const SizedBox(height: AdminSpace.md), fields[i]]],
                     ),
                   ),
                   if (error != null) ...[
-                    const SizedBox(height: 12),
-                    Text(error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                    const SizedBox(height: AdminSpace.sm),
+                    Text(error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error)),
                   ],
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AdminSpace.xl),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: AdminButton.secondary(
+                          label: 'Cancel',
+                          size: AdminButtonSize.large,
+                          expand: true,
                           onPressed: loading ? null : onCancel,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AdminColors.ink, width: 1.5),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                          ),
-                          child: Text('Cancel', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: AdminColors.ink)),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: AdminSpace.sm),
                       Expanded(
                         flex: 2,
-                        child: FilledButton(
-                          onPressed: loading ? null : onSubmit,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AdminColors.ink,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                          ),
-                          child: loading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                                )
-                              : Text(submitLabel, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                        child: AdminButton(
+                          label: submitLabel,
+                          size: AdminButtonSize.large,
+                          expand: true,
+                          loading: loading,
+                          onPressed: onSubmit,
                         ),
                       ),
                     ],

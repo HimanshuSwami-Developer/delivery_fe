@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,12 +39,12 @@ class BasketBottomNav extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: BasketColors.white,
-        border: Border(top: BorderSide(color: BasketColors.divider)),
+        border: Border(top: BorderSide(color: BasketSurface.border)),
       ),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 11, 8, 10),
+          padding: const EdgeInsets.fromLTRB(BasketSpace.xs, BasketSpace.sm, BasketSpace.xs, BasketSpace.xs),
           child: Row(
             children: [
               for (final tab in tabs)
@@ -87,11 +88,11 @@ class _NavItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: 5,
+            height: BasketSpace.xxs,
             child: selected ? const Center(child: _GoldDot()) : null,
           ),
           Icon(icon, color: color, size: 20),
-          const SizedBox(height: 5),
+          const SizedBox(height: BasketSpace.xxs),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(

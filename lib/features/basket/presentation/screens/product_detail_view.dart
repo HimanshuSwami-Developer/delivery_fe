@@ -4,11 +4,14 @@ import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/cart_bar.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_card.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 
 const _pdpTabs = [
   (PdpTab.description, 'Description'),
@@ -25,6 +28,7 @@ class ProductDetailView extends StatelessWidget {
     final p = context.select((BasketCubit c) => pdpProduct(c.state));
     final delivery = context.select((BasketCubit c) => c.state.deliverySettings);
     final cartQty = context.select((BasketCubit c) => c.state.cart[p.id] ?? 0);
+    final cartHasItems = context.select((BasketCubit c) => cartTotals(c.state).itemCount > 0);
     final pdpQty = cartQty > 0 ? cartQty : 1;
     final wished = context.select((BasketCubit c) => c.state.wishlist.contains(p.id));
     final tab = context.select((BasketCubit c) => c.state.pdpTab);
@@ -43,8 +47,8 @@ class ProductDetailView extends StatelessWidget {
                   _ProductGallery(key: ValueKey(p.id), images: p.galleryImages, discountPct: p.discountPct),
                   Positioned(
                     top: MediaQuery.paddingOf(context).top + 8,
-                    left: 14,
-                    right: 14,
+                    left: BasketSpace.gutter,
+                    right: BasketSpace.gutter,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -56,7 +60,12 @@ class ProductDetailView extends StatelessWidget {
                               onTap: () => cubit.toggleWishlist(p.id),
                             ),
                             const SizedBox(width: 8),
-                            const _DarkCircleButton(icon: Icons.ios_share_rounded, onTap: null),
+                            Builder(
+                              builder: (buttonContext) => _DarkCircleButton(
+                                icon: Icons.ios_share_rounded,
+                                onTap: () => _shareProduct(buttonContext, p),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -67,10 +76,10 @@ class ProductDetailView extends StatelessWidget {
               Transform.translate(
                 offset: const Offset(0, -22),
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 30),
+                  padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.xxl),
                   decoration: BoxDecoration(
                     color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+                    borderRadius: BasketRadius.sheet,
                     boxShadow: [BoxShadow(color: BasketColors.ink.withValues(alpha: 0.18), blurRadius: 40, offset: const Offset(0, -12))],
                   ),
                   child: Column(
@@ -80,8 +89,8 @@ class ProductDetailView extends StatelessWidget {
                         child: Container(
                           width: 34,
                           height: 4,
-                          margin: const EdgeInsets.only(bottom: 14),
-                          decoration: BoxDecoration(color: BasketColors.ink.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(9)),
+                          margin: const EdgeInsets.only(bottom: BasketSpace.sm),
+                          decoration: BoxDecoration(color: BasketColors.ink.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(BasketRadius.sm)),
                         ),
                       ),
                       Row(
@@ -94,8 +103,8 @@ class ProductDetailView extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                            decoration: BoxDecoration(border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)), borderRadius: BorderRadius.circular(99)),
+                            padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: BasketSpace.xxs),
+                            decoration: BoxDecoration(border: Border.all(color: BasketSurface.borderStrong), borderRadius: BorderRadius.circular(BasketRadius.pill)),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -112,7 +121,7 @@ class ProductDetailView extends StatelessWidget {
                         '${p.pack} · Delivery in ${BasketCubit.etaMinutes} min',
                         style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500, color: BasketColors.muted),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: BasketSpace.sm),
                       Row(
                         children: [
                           for (var i = 0; i < 3; i++) ...[
@@ -127,15 +136,15 @@ class ProductDetailView extends StatelessWidget {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(moneyLabel(p.price), style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
-                          const SizedBox(width: 9),
+                          const SizedBox(width: BasketSpace.xs),
                           Text(
                             moneyLabel(p.mrp),
                             style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
                           ),
-                          const SizedBox(width: 9),
+                          const SizedBox(width: BasketSpace.xs),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.circular(99)),
+                            padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: BasketSpace.xxs),
+                            decoration: BoxDecoration(color: BasketColors.gold, borderRadius: BorderRadius.circular(BasketRadius.pill)),
                             child: Text('${p.discountPct}% off', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: BasketColors.primary)),
                           ),
                         ],
@@ -148,18 +157,18 @@ class ProductDetailView extends StatelessWidget {
                           const Expanded(child: _InfoTile(title: 'Easy returns', sub: 'On the doorstep')),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: BasketSpace.lg),
                       Container(
-                        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: BasketColors.ink.withValues(alpha: 0.09)))),
+                        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: BasketSurface.border))),
                         child: Row(
                           children: [
                             for (final t in _pdpTabs)
                               Padding(
-                                padding: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.only(right: BasketSpace.sm),
                                 child: GestureDetector(
                                   onTap: () => cubit.setPdpTab(t.$1),
                                   child: Container(
-                                    padding: const EdgeInsets.only(bottom: 9),
+                                    padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                                     decoration: BoxDecoration(
                                       border: Border(bottom: BorderSide(color: tab == t.$1 ? BasketColors.ink : Colors.transparent, width: 2)),
                                     ),
@@ -177,7 +186,7 @@ class ProductDetailView extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: BasketSpace.sm),
                       if (tab == PdpTab.reviews)
                         _ReviewsTab(key: ValueKey(p.id), product: p)
                       else
@@ -185,18 +194,12 @@ class ProductDetailView extends StatelessWidget {
                           _tabBody(tab, p),
                           style: GoogleFonts.plusJakartaSans(fontSize: 13, height: 1.7, fontWeight: FontWeight.w500, color: const Color(0xFF4A4A52)),
                         ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: BasketSpace.xl),
                       Text('Frequently bought with', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 11),
-                      SizedBox(
-                        height: 148,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: also.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 9),
-                          itemBuilder: (context, i) => _AlsoBoughtCard(product: also[i]),
-                        ),
-                      ),
+                      const SizedBox(height: BasketSpace.sm),
+                      // The shared tile, so ADD flips to a live −/qty/+
+                      // stepper here exactly as on home/category.
+                      ProductRail(products: also, cardWidth: 140),
                     ],
                   ),
                 ),
@@ -204,51 +207,74 @@ class ProductDetailView extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(border: Border.all(color: BasketColors.ink, width: 1.5), borderRadius: BorderRadius.circular(13)),
-                  child: Row(
-                    children: [
-                      _StepButton(label: '−', onTap: () => cubit.bump(p.id, -1)),
-                      SizedBox(
-                        width: 20,
-                        child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
-                      ),
-                      _StepButton(label: '+', onTap: () => cubit.bump(p.id, 1)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: BasketColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+        // "View basket" bar, sat in-flow above the sticky add bar (the
+        // shell's floating one is hidden on this screen so it can't cover
+        // that bar) — appears as soon as anything, e.g. a "Frequently
+        // bought with" item, is in the cart.
+        AnimatedSize(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          child: cartHasItems
+              ? const Padding(
+                  padding: EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.xs, BasketSpace.gutter, BasketSpace.xs),
+                  child: CartBar(),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+        BasketBottomBar(
+          child: Row(
+            children: [
+              Container(
+                height: 52,
+                decoration: BoxDecoration(border: Border.all(color: BasketSurface.borderStrong), borderRadius: BasketRadius.button),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _StepButton(label: '−', onTap: () => cubit.bump(p.id, -1)),
+                    SizedBox(
+                      width: 20,
+                      child: Center(child: Text('$pdpQty', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800))),
                     ),
-                    onPressed: cubit.pdpAdd,
-                    child: Text(
-                      'Add to cart · ${moneyLabel(p.price * pdpQty)}',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                    ),
-                  ),
+                    _StepButton(label: '+', onTap: () => cubit.bump(p.id, 1)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: BasketSpace.sm),
+              Expanded(
+                child: BasketButton(
+                  label: 'Add to cart · ${moneyLabel(p.price * pdpQty)}',
+                  onPressed: cubit.pdpAdd,
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
+
+  /// Opens the system share sheet with the product's name, pack, price
+  /// (and discount vs MRP when there is one) plus the Play Store link.
+  /// [context] is the share button's own, so iPad can anchor the popover
+  /// to it.
+  static Future<void> _shareProduct(BuildContext context, BasketProduct p) {
+    final price = p.mrp > p.price
+        ? '${moneyLabel(p.price)} (MRP ${moneyLabel(p.mrp)}, ${p.discountPct}% off)'
+        : moneyLabel(p.price);
+    final text = 'Check out ${p.name} (${p.pack}) on Aapno Bazar — just $price, '
+        'delivered in ${BasketCubit.etaMinutes} minutes!\n\n'
+        'Get the app: $_playStoreUrl';
+    final box = context.findRenderObject() as RenderBox?;
+    return SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: p.name,
+        sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+      ),
+    );
+  }
+
+  static const _playStoreUrl = 'https://play.google.com/store/apps/details?id=com.aapnobazar.app';
 
   static String _reviewCount(int n) {
     if (n > 999) return '${(n / 100).round() / 10}k';
@@ -333,12 +359,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.8),
-            border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-            borderRadius: BorderRadius.circular(14),
-          ),
+          padding: const EdgeInsets.all(BasketSpace.md),
+          decoration: basketCard(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -346,14 +368,14 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 hasOwnReview ? 'Update your review' : 'Write a review',
                 style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: BasketSpace.sm),
               Row(
                 children: [
                   for (var i = 1; i <= 5; i++)
                     GestureDetector(
                       onTap: () => cubit.setReviewRating(i),
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 4),
+                        padding: const EdgeInsets.only(right: BasketSpace.xxs),
                         child: Icon(
                           i <= ratingInput ? Icons.star_rounded : Icons.star_border_rounded,
                           size: 26,
@@ -363,59 +385,36 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: BasketSpace.sm),
               TextField(
                 controller: _comment,
                 onChanged: cubit.setReviewComment,
                 minLines: 2,
                 maxLines: 4,
-                style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w500),
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: "Share what you liked or didn't (optional)",
-                  filled: true,
-                  fillColor: Color(0xFFFFFBF2),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: BasketColors.primary, width: 1.6)),
-                ),
+                cursorColor: BasketColors.primary,
+                style: basketInputText(),
+                decoration: basketInputDecoration(hintText: "Share what you liked or didn't (optional)"),
               ),
               if (formError != null) ...[
                 const SizedBox(height: 8),
                 Text(formError, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.error)),
               ],
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                  ),
-                  onPressed: submitting ? null : () => cubit.submitProductReview(widget.product.id),
-                  child: submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                        )
-                      : Text(
-                          hasOwnReview ? 'Update review' : 'Submit review',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                        ),
-                ),
+              const SizedBox(height: BasketSpace.sm),
+              BasketButton(
+                label: hasOwnReview ? 'Update review' : 'Submit review',
+                size: BasketButtonSize.medium,
+                loading: submitting,
+                onPressed: submitting ? null : () => cubit.submitProductReview(widget.product.id),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: BasketSpace.md),
         Text(
           '${widget.product.reviews.length} ${widget.product.reviews.length == 1 ? 'review' : 'reviews'}',
           style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: BasketSpace.sm),
         if (widget.product.reviews.isEmpty)
           Text(
             'No reviews yet — be the first to leave one.',
@@ -424,14 +423,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
         else
           for (final r in widget.product.reviews)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: BasketSpace.section),
               child: Container(
-                padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-                  border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                padding: const EdgeInsets.all(BasketSpace.sm),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -447,7 +442,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         Text(_reviewDateLabel(r.createdAt), style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: BasketSpace.xxs),
                     Row(
                       children: [
                         for (var i = 1; i <= 5; i++)
@@ -553,8 +548,8 @@ class _ProductGalleryState extends State<_ProductGallery> {
             ),
           if (multi)
             Positioned(
-              left: 14,
-              right: 14,
+              left: BasketSpace.gutter,
+              right: BasketSpace.gutter,
               bottom: 34,
               child: SizedBox(
                 height: 46,
@@ -569,12 +564,12 @@ class _ProductGalleryState extends State<_ProductGallery> {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(BasketRadius.md),
                         border: Border.all(color: i == _index ? BasketColors.ink : Color(0xFFFFFBF2), width: i == _index ? 2.4 : 1.6),
                         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 6, offset: const Offset(0, 2))],
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(7.5),
+                        borderRadius: BorderRadius.circular(BasketRadius.sm),
                         child: Image.network(
                           images[i],
                           fit: BoxFit.cover,
@@ -602,7 +597,7 @@ class _DarkCircleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(99),
+      borderRadius: BorderRadius.circular(BasketRadius.pill),
       child: Container(
         width: 36,
         height: 36,
@@ -623,11 +618,11 @@ class _VariantPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
       decoration: BoxDecoration(
-        color: selected ? BasketColors.ink : Color(0xFFFFFBF2).withValues(alpha: 0.7),
-        border: Border.all(color: selected ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.14)),
-        borderRadius: BorderRadius.circular(99),
+        color: selected ? BasketColors.ink : BasketSurface.card,
+        border: Border.all(color: selected ? BasketColors.ink : BasketSurface.borderStrong),
+        borderRadius: BorderRadius.circular(BasketRadius.pill),
       ),
       child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: selected ? Color(0xFFFFFBF2) : BasketColors.ink)),
     );
@@ -643,12 +638,8 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2).withValues(alpha: 0.8),
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
-        borderRadius: BorderRadius.circular(14),
-      ),
+      padding: const EdgeInsets.all(BasketSpace.sm),
+      decoration: basketCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -656,53 +647,6 @@ class _InfoTile extends StatelessWidget {
           const SizedBox(height: 3),
           Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
         ],
-      ),
-    );
-  }
-}
-
-class _AlsoBoughtCard extends StatelessWidget {
-  const _AlsoBoughtCard({required this.product});
-
-  final BasketProduct product;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.read<BasketCubit>().openProduct(product.id),
-      child: Container(
-        width: 112,
-        padding: const EdgeInsets.all(8),
-        decoration: productCardDecoration(radius: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProductImage(height: 66, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 10),
-            const SizedBox(height: 7),
-            SizedBox(
-              height: 27,
-              child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, height: 1.3, fontWeight: FontWeight.w600)),
-            ),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800)),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: BasketColors.ink, width: 1.3),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  onPressed: () => context.read<BasketCubit>().bump(product.id, 1),
-                  child: Text('ADD', style: GoogleFonts.plusJakartaSans(fontSize: 9.5, fontWeight: FontWeight.w800)),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -719,8 +663,8 @@ class _StepButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-        child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+        padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md),
+        child: Center(child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800))),
       ),
     );
   }

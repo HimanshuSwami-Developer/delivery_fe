@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/step_progress.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class DeliverySlotView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +31,7 @@ class DeliverySlotView extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: cubit.back,
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(BasketRadius.pill),
                     child: Container(
                       width: 34,
                       height: 34,
@@ -43,7 +44,7 @@ class DeliverySlotView extends StatelessWidget {
                       child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: BasketSpace.sm),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -54,27 +55,27 @@ class DeliverySlotView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.md),
               const StepProgress(step: 2),
             ],
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
               Row(
                 children: [
                   for (var i = 0; i < BasketCatalog.deliveryDays.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 8),
+                    if (i > 0) const SizedBox(width: BasketSpace.xs),
                     Expanded(child: _DayPill(day: BasketCatalog.deliveryDays[i], selected: i == day, onTap: () => cubit.selectDeliveryDay(i))),
                   ],
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.md),
               for (final s in BasketCatalog.deliverySlots)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 9),
+                  padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                   child: _SlotCard(
                     slot: s,
                     selected: s.id == selectedSlot,
@@ -83,12 +84,8 @@ class DeliverySlotView extends StatelessWidget {
                   ),
                 ),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-                  border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-                  borderRadius: BorderRadius.circular(15),
-                ),
+                padding: const EdgeInsets.all(BasketSpace.sm),
+                decoration: basketCard(),
                 child: Text(
                   'Express slots are dispatched from your nearest store. Scheduled slots arrive within a 2-hour window.',
                   style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
@@ -97,28 +94,8 @@ class DeliverySlotView extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: BasketColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                onPressed: cubit.goToSummary,
-                child: Text('Continue to payment →', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-              ),
-            ),
-          ),
+        BasketBottomBar(
+          child: BasketButton(label: 'Continue to payment →', onPressed: cubit.goToSummary),
         ),
       ],
     );
@@ -138,11 +115,11 @@ class _DayPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: BasketSpace.sm, horizontal: BasketSpace.xs),
         decoration: BoxDecoration(
           color: style.bg,
           border: Border.all(color: style.border, width: 1.5),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(BasketRadius.md),
         ),
         child: Column(
           children: [
@@ -175,12 +152,8 @@ class _SlotCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(13),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-            border: Border.all(color: selected ? BasketColors.ink : Color(0xFFFFFBF2).withValues(alpha: 0.85), width: 1.5),
-            borderRadius: BorderRadius.circular(15),
-          ),
+          padding: const EdgeInsets.all(BasketSpace.sm),
+          decoration: basketCard(selected: selected),
           child: Row(
             children: [
               Container(
@@ -192,7 +165,7 @@ class _SlotCard extends StatelessWidget {
                   border: Border.all(color: BasketColors.ink, width: 1.5),
                 ),
               ),
-              const SizedBox(width: 11),
+              const SizedBox(width: BasketSpace.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

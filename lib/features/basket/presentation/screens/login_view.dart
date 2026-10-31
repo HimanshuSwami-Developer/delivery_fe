@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/aapno_bazar_palette.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/bazar_mark.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,8 +11,10 @@ import 'package:google_fonts/google_fonts.dart';
 /// onboarding, and the OTP-verify screen) — this phone-number entry step
 /// sits between onboarding and [OtpView] in the real flow, so it's reskinned
 /// to match that same navy/gold "Aapno Bazar" language (palette, Plus
-/// Jakarta Sans, header shape, button/shadow treatment) rather than left in
-/// the app's old indigo theme.
+/// Jakarta Sans, header shape) rather than left in the app's old indigo
+/// theme. The form itself follows the shared [BasketButton] /
+/// outlined-input standard (Blinkit-style): one 52px phone field with a
+/// fixed "+91" prefix, then a full-width large CTA.
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
@@ -20,6 +23,7 @@ class LoginView extends StatelessWidget {
     final cubit = context.read<BasketCubit>();
     final authLoading = context.select((BasketCubit c) => c.state.authLoading);
     final authError = context.select((BasketCubit c) => c.state.authError);
+    final phoneComplete = context.select((BasketCubit c) => c.state.phone.length == 10);
     final topInset = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
@@ -29,10 +33,10 @@ class LoginView extends StatelessWidget {
         child: Column(
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(34)),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl)),
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.fromLTRB(24, topInset + 20, 24, 30),
+                padding: EdgeInsets.fromLTRB(BasketSpace.xl, topInset + BasketSpace.lg, BasketSpace.xl, BasketSpace.xxl),
                 decoration: const BoxDecoration(
                   gradient: RadialGradient(center: Alignment(-0.5, -1), radius: 1.4, colors: [AapnoBazar.navyGlow, AapnoBazar.navy], stops: [0, 0.72]),
                 ),
@@ -45,11 +49,11 @@ class LoginView extends StatelessWidget {
                         Container(
                           width: 32,
                           height: 32,
-                          decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(BasketRadius.md)),
                           alignment: Alignment.center,
                           child: const BazarMark(size: 19),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: BasketSpace.xs),
                         Text('Aapno Bazar', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       ],
                     ),
@@ -64,7 +68,7 @@ class LoginView extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: BasketSpace.xs),
                     Text(
                       'Log in with your mobile number',
                       style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.62)),
@@ -74,87 +78,70 @@ class LoginView extends StatelessWidget {
               ),
             ),
             // Clean gap below the header, no overlap — matches the
-            // OTP-verify screen's card placement (see `OtpView`).
+            // OTP-verify screen's form placement (see `OtpView`).
             Expanded(
               child: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
-                        decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(26)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Mobile number', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: AapnoBazar.textFaint)),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AapnoBazar.inputFill,
-                                border: Border.all(color: AapnoBazar.borderIdle, width: 1.5),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text('+91', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, color: AapnoBazar.navy)),
-                                  Container(height: 20, width: 1.4, margin: const EdgeInsets.symmetric(horizontal: 10), color: AapnoBazar.borderFilled),
-                                  Expanded(
-                                    child: TextField(
-                                      keyboardType: TextInputType.phone,
-                                      maxLength: 10,
-                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                      onChanged: cubit.setPhone,
-                                      style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 0.7, color: AapnoBazar.navy),
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        counterText: '',
-                                        filled: false,
-                                        border: InputBorder.none,
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                        hintText: 'Enter mobile number (10 digits)',
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (authError != null) ...[
-                              const SizedBox(height: 10),
-                              Text(authError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AapnoBazar.navy)),
-                            ],
-                            const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: authLoading ? null : cubit.sendOtp,
-                              child: Container(
-                                height: 58,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: AapnoBazar.navy,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [BoxShadow(color: AapnoBazar.navy.withValues(alpha: 0.7), blurRadius: 28, spreadRadius: -12, offset: const Offset(0, 14))],
+                      padding: const EdgeInsets.fromLTRB(BasketSpace.xl, BasketSpace.xxl, BasketSpace.xl, BasketSpace.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const BasketFieldLabel('Mobile number'),
+                          TextField(
+                            keyboardType: TextInputType.phone,
+                            maxLength: 10,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            onChanged: cubit.setPhone,
+                            cursorColor: AapnoBazar.navy,
+                            style: basketInputText().copyWith(fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.7),
+                            decoration: basketInputDecoration(
+                              hintText: 'Enter mobile number (10 digits)',
+                              // Fixed "+91" country code, split from the
+                              // digits by a thin divider.
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.only(left: BasketSpace.md, right: BasketSpace.sm),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('+91', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: AapnoBazar.navy)),
+                                    const SizedBox(width: BasketSpace.sm),
+                                    Container(height: 20, width: 1, color: BasketSurface.borderStrong),
+                                  ],
                                 ),
-                                alignment: Alignment.center,
-                                child: authLoading
-                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))))
-                                    : Text('Send OTP', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                               ),
+                            ).copyWith(
+                              constraints: const BoxConstraints(minHeight: 52),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: BasketSpace.sm),
                             ),
-                            const SizedBox(height: 14),
-                            Text(
+                          ),
+                          if (authError != null) ...[
+                            const SizedBox(height: BasketSpace.xs),
+                            Text(authError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AapnoBazar.navy)),
+                          ],
+                          const SizedBox(height: BasketSpace.lg),
+                          BasketButton(
+                            label: 'Send OTP',
+                            // Disabled until a full 10-digit number is in.
+                            onPressed: phoneComplete ? cubit.sendOtp : null,
+                            loading: authLoading,
+                          ),
+                          const SizedBox(height: BasketSpace.md),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
                               'By continuing you agree to our Terms of Use and Privacy Policy.',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: AapnoBazar.textSubtle),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
+                    padding: const EdgeInsets.only(bottom: BasketSpace.xl),
                     child: Text(
                       'Trouble logging in? Get help',
                       style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AapnoBazar.textFaint),

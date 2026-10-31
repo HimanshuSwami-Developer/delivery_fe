@@ -1,5 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
+import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,7 +11,10 @@ import 'package:google_fonts/google_fonts.dart';
 /// through the same [onApply] callback (`BasketCubit.applyCouponCode`,
 /// no navigation) against the same `BasketState.appliedCoupon`, so a
 /// coupon applied on either screen — or from "My coupons" itself — shows
-/// as "Applied" everywhere immediately.
+/// as "Applied" everywhere immediately. Coupons this customer can't use
+/// (already used, expired, or the cart is under the minimum — see
+/// [couponAvailability]) look the same but get a grey, non-clickable
+/// Apply.
 class CouponStrip extends StatelessWidget {
   const CouponStrip({
     super.key,
@@ -18,9 +23,13 @@ class CouponStrip extends StatelessWidget {
     required this.onApply,
     required this.onRemove,
     required this.onViewAll,
+    required this.cartSubtotal,
   });
 
   final List<ApiCoupon> coupons;
+
+  /// Item total the minimum-order rule is checked against.
+  final int cartSubtotal;
   final String? appliedCoupon;
   final ValueChanged<String> onApply;
   final VoidCallback onRemove;
@@ -30,25 +39,25 @@ class CouponStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     if (coupons.isEmpty) return const SizedBox.shrink();
     return SizedBox(
-      height: 90,
+      height: 100,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: coupons.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(width: 9),
+        separatorBuilder: (_, _) => const SizedBox(width: BasketSpace.xs),
         itemBuilder: (context, i) {
           if (i == coupons.length) {
             return GestureDetector(
               onTap: onViewAll,
               child: Container(
                 width: 78,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: BasketColors.primarySoft, borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.all(BasketSpace.xs),
+                decoration: BoxDecoration(color: BasketColors.primarySoft, borderRadius: BorderRadius.circular(BasketRadius.md)),
                 alignment: Alignment.center,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.arrow_forward_rounded, size: 17, color: BasketColors.primary),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: BasketSpace.xxs),
                     Text(
                       'View all',
                       textAlign: TextAlign.center,
@@ -61,14 +70,14 @@ class CouponStrip extends StatelessWidget {
           }
           final c = coupons[i];
           final applied = appliedCoupon == c.code;
+          final availability = couponAvailability(c, cartSubtotal);
+          // An already-applied coupon stays removable even if it's since
+          // stopped qualifying (e.g. items taken out below the minimum).
+          final disabled = !availability.usable && !applied;
           return Container(
             width: 164,
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-              color: Color(0xFFFFFBF2),
-              border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-              borderRadius: BorderRadius.circular(14),
-            ),
+            padding: const EdgeInsets.all(BasketSpace.sm),
+            decoration: basketCard(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,25 +95,11 @@ class CouponStrip extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: applied ? BasketColors.ink.withValues(alpha: 0.08) : BasketColors.primary,
-                      shape: const StadiumBorder(),
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      minimumSize: Size.zero,
-                    ),
-                    onPressed: applied ? onRemove : () => onApply(c.code),
-                    child: Text(
-                      applied ? 'Remove' : 'Apply',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
-                        color: applied ? BasketColors.ink : Color(0xFFFFFBF2),
-                      ),
-                    ),
-                  ),
+                BasketButton(
+                  label: applied ? 'Remove' : 'Apply',
+                  variant: applied ? BasketButtonVariant.tonal : BasketButtonVariant.primary,
+                  size: BasketButtonSize.small,
+                  onPressed: applied ? onRemove : (disabled ? null : () => onApply(c.code)),
                 ),
               ],
             ),
@@ -118,12 +113,7 @@ class CouponStrip extends StatelessWidget {
 /// Shown in place of the coupon input once a code is applied: the code,
 /// the amount saved, and a Remove action that clears it from the cart.
 class AppliedCouponBanner extends StatelessWidget {
-  const AppliedCouponBanner({
-    super.key,
-    required this.code,
-    required this.savings,
-    required this.onRemove,
-  });
+  const AppliedCouponBanner({super.key, required this.code, required this.savings, required this.onRemove});
 
   final String code;
   final String savings;
@@ -132,16 +122,16 @@ class AppliedCouponBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+      padding: const EdgeInsets.fromLTRB(BasketSpace.sm, BasketSpace.xs, BasketSpace.xs, BasketSpace.xs),
       decoration: BoxDecoration(
         color: BasketColors.primarySoft,
         border: Border.all(color: BasketColors.primary.withValues(alpha: 0.35)),
-        borderRadius: BorderRadius.circular(11),
+        borderRadius: BorderRadius.circular(BasketRadius.md),
       ),
       child: Row(
         children: [
           Icon(Icons.check_circle_rounded, size: 18, color: BasketColors.primary),
-          const SizedBox(width: 8),
+          const SizedBox(width: BasketSpace.xs),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,17 +148,7 @@ class AppliedCouponBanner extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: onRemove,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              minimumSize: Size.zero,
-            ),
-            child: Text(
-              'Remove',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.red.shade700),
-            ),
-          ),
+          BasketButton(label: 'Remove', variant: BasketButtonVariant.danger, size: BasketButtonSize.small, expand: false, onPressed: onRemove),
         ],
       ),
     );

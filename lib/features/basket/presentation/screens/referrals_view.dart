@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,13 +24,13 @@ class ReferralsView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -42,7 +43,7 @@ class ReferralsView extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text('My referrals', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
@@ -51,12 +52,12 @@ class ReferralsView extends StatelessWidget {
           child: summary == null
               ? const Center(child: CircularProgressIndicator())
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+                  padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(18)),
+                      padding: const EdgeInsets.all(BasketSpace.md),
+                      decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(BasketRadius.lg)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -66,21 +67,21 @@ class ReferralsView extends StatelessWidget {
                                 child: _StatBlock(label: 'Friends joined', value: '${summary.totalReferrals}'),
                               ),
                               Container(width: 1, height: 34, color: Color(0xFFFFFBF2).withValues(alpha: 0.2)),
-                              const SizedBox(width: 14),
+                              const SizedBox(width: BasketSpace.sm),
                               Expanded(
                                 child: _StatBlock(label: 'Coupons earned', value: moneyLabel(summary.totalRewardsEarned)),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: BasketSpace.sm),
                           Row(
                             children: [
                               Expanded(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.3)),
-                                    borderRadius: BorderRadius.circular(11),
+                                    borderRadius: BorderRadius.circular(BasketRadius.sm),
                                   ),
                                   child: Text(
                                     summary.referralCode,
@@ -88,16 +89,13 @@ class ReferralsView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 9),
-                              InkWell(
-                                borderRadius: BorderRadius.circular(11),
-                                onTap: () => SharePlus.instance.share(
+                              const SizedBox(width: BasketSpace.xs),
+                              BasketButton.secondary(
+                                label: 'Share',
+                                size: BasketButtonSize.small,
+                                expand: false,
+                                onPressed: () => SharePlus.instance.share(
                                   ShareParams(text: 'Use my code ${summary.referralCode} on Aapno Bazar and get a ₹100 coupon on your first order!'),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(11)),
-                                  child: Text('Share', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
                                 ),
                               ),
                             ],
@@ -105,9 +103,9 @@ class ReferralsView extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: BasketSpace.xl),
                     Text('Referral history', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 11),
+                    const SizedBox(height: BasketSpace.sm),
                     if (summary.referrals.isEmpty)
                       Text(
                         'Nobody has used your code yet — share it to start earning.',
@@ -116,10 +114,10 @@ class ReferralsView extends StatelessWidget {
                     else
                       for (final r in summary.referrals)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                            decoration: glassCard(radius: 15),
+                            padding: const EdgeInsets.all(BasketSpace.sm),
+                            decoration: basketCard(),
                             child: Row(
                               children: [
                                 Container(
@@ -129,7 +127,7 @@ class ReferralsView extends StatelessWidget {
                                   alignment: Alignment.center,
                                   child: Icon(Icons.person_rounded, size: 18, color: BasketColors.primary),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: BasketSpace.sm),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,

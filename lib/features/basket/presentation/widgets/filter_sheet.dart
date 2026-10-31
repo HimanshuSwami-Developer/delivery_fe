@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -47,10 +48,10 @@ class FilterSheet extends StatelessWidget {
           child: SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
+              padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.xl),
               decoration: BoxDecoration(
                 color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+                borderRadius: BasketRadius.sheet,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -60,21 +61,19 @@ class FilterSheet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Filters', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
-                      GestureDetector(
-                        onTap: cubit.resetFilters,
-                        child: Text(
-                          'Clear all',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: BasketColors.muted),
-                        ),
+                      BasketButton.text(
+                        label: 'Clear all',
+                        size: BasketButtonSize.small,
+                        onPressed: cubit.resetFilters,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: BasketSpace.md),
                   Text('Price', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 9),
+                  const SizedBox(height: BasketSpace.xs),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: BasketSpace.xs,
+                    runSpacing: BasketSpace.xs,
                     children: [
                       for (final b in _bands)
                         _Pill(
@@ -84,12 +83,12 @@ class FilterSheet extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: BasketSpace.md),
                   Text('Sort by', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 9),
+                  const SizedBox(height: BasketSpace.xs),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: BasketSpace.xs,
+                    runSpacing: BasketSpace.xs,
                     children: [
                       for (final s in _sorts)
                         _Pill(
@@ -99,37 +98,16 @@ class FilterSheet extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: BasketSpace.xl),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: BasketColors.ink, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            minimumSize: Size.zero,
-                          ),
-                          onPressed: cubit.resetFilters,
-                          child: Text('Reset', style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: BasketColors.ink)),
-                        ),
+                        child: BasketButton.secondary(label: 'Reset', onPressed: cubit.resetFilters),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: BasketSpace.sm),
                       Expanded(
                         flex: 2,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            minimumSize: Size.zero,
-                          ),
-                          onPressed: cubit.closeSheet,
-                          child: Text(
-                            'Show $listCount results',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2)),
-                          ),
-                        ),
+                        child: BasketButton(label: 'Show $listCount results', onPressed: cubit.closeSheet),
                       ),
                     ],
                   ),
@@ -155,11 +133,11 @@ class _Pill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
         decoration: BoxDecoration(
           color: style.bg,
           border: Border.all(color: style.border),
-          borderRadius: BorderRadius.circular(99),
+          borderRadius: BorderRadius.circular(BasketRadius.pill),
         ),
         child: Text(
           label,

@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +13,7 @@ Future<void> showPaymentResultPopup(BuildContext context, PaymentPopup popup) {
     context: context,
     barrierDismissible: false,
     builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BasketRadius.lg)),
       icon: Container(
         width: 52,
         height: 52,
@@ -32,17 +33,10 @@ Future<void> showPaymentResultPopup(BuildContext context, PaymentPopup popup) {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: BasketColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(vertical: 13),
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK', style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-          ),
+        BasketButton(
+          label: 'OK',
+          size: BasketButtonSize.medium,
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ],
     ),

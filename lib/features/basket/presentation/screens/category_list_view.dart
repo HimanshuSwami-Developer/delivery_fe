@@ -1,10 +1,9 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
-import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
-import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
+import 'package:fastswipe/features/basket/presentation/widgets/product_card.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,12 +34,12 @@ class CategoryListView extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(14, MediaQuery.paddingOf(context).top + 8, 14, 14),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.xs, BasketSpace.gutter, BasketSpace.sm),
           decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
           child: Row(
             children: [
               _CircleIconButton(icon: Icons.arrow_back, onTap: cubit.back),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,10 +76,10 @@ class CategoryListView extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Color(0xFFFFFBF2).withValues(alpha: 0.5),
-                      border: Border(right: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
+                      border: Border(right: BorderSide(color: BasketSurface.border)),
                     ),
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: BasketSpace.xs),
                       children: [
                         for (final s in category.subs) _SubcategoryItem(sub: s, active: s == subcategory),
                       ],
@@ -92,14 +91,14 @@ class CategoryListView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: BasketSpace.gutter, vertical: BasketSpace.sm),
                       child: Row(
                         children: [
                           _FilterPill(
                             label: '⇅ ${_sortLabels[sort]}',
                             onTap: cubit.openFilterSheet,
                           ),
-                          const SizedBox(width: 7),
+                          const SizedBox(width: BasketSpace.xs),
                           _FilterPill(
                             label: '▽ Filter${band == PriceBand.all ? '' : ' · 1'}',
                             onTap: cubit.openFilterSheet,
@@ -109,35 +108,19 @@ class CategoryListView extends StatelessWidget {
                     ),
                     Expanded(
                       child: view == CatalogView.grid
-                          // A `Wrap` of fixed-width cards, not a `GridView`
-                          // with a fixed `childAspectRatio` — the aspect
-                          // ratio forced every card into the same box
-                          // regardless of how many lines its name actually
-                          // needed, clipping longer names or leaving dead
-                          // space under shorter ones. Each card sizes to
-                          // its own content height here (see `_GridCard`'s
-                          // `mainAxisSize: min`).
+                          // Not a `GridView` with a fixed `childAspectRatio` (that clipped long
+                          // names or left dead space under short ones): each pair of cards is
+                          // as tall as its taller card, prices pinned to the bottom — see
+                          // `ProductGrid`.
                           ? SingleChildScrollView(
-                              padding: const EdgeInsets.fromLTRB(12, 2, 12, 90),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final cardWidth = (constraints.maxWidth - 9) / 2;
-                                  return Wrap(
-                                    spacing: 9,
-                                    runSpacing: 9,
-                                    children: [
-                                      for (final product in items)
-                                        SizedBox(width: cardWidth, child: _GridCard(product: product)),
-                                    ],
-                                  );
-                                },
-                              ),
+                              padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, 0, BasketSpace.gutter, 90),
+                              child: ProductGrid(products: items, spacing: BasketSpace.xs),
                             )
                           : ListView.separated(
-                              padding: const EdgeInsets.fromLTRB(12, 2, 12, 90),
+                              padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, 0, BasketSpace.gutter, 90),
                               itemCount: items.length,
-                              separatorBuilder: (_, _) => const SizedBox(height: 9),
-                              itemBuilder: (context, i) => _RowCard(product: items[i]),
+                              separatorBuilder: (_, _) => const SizedBox(height: BasketSpace.section),
+                              itemBuilder: (context, i) => ProductRowCard(product: items[i]),
                             ),
                     ),
                   ],
@@ -161,7 +144,7 @@ class _CircleIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(99),
+      borderRadius: BorderRadius.circular(BasketRadius.pill),
       child: Container(
         width: 34,
         height: 34,
@@ -189,7 +172,7 @@ class _SubcategoryItem extends StatelessWidget {
       onTap: () => context.read<BasketCubit>().setSubcategory(sub),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: BasketSpace.xs, horizontal: BasketSpace.xxs),
         decoration: BoxDecoration(
           border: Border(left: BorderSide(color: active ? BasketColors.ink : Colors.transparent, width: 2.5)),
           color: active ? Color(0xFFFFFBF2).withValues(alpha: 0.9) : Colors.transparent,
@@ -197,7 +180,7 @@ class _SubcategoryItem extends StatelessWidget {
         child: Column(
           children: [
             const ProductImageMini(size: 42),
-            const SizedBox(height: 5),
+            const SizedBox(height: BasketSpace.xxs),
             Text(
               sub,
               textAlign: TextAlign.center,
@@ -223,11 +206,11 @@ class _FilterPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
-          border: Border.all(color: BasketColors.ink.withValues(alpha: 0.14)),
-          borderRadius: BorderRadius.circular(99),
+          color: BasketSurface.card,
+          border: Border.all(color: BasketSurface.borderStrong),
+          borderRadius: BorderRadius.circular(BasketRadius.pill),
         ),
         child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700)),
       ),
@@ -235,111 +218,3 @@ class _FilterPill extends StatelessWidget {
   }
 }
 
-class _GridCard extends StatelessWidget {
-  const _GridCard({required this.product});
-
-  final BasketProduct product;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: product.oos ? 0.5 : 1,
-      child: GestureDetector(
-        onTap: () => context.read<BasketCubit>().openProduct(product.id),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: productCardDecoration(radius: 15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ProductImage(height: 78, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11),
-              const SizedBox(height: 7),
-              SizedBox(
-                height: 28,
-                child: Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 11, height: 1.3, fontWeight: FontWeight.w600, color: BasketColors.ink),
-                ),
-              ),
-              Text(product.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-              const SizedBox(height: 7),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: BasketColors.ink)),
-                  AddQtyControl(product: product),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RowCard extends StatelessWidget {
-  const _RowCard({required this.product});
-
-  final BasketProduct product;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: product.oos ? 0.5 : 1,
-      child: GestureDetector(
-        onTap: () => context.read<BasketCubit>().openProduct(product.id),
-        child: Container(
-          padding: const EdgeInsets.all(9),
-          decoration: productCardDecoration(radius: 15),
-          child: Row(
-            children: [
-              SizedBox(width: 64, height: 64, child: ProductImage(height: 64, imageUrl: product.imageUrl, discountPct: product.discountPct, radius: 11)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12, height: 1.25, fontWeight: FontWeight.w600, color: BasketColors.ink),
-                    ),
-                    const SizedBox(height: 3),
-                    RichText(
-                      text: TextSpan(
-                        style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint),
-                        children: [
-                          TextSpan(text: '${product.pack} · '),
-                          const TextSpan(text: '★ ', style: TextStyle(color: BasketColors.gold)),
-                          TextSpan(text: '${product.rating}'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 7),
-                    Row(
-                      children: [
-                        Text(moneyLabel(product.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: BasketColors.ink)),
-                        const SizedBox(width: 6),
-                        Text(
-                          moneyLabel(product.mrp),
-                          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w500, color: BasketColors.muted, decoration: TextDecoration.lineThrough),
-                        ),
-                        const Spacer(),
-                        AddQtyControl(product: product),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

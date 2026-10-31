@@ -4,6 +4,7 @@ import 'package:fastswipe/core/update/app_update_gate.dart';
 import 'package:fastswipe/features/auth/bloc/auth_bloc.dart';
 import 'package:fastswipe/features/auth/data/auth_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FastSwipeApp extends StatelessWidget {
@@ -37,7 +38,12 @@ class FastSwipeApp extends StatelessWidget {
               // built to support both.
               themeMode: ThemeMode.light,
               routerConfig: router,
-              builder: (context, child) => AppUpdateGate(child: child ?? const SizedBox.shrink()),
+              // White status-bar icons (time, wifi, battery) on every
+              // screen — see [AppTheme.statusBarStyle].
+              builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+                value: AppTheme.statusBarStyle,
+                child: AppUpdateGate(child: child ?? const SizedBox.shrink()),
+              ),
             );
           },
         ),

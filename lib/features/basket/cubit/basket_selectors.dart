@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_state.dart';
@@ -156,6 +157,41 @@ class BasketTotals {
   /// server-side and appears only on the order/invoice afterward.
   int get payable => total;
 }
+
+/// Whether a coupon can be applied right now, and if not a short reason
+/// to show on its disabled card. Combines the server's per-customer
+/// verdict ([ApiCoupon.usableByMe]: expired, paused, already used) with
+/// the one rule only the app knows live — the cart's minimum order.
+class CouponAvailability {
+  const CouponAvailability(this.usable, [this.reason]);
+
+  final bool usable;
+  final String? reason;
+}
+
+CouponAvailability couponAvailability(ApiCoupon c, int cartSubtotal) {
+  if (!c.usableByMe) return CouponAvailability(false, c.unavailableReason ?? 'Not available');
+  if (cartSubtotal < c.minOrderValue) {
+    return CouponAvailability(false, 'Add ${moneyLabel(c.minOrderValue - cartSubtotal)} more to use');
+  }
+  return const CouponAvailability(true);
+}
+
+/// The coupon list every screen shows: ones this customer can use
+/// (ignoring the cart minimum, which changes as they shop) first, the
+/// unusable ones after — still listed, but shown disabled.
+///
+/// Takes the list (not the state) so widgets can `select` the stable
+/// `apiCoupons` list and sort locally, rather than selecting a fresh List
+/// that would compare unequal on every state change.
+List<ApiCoupon> usableCouponsFirst(List<ApiCoupon> coupons) => [
+      ...coupons.where((c) => c.usableByMe),
+      ...coupons.where((c) => !c.usableByMe),
+    ];
+
+/// The first coupon worth promoting (home banner, cart prefill) — never
+/// one the customer can't use.
+ApiCoupon? firstUsableCoupon(BasketState state) => state.apiCoupons.where((c) => c.usableByMe).firstOrNull;
 
 BasketTotals cartTotals(BasketState state) {
   var subtotal = 0, mrpTotal = 0, itemCount = 0;

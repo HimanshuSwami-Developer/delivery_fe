@@ -1,4 +1,5 @@
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:flutter/material.dart';
 
 /// Design tokens and small style helpers for the Basket Admin console,
@@ -35,7 +36,7 @@ class AdminPillStyle {
 
 AdminPillStyle adminPillStyle(bool selected) => selected
     ? const AdminPillStyle(border: AdminColors.ink, bg: AdminColors.ink, fg: Color(0xFFFFFBF2))
-    : AdminPillStyle(border: AdminColors.ink.withValues(alpha: 0.14), bg: Color(0xFFFFFBF2), fg: AdminColors.ink);
+    : AdminPillStyle(border: AdminSurface.borderStrong, bg: AdminSurface.card, fg: AdminColors.ink);
 
 /// Background/foreground/border for the small status/state chips (order
 /// status, product stock state, customer tier, partner status, category &
@@ -61,23 +62,13 @@ AdminChipStyle adminChipStyle(String kind) {
   return AdminChipStyle(bg: AdminColors.ink.withValues(alpha: 0.06), fg: AdminColors.ink, border: AdminColors.ink.withValues(alpha: 0.12));
 }
 
-/// The translucent "glass" card look used for most panels in the console
-/// (`rgba(255,255,255,.72)` + faint border + soft shadow) — a bit lighter
-/// than the customer app's `glassCard()` (`.68` opacity, smaller radius),
-/// matching the admin design's slightly airier cards.
-BoxDecoration adminGlassCard({double radius = 18}) {
-  return BoxDecoration(
-    color: Color(0xFFFFFBF2).withValues(alpha: 0.72),
-    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.9)),
-    borderRadius: BorderRadius.circular(radius),
-    boxShadow: [
-      BoxShadow(color: AdminColors.ink.withValues(alpha: 0.12), blurRadius: 24, offset: const Offset(0, 10)),
-    ],
-  );
-}
+/// Legacy name for the standard admin card — now [adminCard] (white, 1px
+/// hairline, 12px corners, no shadow) so every existing panel picks up the
+/// crisp look. Radii above 16 are capped to the card scale.
+BoxDecoration adminGlassCard({double radius = AdminRadius.md}) => adminCard(radius: radius > AdminRadius.lg ? AdminRadius.lg : radius);
 
 /// The solid dark ink panel used for a few emphasized cards (low-stock
 /// alerts, notification composer, delivery-partner panel).
-BoxDecoration adminDarkCard({double radius = 18}) {
-  return BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(radius));
+BoxDecoration adminDarkCard({double radius = AdminRadius.md}) {
+  return BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(radius > AdminRadius.lg ? AdminRadius.lg : radius));
 }

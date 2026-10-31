@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/support_models.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,13 +37,13 @@ class _SupportViewState extends State<SupportView> {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 22),
-          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.lg),
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl))),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -55,7 +56,7 @@ class _SupportViewState extends State<SupportView> {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -69,90 +70,49 @@ class _SupportViewState extends State<SupportView> {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
+              // Each contact button's `onPressed` is null (not just a no-op)
+              // when the backend hasn't configured that contact method yet —
+              // [ApiSupportConfig] fields are blank until an admin fills them
+              // in — so it renders disabled instead of opening a broken link.
               Row(
                 children: [
                   Expanded(
-                    child: _ContactTile(
+                    child: BasketButton(
                       icon: Icons.call_outlined,
                       label: 'Call support',
-                      filled: true,
-                      onTap: config?.phoneNumber.isNotEmpty == true ? () => launchUrl(Uri(scheme: 'tel', path: config!.phoneNumber)) : null,
+                      size: BasketButtonSize.medium,
+                      onPressed: config?.phoneNumber.isNotEmpty == true ? () => launchUrl(Uri(scheme: 'tel', path: config!.phoneNumber)) : null,
                     ),
                   ),
-                  const SizedBox(width: 9),
+                  const SizedBox(width: BasketSpace.xs),
                   Expanded(
-                    child: _ContactTile(
+                    child: BasketButton.secondary(
                       icon: Icons.circle_outlined,
                       label: 'WhatsApp',
-                      filled: false,
-                      onTap: config?.whatsappLink.isNotEmpty == true
+                      size: BasketButtonSize.medium,
+                      onPressed: config?.whatsappLink.isNotEmpty == true
                           ? () => launchUrl(Uri.parse(config!.whatsappLink), mode: LaunchMode.externalApplication)
                           : null,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: BasketSpace.xl),
               Text('Common questions', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 11),
+              const SizedBox(height: BasketSpace.sm),
               if (faqs.isEmpty)
                 Text(
                   'No FAQs added yet.',
                   style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w500, color: BasketColors.muted),
                 )
               else
-                for (final faq in faqs) Padding(padding: const EdgeInsets.only(bottom: 10), child: _FaqTile(faq: faq)),
+                for (final faq in faqs) Padding(padding: const EdgeInsets.only(bottom: BasketSpace.xs), child: _FaqTile(faq: faq)),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ContactTile extends StatelessWidget {
-  const _ContactTile({required this.icon, required this.label, required this.filled, required this.onTap});
-
-  final IconData icon;
-  final String label;
-  final bool filled;
-
-  /// Null (not just a no-op) when the backend hasn't configured this
-  /// contact method yet — [ApiSupportConfig] fields are blank until an
-  /// admin fills them in — so the tile renders dimmed and untappable
-  /// instead of opening a broken link.
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = onTap != null;
-    return Opacity(
-      opacity: enabled ? 1 : 0.45,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(15),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 15),
-          decoration: BoxDecoration(
-            color: filled ? BasketColors.ink : Colors.transparent,
-            border: filled ? null : Border.all(color: BasketColors.ink, width: 1.5),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 15, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: filled ? Color(0xFFFFFBF2) : BasketColors.ink),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -176,12 +136,8 @@ class _FaqTileState extends State<_FaqTile> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-        border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-        borderRadius: BorderRadius.circular(15),
-      ),
+      padding: const EdgeInsets.all(BasketSpace.sm),
+      decoration: basketCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

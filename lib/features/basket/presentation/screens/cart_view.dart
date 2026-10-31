@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/coupon_strip.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
@@ -55,17 +56,17 @@ class _CartViewState extends State<CartView> {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
-            18,
-            MediaQuery.paddingOf(context).top + 12,
-            18,
-            16,
+            BasketSpace.gutter,
+            MediaQuery.paddingOf(context).top + BasketSpace.sm,
+            BasketSpace.gutter,
+            BasketSpace.md,
           ),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.goHome,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -84,7 +85,7 @@ class _CartViewState extends State<CartView> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -132,7 +133,7 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(BasketSpace.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -144,7 +145,7 @@ class _EmptyState extends StatelessWidget {
                 border: Border.all(
                   color: BasketColors.ink.withValues(alpha: 0.07),
                 ),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(BasketRadius.xl),
               ),
               alignment: Alignment.center,
               child: const Icon(
@@ -153,7 +154,7 @@ class _EmptyState extends StatelessWidget {
                 color: BasketColors.ink,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: BasketSpace.sm),
             Text(
               'Your basket is empty',
               style: GoogleFonts.plusJakartaSans(
@@ -161,7 +162,7 @@ class _EmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: BasketSpace.xs),
             Text(
               "Add a few staples and we'll get them to you in ${BasketCubit.etaMinutes} minutes.",
               textAlign: TextAlign.center,
@@ -172,27 +173,12 @@ class _EmptyState extends StatelessWidget {
                 color: BasketColors.muted,
               ),
             ),
-            const SizedBox(height: 14),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: BasketColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 13,
-                ),
-              ),
+            const SizedBox(height: BasketSpace.md),
+            BasketButton(
+              label: 'Start shopping',
+              size: BasketButtonSize.medium,
+              expand: false,
               onPressed: context.read<BasketCubit>().goHome,
-              child: Text(
-                'Start shopping',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFFFFBF2),
-                ),
-              ),
             ),
           ],
         ),
@@ -220,26 +206,34 @@ class _FullCart extends StatelessWidget {
     final couponMessage = context.select(
       (BasketCubit c) => c.state.couponMessage,
     );
-    final appliedCoupon = context.select((BasketCubit c) => c.state.appliedCoupon);
-    final coupons = context.select((BasketCubit c) => c.state.apiCoupons);
+    final appliedCoupon = context.select(
+      (BasketCubit c) => c.state.appliedCoupon,
+    );
+    final coupons = usableCouponsFirst(context.select((BasketCubit c) => c.state.apiCoupons));
+    final cartSubtotal = context.select((BasketCubit c) => cartTotals(c.state).subtotal);
 
     return Column(
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(
+              BasketSpace.gutter,
+              BasketSpace.md,
+              BasketSpace.gutter,
+              BasketSpace.lg,
+            ),
             children: [
               for (final p in items)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 9),
+                  padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                   child: _CartItemRow(product: p, qty: cartMap[p.id] ?? 0),
                 ),
-              const SizedBox(height: 7),
+              const SizedBox(height: BasketSpace.xxs),
               FreeDeliveryProgressCard(t: t),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: glassCard(radius: 16),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -251,16 +245,17 @@ class _FullCart extends StatelessWidget {
                       ),
                     ),
                     if (coupons.isNotEmpty) ...[
-                      const SizedBox(height: 9),
+                      const SizedBox(height: BasketSpace.xs),
                       CouponStrip(
                         coupons: coupons,
                         appliedCoupon: appliedCoupon,
                         onApply: cubit.applyCouponCode,
                         onRemove: cubit.removeCoupon,
                         onViewAll: cubit.goToCoupons,
+                        cartSubtotal: cartSubtotal,
                       ),
                     ],
-                    const SizedBox(height: 9),
+                    const SizedBox(height: BasketSpace.xs),
                     if (appliedCoupon != null)
                       AppliedCouponBanner(
                         code: appliedCoupon,
@@ -268,80 +263,32 @@ class _FullCart extends StatelessWidget {
                         onRemove: cubit.removeCoupon,
                       )
                     else
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: couponController,
-                            onChanged: cubit.setCouponInput,
-                            textCapitalization: TextCapitalization.characters,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: BasketColors.ink,
-                            ),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              hintText: 'Enter coupon code (e.g. FIRST50)',
-                              filled: true,
-                              fillColor: Color(0xFFFFFBF2),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: BorderSide(
-                                  color: BasketColors.ink.withValues(
-                                    alpha: 0.12,
-                                  ),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: BorderSide(
-                                  color: BasketColors.ink.withValues(
-                                    alpha: 0.12,
-                                  ),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: const BorderSide(
-                                  color: BasketColors.primary,
-                                  width: 1.6,
-                                ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: couponController,
+                              onChanged: cubit.setCouponInput,
+                              textCapitalization: TextCapitalization.characters,
+                              cursorColor: BasketColors.primary,
+                              style: basketInputText(),
+                              decoration: basketInputDecoration(
+                                hintText: 'Enter coupon code (e.g. FIRST50)',
+                                dense: true,
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BasketColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(11),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 10,
-                            ),
-                            minimumSize: Size.zero,
+                          const SizedBox(width: BasketSpace.xs),
+                          BasketButton(
+                            label: 'Apply',
+                            size: BasketButtonSize.medium,
+                            expand: false,
+                            onPressed: cubit.applyCoupon,
                           ),
-                          onPressed: cubit.applyCoupon,
-                          child: Text(
-                            'Apply',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFFFBF2),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     if (couponMessage.isNotEmpty) ...[
-                      const SizedBox(height: 9),
+                      const SizedBox(height: BasketSpace.xs),
                       Text(
                         couponMessage,
                         style: GoogleFonts.plusJakartaSans(
@@ -354,10 +301,10 @@ class _FullCart extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.section),
               Container(
-                padding: const EdgeInsets.all(14),
-                decoration: glassCard(radius: 16),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: basketCard(),
                 child: Column(
                   children: [
                     _TotalRow(
@@ -373,10 +320,9 @@ class _FullCart extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     DeliveryFeeBillRow(t: t),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      height: 1,
-                      color: BasketColors.ink.withValues(alpha: 0.09),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: BasketSpace.sm),
+                      child: Divider(height: 1, color: BasketSurface.border),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -403,65 +349,39 @@ class _FullCart extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(
-              top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07)),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        moneyLabel(t.total),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
+        BasketBottomBar(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      moneyLabel(t.total),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
                       ),
-                      Text(
-                        t.savings > 0
-                            ? 'You save ${moneyLabel(t.savings)}'
-                            : 'Inclusive of all taxes',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          color: BasketColors.faint,
-                        ),
+                    ),
+                    Text(
+                      t.savings > 0
+                          ? 'You save ${moneyLabel(t.savings)}'
+                          : 'Inclusive of all taxes',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
+                        color: BasketColors.faint,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: BasketColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 14,
-                    ),
-                  ),
-                  onPressed: cubit.goCheckout,
-                  child: Text(
-                    'Checkout →',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFFFFFBF2),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              BasketButton(
+                label: 'Checkout →',
+                expand: false,
+                onPressed: cubit.goCheckout,
+              ),
+            ],
           ),
         ),
       ],
@@ -479,12 +399,12 @@ class _CartItemRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketCubit>();
     return Container(
-      padding: const EdgeInsets.all(9),
-      decoration: glassCard(radius: 16),
+      padding: const EdgeInsets.all(BasketSpace.sm),
+      decoration: basketCard(),
       child: Row(
         children: [
           ProductImageMini(size: 56, imageUrl: product.imageUrl),
-          const SizedBox(width: 10),
+          const SizedBox(width: BasketSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,7 +441,7 @@ class _CartItemRow extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: BasketColors.ink,
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(BasketRadius.sm),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -530,8 +450,8 @@ class _CartItemRow extends StatelessWidget {
                   onTap: () => cubit.bump(product.id, -1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 7,
+                      horizontal: BasketSpace.xs,
+                      vertical: BasketSpace.xs,
                     ),
                     child: Text(
                       '−',
@@ -555,8 +475,8 @@ class _CartItemRow extends StatelessWidget {
                   onTap: () => cubit.bump(product.id, 1),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 7,
+                      horizontal: BasketSpace.xs,
+                      vertical: BasketSpace.xs,
                     ),
                     child: Text(
                       '+',

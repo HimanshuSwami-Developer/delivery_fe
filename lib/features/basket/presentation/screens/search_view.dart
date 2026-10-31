@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/add_qty_control.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/product_image.dart';
 import 'package:flutter/material.dart';
@@ -53,13 +54,13 @@ class _SearchViewState extends State<SearchView> {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(14, MediaQuery.paddingOf(context).top + 8, 14, 14),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.xs, BasketSpace.gutter, BasketSpace.sm),
           decoration: const BoxDecoration(gradient: BasketColors.headerGradient),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -72,37 +73,39 @@ class _SearchViewState extends State<SearchView> {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFFFBF2).withValues(alpha: 0.1),
-                    border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.2)),
-                    borderRadius: BorderRadius.circular(12),
+                    color: BasketSurface.card,
+                    border: Border.all(color: BasketSurface.borderStrong),
+                    borderRadius: BasketRadius.input,
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.search, size: 16, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
-                      const SizedBox(width: 8),
+                      Icon(Icons.search, size: 16, color: BasketColors.muted),
+                      const SizedBox(width: BasketSpace.xs),
                       Expanded(
                         child: TextField(
                           controller: _text,
                           focusNode: _focus,
                           onChanged: _setQuery,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2)),
+                          cursorColor: BasketColors.primary,
+                          style: basketInputText(),
                           decoration: InputDecoration(
                             isDense: true,
-                            // Unset `filled` inherits the app-wide theme's
-                            // near-white fill — on this dark header, that
-                            // painted a near-white box behind the white
-                            // input text, making it unreadable.
+                            // The white pill around this field is the
+                            // search bar's own box — don't let the theme's
+                            // filled/outlined input paint a second one.
                             filled: false,
+                            contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             hintText: 'Search products',
-                            hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
+                            hintStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500, color: BasketColors.faint),
                           ),
                         ),
                       ),
@@ -112,7 +115,7 @@ class _SearchViewState extends State<SearchView> {
                             cubit.clearQuery();
                             _text.clear();
                           },
-                          child: Icon(Icons.close, size: 16, color: Color(0xFFFFFBF2).withValues(alpha: 0.6)),
+                          child: Icon(Icons.close, size: 16, color: BasketColors.muted),
                         ),
                     ],
                   ),
@@ -123,7 +126,7 @@ class _SearchViewState extends State<SearchView> {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 90),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, 90),
             children: [
               if (!hasQuery) ...[
                 Row(
@@ -133,21 +136,21 @@ class _SearchViewState extends State<SearchView> {
                     Text('Clear', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w700, color: BasketColors.faint)),
                   ],
                 ),
-                const SizedBox(height: 11),
+                const SizedBox(height: BasketSpace.sm),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: BasketSpace.xs,
+                  runSpacing: BasketSpace.xs,
                   children: [
                     for (final r in _recents)
                       _Chip(label: r, filled: false, onTap: () => _setQuery(r)),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: BasketSpace.xl),
                 Text('Trending now', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 11),
+                const SizedBox(height: BasketSpace.sm),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: BasketSpace.xs,
+                  runSpacing: BasketSpace.xs,
                   children: [
                     for (final r in _trending)
                       _Chip(label: r, filled: true, onTap: () => _setQuery(r)),
@@ -158,23 +161,19 @@ class _SearchViewState extends State<SearchView> {
                   '${results.length} results for "$query"',
                   style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.faint),
                 ),
-                const SizedBox(height: 11),
+                const SizedBox(height: BasketSpace.sm),
                 for (final p in results)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 9),
+                    padding: const EdgeInsets.only(bottom: BasketSpace.section),
                     child: GestureDetector(
                       onTap: () => cubit.openProduct(p.id),
                       child: Container(
-                        padding: const EdgeInsets.all(9),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
-                          border: Border.all(color: BasketColors.ink.withValues(alpha: 0.07)),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                        padding: const EdgeInsets.all(BasketSpace.sm),
+                        decoration: basketCard(),
                         child: Row(
                           children: [
                             ProductImageMini(size: 56, imageUrl: p.imageUrl),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: BasketSpace.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +181,7 @@ class _SearchViewState extends State<SearchView> {
                                   Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
                                   Text(p.pack, style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: BasketSpace.xxs),
                                   Text(moneyLabel(p.price), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
                                 ],
                               ),
@@ -195,21 +194,25 @@ class _SearchViewState extends State<SearchView> {
                   ),
               ] else ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: BasketSpace.sm),
                   child: Column(
                     children: [
                       Text('No match for "$query"', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: BasketSpace.xs),
                       Text(
                         "Check the spelling, or request it and we'll try to stock it within 48 hours.",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
                       ),
                       const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                        decoration: BoxDecoration(color: BasketColors.ink, borderRadius: BorderRadius.circular(12)),
-                        child: Text('Request this product', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
+                      // No request flow exists yet — this was (and stays) a
+                      // visual-only CTA, so the callback is a no-op rather
+                      // than null (null would render it greyed-out/disabled).
+                      BasketButton(
+                        label: 'Request this product',
+                        size: BasketButtonSize.medium,
+                        expand: false,
+                        onPressed: () {},
                       ),
                     ],
                   ),
@@ -235,11 +238,11 @@ class _Chip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
         decoration: BoxDecoration(
           color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
           border: Border.all(color: filled ? BasketColors.ink : BasketColors.ink.withValues(alpha: 0.12)),
-          borderRadius: BorderRadius.circular(99),
+          borderRadius: BorderRadius.circular(BasketRadius.pill),
         ),
         child: Text(
           label,

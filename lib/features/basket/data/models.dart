@@ -123,24 +123,17 @@ class BasketCoupon {
 
 class OnboardSlide {
   const OnboardSlide({
-    required this.badge,
     required this.title,
     required this.body,
-    required this.slotLabel,
-    required this.icon,
+    required this.tint,
   });
 
-  /// Small pill label overlaid on the hero panel (e.g. "15-minute
-  /// delivery") — matches the mockup's badge chip.
-  final String badge;
   final String title;
   final String body;
-  final String slotLabel;
 
-  /// Themed icon shown in the illustration panel — there's no real image
-  /// pipeline for onboarding art, so each slide gets a large icon on a
-  /// tinted panel instead of a dropped-in photo.
-  final IconData icon;
+  /// Page background while this slide is showing — each slide gets its own
+  /// warm ivory/navy-family wash, cross-faded on swipe.
+  final Color tint;
 }
 
 class AccountRow {

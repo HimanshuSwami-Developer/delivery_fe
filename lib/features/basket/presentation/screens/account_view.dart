@@ -1,6 +1,8 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
+import 'package:fastswipe/features/basket/data/basket_enums.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:flutter/material.dart';
@@ -19,20 +21,26 @@ class AccountView extends StatelessWidget {
     final nameLabel = name.isEmpty ? 'Your account' : name;
     final referralCode = context.select((BasketCubit c) => c.state.myReferralCode);
     final loyaltyPoints = context.select((BasketCubit c) => c.state.loyaltyPoints);
+    // Live counts for the rows whose subtitle is real data, not copy.
+    final couponCount = context.select((BasketCubit c) => c.state.apiCoupons.where((x) => x.usableByMe).length);
+    // Joined to a String so `select` compares by value (a new List each
+    // time would rebuild on every state change).
+    final addressTypes = context.select((BasketCubit c) => c.state.apiAddresses.map((a) => a.addressType).join('\n'));
+    final wishlistCount = context.select((BasketCubit c) => c.state.wishlist.length);
 
     return Column(
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 22),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.xl),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: const SizedBox(width: 52, height: 52, child: ImageSlot(shape: ImageSlotShape.circle, mini: true)),
               ),
-              const SizedBox(width: 13),
+              const SizedBox(width: BasketSpace.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -49,12 +57,12 @@ class AccountView extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(18)),
+                padding: const EdgeInsets.all(BasketSpace.md),
+                decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(BasketRadius.lg)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -64,7 +72,7 @@ class AccountView extends StatelessWidget {
                         children: const [TextSpan(text: 'Refer & earn '), TextSpan(text: '₹250', style: TextStyle(color: BasketColors.gold))],
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: BasketSpace.xxs),
                     Text(
                       'Your friend gets a ₹100 coupon on their first order, you get a ₹250 coupon.',
                       style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.55)),
@@ -74,10 +82,10 @@ class AccountView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                            padding: const EdgeInsets.symmetric(horizontal: BasketSpace.sm, vertical: BasketSpace.xs),
                             decoration: BoxDecoration(
                               border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.3)),
-                              borderRadius: BorderRadius.circular(11),
+                              borderRadius: BorderRadius.circular(BasketRadius.sm),
                             ),
                             child: Text(
                               referralCode ?? '···',
@@ -85,25 +93,22 @@ class AccountView extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 9),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(11),
-                          onTap: referralCode == null
+                        const SizedBox(width: BasketSpace.xs),
+                        BasketButton.secondary(
+                          label: 'Share',
+                          size: BasketButtonSize.small,
+                          expand: false,
+                          onPressed: referralCode == null
                               ? null
                               : () => SharePlus.instance.share(
                                     ShareParams(
                                       text: 'Use my code $referralCode on Aapno Bazar and get ₹100 off your first order!',
                                     ),
                                   ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(11)),
-                            child: Text('Share', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w800, color: BasketColors.ink)),
-                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: BasketSpace.sm),
                     GestureDetector(
                       onTap: cubit.goToReferrals,
                       child: Text(
@@ -114,77 +119,41 @@ class AccountView extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: cubit.goToLoyalty,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  decoration: glassCard(radius: 15),
-                  child: Row(
-                    children: [
-                      const Text('★', style: TextStyle(fontSize: 15, color: BasketColors.gold)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Loyalty points', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 2),
-                            Text(
-                              '$loyaltyPoints pts · earn on every order, redeem for coupons',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint),
-                            ),
-                          ],
-                        ),
+              const SizedBox(height: BasketSpace.section),
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: basketCard(),
+                child: Column(
+                  children: [
+                    _AccountRow(
+                      leading: const Text('★', style: TextStyle(fontSize: 15, color: BasketColors.gold)),
+                      title: 'Loyalty points',
+                      sub: '$loyaltyPoints pts · earn on every order, redeem for coupons',
+                      onTap: cubit.goToLoyalty,
+                    ),
+                    for (final row in BasketCatalog.accountRows) ...[
+                      const Divider(height: 1, color: BasketSurface.border),
+                      _AccountRow(
+                        leading: Text(row.icon, style: const TextStyle(fontSize: 15)),
+                        title: row.title,
+                        sub: switch (row.target) {
+                          BasketScreen.coupons => _couponsSub(couponCount),
+                          BasketScreen.addr => _addressesSub(addressTypes.isEmpty ? const [] : addressTypes.split('\n')),
+                          BasketScreen.wish => _wishlistSub(wishlistCount),
+                          _ => row.sub,
+                        },
+                        onTap: () => cubit.go(row.target),
                       ),
-                      Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
                     ],
-                  ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
-              for (final row in BasketCatalog.accountRows)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: GestureDetector(
-                    onTap: () => cubit.go(row.target),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                      decoration: glassCard(radius: 15),
-                      child: Row(
-                        children: [
-                          Text(row.icon, style: const TextStyle(fontSize: 15)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(row.title, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 2),
-                                Text(row.sub, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
-                              ],
-                            ),
-                          ),
-                          Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: () => _confirmLogout(context, cubit),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  decoration: glassCard(radius: 15),
-                  child: Row(
-                    children: [
-                      const Text('⎋', style: TextStyle(fontSize: 15)),
-                      const SizedBox(width: 12),
-                      Text('Log out', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.muted)),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: BasketSpace.xl),
+              BasketButton(
+                label: 'Log out',
+                variant: BasketButtonVariant.danger,
+                size: BasketButtonSize.medium,
+                onPressed: () => _confirmLogout(context, cubit),
               ),
             ],
           ),
@@ -192,6 +161,22 @@ class AccountView extends StatelessWidget {
       ],
     );
   }
+
+  static String _couponsSub(int n) => switch (n) {
+        0 => 'No coupons right now',
+        1 => '1 available',
+        _ => '$n available',
+      };
+
+  /// "Home, Work + 1 more" from the saved addresses' types.
+  static String _addressesSub(List<String> types) {
+    if (types.isEmpty) return 'Add a delivery address';
+    String label(String t) => t.isEmpty ? 'Other' : '${t[0].toUpperCase()}${t.substring(1).toLowerCase()}';
+    final shown = types.take(2).map(label).join(', ');
+    return types.length > 2 ? '$shown + ${types.length - 2} more' : shown;
+  }
+
+  static String _wishlistSub(int n) => n == 0 ? 'Saved for later' : '$n saved for later';
 
   Future<void> _confirmLogout(BuildContext context, BasketCubit cubit) async {
     final confirmed = await showDialog<bool>(
@@ -217,5 +202,47 @@ class AccountView extends StatelessWidget {
     if (confirmed == true) {
       await cubit.signOut();
     }
+  }
+}
+
+/// One row of the account menu card — leading glyph, title + subtitle,
+/// chevron; at least 52px tall.
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({required this.leading, required this.title, required this.sub, required this.onTap});
+
+  final Widget leading;
+  final String title;
+  final String sub;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: BasketSpace.sm),
+          child: Row(
+            children: [
+              leading,
+              const SizedBox(width: BasketSpace.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(sub, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint)),
+                  ],
+                ),
+              ),
+              Text('›', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.faint)),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

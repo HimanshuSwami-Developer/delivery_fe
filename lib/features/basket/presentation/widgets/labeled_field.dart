@@ -1,15 +1,12 @@
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Shared "LABEL above a value" bordered card — the one input shape reused
-/// across every form in the app (profile setup, address entry). Two
-/// flavours: [LabeledTextField] for anything the user can actually type
-/// into, [LabeledStaticField] for values shown but not editable here
-/// (no backing field, or edited elsewhere). Previously each screen had its
-/// own near-identical private `_FieldCard`/`_NameFieldCard` widget; this
-/// replaces all of them.
+/// Form row used across profile setup and address entry: a small label
+/// above a standard outlined input ([BasketTextField]). Kept as its own
+/// name so existing call sites don't change.
 class LabeledTextField extends StatelessWidget {
   const LabeledTextField({
     super.key,
@@ -36,64 +33,23 @@ class LabeledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 7),
-            child: Text(
-              label.toUpperCase(),
-              style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
-            ),
-          ),
-          TextField(
-            controller: controller,
-            onChanged: onChanged,
-            textCapitalization: textCapitalization,
-            keyboardType: keyboardType,
-            inputFormatters: inputFormatters,
-            maxLength: maxLength,
-            textAlign: textAlign,
-            style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.ink),
-            decoration: InputDecoration(
-              isDense: true,
-              counterText: '',
-              // `InputDecoration.filled` defaults to null, not false, so
-              // an unset field silently inherits the app-wide theme's
-              // `filled: true` + near-white `fillColor` — painting an
-              // extra background block behind text that's already sitting
-              // on the card [Container] above. Force it off explicitly.
-              filled: false,
-              // The card [Container] above already draws the field's
-              // border, in every state — a focused-state color/width
-              // change here would fight that static border instead of
-              // complementing it, so every border stays none.
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
-              hintText: hintText,
-              hintStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: BasketColors.faint),
-            ),
-          ),
-        ],
-      ),
+    return BasketTextField(
+      label: label,
+      controller: controller,
+      hintText: hintText,
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      inputFormatters: inputFormatters,
+      maxLength: maxLength,
+      textAlign: textAlign,
     );
   }
 }
 
-/// Same card shape as [LabeledTextField], but for a value that's shown,
-/// not typed into here (e.g. "Email — Optional" with no backing field, or
-/// "Receiver" mirroring the phone number from account setup).
+/// Same row shape as [LabeledTextField] for a value that's shown, not
+/// typed into here (e.g. "Receiver" mirroring the account phone number):
+/// label above, then a read-only box with the input's size and border.
 class LabeledStaticField extends StatelessWidget {
   const LabeledStaticField({super.key, required this.label, required this.value, this.muted = false});
 
@@ -103,32 +59,29 @@ class LabeledStaticField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFFBF2).withValues(alpha: 0.7),
-        border: Border.all(color: BasketColors.ink.withValues(alpha: 0.09)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.plusJakartaSans(fontSize: 10.5, fontWeight: FontWeight.w600, color: BasketColors.faint, letterSpacing: 0.6),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BasketFieldLabel(label),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: 15),
+          decoration: BoxDecoration(
+            color: BasketColors.primarySoft.withValues(alpha: 0.6),
+            borderRadius: BasketRadius.input,
+            border: Border.all(color: BasketSurface.border),
           ),
-          const SizedBox(height: 4),
-          Text(
+          child: Text(
             value,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
-              fontWeight: muted ? FontWeight.w600 : FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: muted ? BasketColors.faint : BasketColors.ink,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

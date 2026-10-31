@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,20 +26,20 @@ class PaymentChoiceView extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(
-            18,
-            MediaQuery.paddingOf(context).top + 12,
-            18,
-            16,
+            BasketSpace.gutter,
+            MediaQuery.paddingOf(context).top + BasketSpace.sm,
+            BasketSpace.gutter,
+            BasketSpace.md,
           ),
           decoration: const BoxDecoration(
             gradient: BasketColors.headerGradient,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl)),
           ),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -57,7 +58,7 @@ class PaymentChoiceView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -85,7 +86,7 @@ class PaymentChoiceView extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.lg, BasketSpace.gutter, BasketSpace.lg),
             children: [
               _PaymentChoiceCard(
                 icon: '◈',
@@ -94,23 +95,17 @@ class PaymentChoiceView extends StatelessWidget {
                     'Scan with any UPI app (GPay, PhonePe, Paytm & more), then upload the payment screenshot',
                 onTap: cubit.chooseQrPayment,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: BasketSpace.section),
               _PaymentChoiceCard(
                 icon: '₹',
                 title: 'Cash on delivery',
                 sub: 'Pay the rider when your order arrives · no extra fee',
                 onTap: cubit.payCashOnDelivery,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: BasketSpace.md),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-                  border: Border.all(
-                    color: Color(0xFFFFFBF2).withValues(alpha: 0.85),
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
+                padding: const EdgeInsets.all(BasketSpace.sm),
+                decoration: basketCard(),
                 child: Text(
                   'A receipt is available to download from your order details as soon as it\'s placed.',
                   style: GoogleFonts.plusJakartaSans(
@@ -147,12 +142,8 @@ class _PaymentChoiceCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-          border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.85)),
-          borderRadius: BorderRadius.circular(15),
-        ),
+        padding: const EdgeInsets.all(BasketSpace.md),
+        decoration: basketCard(),
         child: Row(
           children: [
             Container(
@@ -160,7 +151,7 @@ class _PaymentChoiceCard extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: BasketColors.ink,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(BasketRadius.md),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -168,7 +159,7 @@ class _PaymentChoiceCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 17, color: Color(0xFFFFFBF2)),
               ),
             ),
-            const SizedBox(width: 13),
+            const SizedBox(width: BasketSpace.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +184,7 @@ class _PaymentChoiceCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: BasketSpace.xs),
             const Icon(
               Icons.chevron_right,
               color: BasketColors.faint,

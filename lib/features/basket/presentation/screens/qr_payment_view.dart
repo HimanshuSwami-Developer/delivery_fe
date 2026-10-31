@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,13 +52,13 @@ class _QrPaymentViewState extends State<QrPaymentView> {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
-          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
+          decoration: const BoxDecoration(gradient: BasketColors.headerGradient, borderRadius: BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl))),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -70,7 +71,7 @@ class _QrPaymentViewState extends State<QrPaymentView> {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -84,54 +85,46 @@ class _QrPaymentViewState extends State<QrPaymentView> {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+            padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.lg, BasketSpace.gutter, BasketSpace.lg),
             children: [
               Center(
                 child: Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFFFFBF2),
-                    border: Border.all(color: BasketColors.ink.withValues(alpha: 0.1)),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+                  padding: const EdgeInsets.all(BasketSpace.lg),
+                  decoration: basketCard(radius: BasketRadius.lg),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(BasketRadius.sm),
                     child: Image.asset('assets/scanner.jpeg', width: 220, height: 220, fit: BoxFit.contain),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: BasketSpace.md),
               Text(
                 'Scan this code with any UPI app to pay ${moneyLabel(payable)}, then upload a screenshot of the successful payment below.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(fontSize: 12.5, height: 1.6, fontWeight: FontWeight.w500, color: BasketColors.muted),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: BasketSpace.lg),
               GestureDetector(
                 onTap: _pickScreenshot,
                 child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFFFFBF2).withValues(alpha: 0.68),
-                    border: Border.all(color: _screenshotBytes == null ? BasketColors.divider : BasketColors.ink, width: 1.5),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                  padding: const EdgeInsets.all(BasketSpace.sm),
+                  decoration: basketCard(selected: _screenshotBytes != null),
                   child: Row(
                     children: [
                       if (_screenshotBytes != null)
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(BasketRadius.sm),
                           child: Image.memory(_screenshotBytes!, width: 44, height: 44, fit: BoxFit.cover),
                         )
                       else
                         Container(
                           width: 44,
                           height: 44,
-                          decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: BasketColors.surface, borderRadius: BorderRadius.circular(BasketRadius.sm)),
                           alignment: Alignment.center,
                           child: const Icon(Icons.upload_outlined, color: BasketColors.muted, size: 20),
                         ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: BasketSpace.sm),
                       Expanded(
                         child: Text(
                           _screenshotBytes == null ? 'Upload payment screenshot' : 'Screenshot attached — tap to change',
@@ -145,27 +138,10 @@ class _QrPaymentViewState extends State<QrPaymentView> {
             ],
           ),
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFFBF2).withValues(alpha: 0.9),
-            border: Border(top: BorderSide(color: BasketColors.ink.withValues(alpha: 0.07))),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: BasketColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                onPressed: _screenshotBytes == null ? null : () => _placeOrder(cubit),
-                child: Text("I've paid — place order", style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-              ),
-            ),
+        BasketBottomBar(
+          child: BasketButton(
+            label: "I've paid — place order",
+            onPressed: _screenshotBytes == null ? null : () => _placeOrder(cubit),
           ),
         ),
       ],

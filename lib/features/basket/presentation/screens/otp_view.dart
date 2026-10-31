@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/presentation/aapno_bazar_palette.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,7 @@ const _resendWaitSeconds = 30;
 /// Matches the Claude Design "Aapno Bazar — Login with OTP" mockup: a navy
 /// header, per-digit boxes (this app's real OTP length, with
 /// auto-advance/backspace-back focus), a resend countdown, and a verify
-/// button whose color/label track fill state. "Get a call instead" is
+/// [BasketButton] whose enabled state/label track fill state. "Get a call instead" is
 /// shown for visual fidelity but wired inert (`onTap: null`) — there's no
 /// callback-OTP flow behind it, matching how this codebase already marks
 /// not-yet-built affordances (e.g. the PDP's share button) rather than
@@ -124,10 +125,10 @@ class _OtpViewState extends State<OtpView> {
         child: Column(
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(34)),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(BasketRadius.xl)),
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.fromLTRB(24, topInset + 14, 24, 26),
+                padding: EdgeInsets.fromLTRB(BasketSpace.xl, topInset + BasketSpace.md, BasketSpace.xl, BasketSpace.xl),
                 decoration: const BoxDecoration(
                   gradient: RadialGradient(center: Alignment(-0.5, -1), radius: 1.4, colors: [AapnoBazar.navyGlow, AapnoBazar.navy], stops: [0, 0.72]),
                 ),
@@ -137,11 +138,11 @@ class _OtpViewState extends State<OtpView> {
                   children: [
                     InkWell(
                       onTap: cubit.back,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(BasketRadius.md),
                       child: Container(
                         width: 42,
                         height: 42,
-                        decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(color: Color(0xFFFFFBF2).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(BasketRadius.md)),
                         alignment: Alignment.center,
                         child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 18),
                       ),
@@ -168,116 +169,89 @@ class _OtpViewState extends State<OtpView> {
                 ),
               ),
             ),
-            // No overlap with the header in the mockup — the card sits a
+            // No overlap with the header in the mockup — the form sits a
             // clean 32px below the header's rounded-bottom swoop (`top:268`
-            // vs. the header's own `height:236`), unlike the login screen's
-            // overlapping-card treatment elsewhere in this app.
+            // vs. the header's own `height:236`), same as the login screen.
             Expanded(
               child: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(26)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                for (var i = 0; i < _otpLength; i++) ...[
-                                  if (i > 0) const SizedBox(width: 12),
-                                  Expanded(child: _OtpBox(
-                                    controller: _controllers[i],
-                                    focusNode: _focusNodes[i],
-                                    focused: _focused == i,
-                                    onChanged: (v) => _onDigit(cubit, i, v),
-                                    onKey: (e) => _onKey(cubit, i, e),
-                                  )),
-                                ],
+                      padding: const EdgeInsets.fromLTRB(BasketSpace.xl, BasketSpace.xxl, BasketSpace.xl, BasketSpace.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (var i = 0; i < _otpLength; i++) ...[
+                                if (i > 0) const SizedBox(width: BasketSpace.sm),
+                                _OtpBox(
+                                  controller: _controllers[i],
+                                  focusNode: _focusNodes[i],
+                                  focused: _focused == i,
+                                  onChanged: (v) => _onDigit(cubit, i, v),
+                                  onKey: (e) => _onKey(cubit, i, e),
+                                ),
                               ],
-                            ),
-                            const SizedBox(height: 22),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
+                            ],
+                          ),
+                          const SizedBox(height: BasketSpace.lg),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Text(
                                   _secs > 0 ? 'Resend available in 0:${_secs.toString().padLeft(2, '0')}' : 'Didn’t get the code?',
                                   style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: AapnoBazar.textFaint),
                                 ),
-                                GestureDetector(
-                                  onTap: () => _resend(cubit),
-                                  child: Text(
-                                    'Resend code',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w800,
-                                      color: _secs > 0 ? AapnoBazar.textDisabled : AapnoBazar.navy,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (authError != null) ...[
-                              const SizedBox(height: 14),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-                                decoration: BoxDecoration(color: AapnoBazar.navy.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
-                                child: Text(authError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AapnoBazar.navy)),
+                              ),
+                              BasketButton.text(
+                                label: 'Resend code',
+                                size: BasketButtonSize.small,
+                                onPressed: _secs > 0 ? null : () => _resend(cubit),
                               ),
                             ],
-                            const SizedBox(height: 22),
-                            GestureDetector(
-                              onTap: (full && !authLoading) ? cubit.verifyOtp : null,
-                              child: Container(
-                                height: 58,
-                                decoration: BoxDecoration(
-                                  color: full ? AapnoBazar.navy : AapnoBazar.heroPanelBg,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: full
-                                      ? [BoxShadow(color: AapnoBazar.navy.withValues(alpha: 0.7), blurRadius: 28, spreadRadius: -12, offset: const Offset(0, 14))]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: authLoading
-                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))))
-                                    : Text(
-                                        full ? 'Verify & continue' : 'Enter 4-digit code',
-                                        style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: full ? Color(0xFFFFFBF2) : AapnoBazar.textDisabled),
-                                      ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2),
-                              child: Text(
-                                'By continuing you agree to Aapno Bazar’s Terms and Privacy Policy.',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: AapnoBazar.textSubtle),
-                              ),
+                          ),
+                          if (authError != null) ...[
+                            const SizedBox(height: BasketSpace.sm),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(BasketSpace.sm),
+                              decoration: BoxDecoration(color: AapnoBazar.navy.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(BasketRadius.md)),
+                              child: Text(authError, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AapnoBazar.navy)),
                             ),
                           ],
-                        ),
+                          const SizedBox(height: BasketSpace.lg),
+                          BasketButton(
+                            label: full ? 'Verify & continue' : 'Enter 4-digit code',
+                            onPressed: full ? cubit.verifyOtp : null,
+                            loading: authLoading,
+                          ),
+                          const SizedBox(height: BasketSpace.md),
+                          Text(
+                            'By continuing you agree to Aapno Bazar’s Terms and Privacy Policy.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(fontSize: 11.5, height: 1.6, fontWeight: FontWeight.w500, color: AapnoBazar.textSubtle),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  // Outside the card, pinned near the bottom — matches the
-                  // mockup's `margin-top:auto` placement (not part of the
-                  // bordered/padded card the OTP cells and buttons live in).
+                  // Outside the scrolling form, pinned near the bottom —
+                  // matches the mockup's `margin-top:auto` placement.
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(6, 0, 6, 24),
+                    padding: const EdgeInsets.fromLTRB(BasketSpace.xl, 0, BasketSpace.xl, BasketSpace.xl),
                     child: Row(
                       children: [
                         Container(
                           width: 38,
                           height: 38,
-                          decoration: BoxDecoration(color: AapnoBazar.inputFill, borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: AapnoBazar.inputFill, borderRadius: BorderRadius.circular(BasketRadius.md)),
                           alignment: Alignment.center,
                           child: const Icon(Icons.support_agent_rounded, size: 18, color: AapnoBazar.navy),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: BasketSpace.sm),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
@@ -320,15 +294,17 @@ class _OtpBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filled = controller.text.isNotEmpty;
-    final borderColor = focused ? AapnoBazar.navy : (filled ? AapnoBazar.borderFilled : AapnoBazar.inputFill);
+    // Same ring as the standard input: 1px hairline idle, 1.5px navy once
+    // focused or filled.
+    final active = focused || filled;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      height: 74,
+      width: 48,
+      height: 52,
       decoration: BoxDecoration(
-        color: AapnoBazar.inputFill,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor, width: 2),
-        boxShadow: focused ? [BoxShadow(color: AapnoBazar.navy.withValues(alpha: 0.1), blurRadius: 0, spreadRadius: 4)] : null,
+        color: BasketSurface.card,
+        borderRadius: BasketRadius.input,
+        border: Border.all(color: active ? AapnoBazar.navy : BasketSurface.borderStrong, width: active ? 1.5 : 1),
       ),
       alignment: Alignment.center,
       child: Focus(
@@ -341,7 +317,7 @@ class _OtpBox extends StatelessWidget {
           textAlign: TextAlign.center,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: onChanged,
-          style: GoogleFonts.plusJakartaSans(fontSize: 30, fontWeight: FontWeight.w800, color: AapnoBazar.navy),
+          style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: AapnoBazar.navy),
           cursorColor: AapnoBazar.navy,
           decoration: const InputDecoration(
             counterText: '',

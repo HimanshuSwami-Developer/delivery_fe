@@ -2,6 +2,7 @@ import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/basket_catalog.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,7 +40,7 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
     return Container(
       color: BasketColors.ink,
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(BasketSpace.xxl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -50,7 +51,7 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   for (var i = 0; i < 3; i++) ...[
-                    if (i > 0) const SizedBox(width: 7),
+                    if (i > 0) const SizedBox(width: BasketSpace.xs),
                     Opacity(
                       opacity: _dotOpacity(i),
                       child: Container(width: 9, height: 9, decoration: const BoxDecoration(color: Color(0xFFFFFBF2), shape: BoxShape.circle)),
@@ -60,9 +61,9 @@ class _PayingViewState extends State<PayingView> with SingleTickerProviderStateM
               );
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: BasketSpace.md),
           Text('Processing ${moneyLabel(payable)}', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-          const SizedBox(height: 16),
+          const SizedBox(height: BasketSpace.md),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 230),
             child: Text(

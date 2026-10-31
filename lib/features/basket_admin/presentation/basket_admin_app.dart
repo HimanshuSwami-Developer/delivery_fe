@@ -24,6 +24,7 @@ import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_sideb
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_topbar.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/assign_partner_modal.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/partner_form_modal.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,12 +42,8 @@ class BasketAdminApp extends StatelessWidget {
       create: (_) => BasketAdminCubit(BasketAdminApi()),
       child: Builder(
         builder: (context) {
-          final theme = Theme.of(context);
           return Theme(
-            data: theme.copyWith(
-              filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(minimumSize: Size.zero)),
-              outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(minimumSize: Size.zero)),
-            ),
+            data: adminTheme(Theme.of(context)),
             child: const _AdminRoot(),
           );
         },

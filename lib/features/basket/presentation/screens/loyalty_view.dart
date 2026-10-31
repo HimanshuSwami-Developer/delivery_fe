@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
 import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
+import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/glass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,13 +40,13 @@ class _LoyaltyViewState extends State<LoyaltyView> {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(18, MediaQuery.paddingOf(context).top + 12, 18, 16),
+          padding: EdgeInsets.fromLTRB(BasketSpace.gutter, MediaQuery.paddingOf(context).top + BasketSpace.sm, BasketSpace.gutter, BasketSpace.md),
           decoration: darkHeaderDecoration(),
           child: Row(
             children: [
               InkWell(
                 onTap: cubit.back,
-                borderRadius: BorderRadius.circular(99),
+                borderRadius: BorderRadius.circular(BasketRadius.pill),
                 child: Container(
                   width: 34,
                   height: 34,
@@ -58,7 +59,7 @@ class _LoyaltyViewState extends State<LoyaltyView> {
                   child: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF2), size: 16),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: BasketSpace.xs),
               Text('Loyalty points', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
             ],
           ),
@@ -67,12 +68,12 @@ class _LoyaltyViewState extends State<LoyaltyView> {
           child: summary == null
               ? const Center(child: CircularProgressIndicator())
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+                  padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(18)),
+                      padding: const EdgeInsets.all(BasketSpace.md),
+                      decoration: BoxDecoration(color: BasketColors.primaryLight, borderRadius: BorderRadius.circular(BasketRadius.lg)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -99,10 +100,10 @@ class _LoyaltyViewState extends State<LoyaltyView> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: BasketSpace.section),
                     Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: glassCard(radius: 16),
+                      padding: const EdgeInsets.all(BasketSpace.md),
+                      decoration: basketCard(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -112,7 +113,7 @@ class _LoyaltyViewState extends State<LoyaltyView> {
                             'Minimum ${summary.minRedeemPoints} points at a time.',
                             style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w500, color: BasketColors.faint),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: BasketSpace.sm),
                           Row(
                             children: [
                               Expanded(
@@ -120,48 +121,31 @@ class _LoyaltyViewState extends State<LoyaltyView> {
                                   controller: _pointsController,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: BasketColors.ink),
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'Points to redeem',
-                                    filled: true,
-                                    fillColor: Color(0xFFFFFBF2),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: BasketColors.ink.withValues(alpha: 0.12))),
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: BasketColors.primary, width: 1.6)),
-                                  ),
+                                  cursorColor: BasketColors.primary,
+                                  style: basketInputText(),
+                                  decoration: basketInputDecoration(hintText: 'Points to redeem', dense: true),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              FilledButton(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: BasketColors.primary,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                                  minimumSize: Size.zero,
-                                ),
-                                onPressed: submitting ? null : () => _redeem(cubit),
-                                child: submitting
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                                      )
-                                    : Text('Redeem', style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
+                              const SizedBox(width: BasketSpace.xs),
+                              BasketButton(
+                                label: 'Redeem',
+                                size: BasketButtonSize.medium,
+                                expand: false,
+                                onPressed: () => _redeem(cubit),
+                                loading: submitting,
                               ),
                             ],
                           ),
                           if (message != null) ...[
-                            const SizedBox(height: 9),
+                            const SizedBox(height: BasketSpace.xs),
                             Text(message, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
                           ],
                         ],
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: BasketSpace.xl),
                     Text('History', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 11),
+                    const SizedBox(height: BasketSpace.sm),
                     if (summary.transactions.isEmpty)
                       Text(
                         'No activity yet — points show up here after your first delivered order.',
@@ -170,10 +154,10 @@ class _LoyaltyViewState extends State<LoyaltyView> {
                     else
                       for (final t in summary.transactions)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.only(bottom: BasketSpace.xs),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: glassCard(radius: 15),
+                            padding: const EdgeInsets.all(BasketSpace.sm),
+                            decoration: basketCard(),
                             child: Row(
                               children: [
                                 Expanded(
