@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_gallery_picker.dart';
@@ -175,17 +176,13 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextButton(
-            onPressed: cubit.goProducts,
-            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-            child: Text('← All products', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.muted)),
-          ),
-          const SizedBox(height: 14),
+          AdminButton(label: '← All products', variant: AdminButtonVariant.text, size: AdminButtonSize.small, onPressed: cubit.goProducts),
+          const SizedBox(height: AdminSpace.sm),
           Text(
             _editing == null ? 'Add product' : 'Edit ${_editing.name}',
             style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.4),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           LayoutBuilder(builder: (context, constraints) {
             final narrow = constraints.maxWidth < 900;
 
@@ -193,19 +190,19 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AdminSectionTitle('Product details'),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AdminSpace.md),
                       AdminEditField(label: 'Product name', controller: _name, hint: 'Enter product name (e.g. Aashirvaad Atta)'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminSpace.md),
                       Row(
                         children: [
                           Expanded(child: AdminEditField(label: 'Brand', controller: _brand, hint: 'Enter brand (e.g. Aashirvaad)')),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AdminSpace.sm),
                           Expanded(
                             child: categories.isEmpty
                                 ? const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Loading categories…'))
@@ -226,7 +223,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminSpace.md),
                       AdminEditDropdown<int?>(
                         label: 'Subcategory (optional)',
                         value: _subcategoryId,
@@ -234,15 +231,15 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                         itemLabel: (id) => id == null ? 'None' : categorySubcategories.firstWhere((s) => s.id == id).name,
                         onChanged: (v) => setState(() => _subcategoryId = v),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminSpace.md),
                       Row(
                         children: [
                           Expanded(child: AdminEditField(label: 'Pack size', controller: _pack, hint: 'Enter pack size (e.g. 5 kg)')),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AdminSpace.sm),
                           Expanded(child: AdminEditField(label: 'SKU code', controller: _sku, hint: 'Enter SKU code (e.g. SKU-1042)')),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminSpace.md),
                       AdminEditField(
                         label: 'Description',
                         controller: _description,
@@ -252,19 +249,19 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AdminSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AdminSectionTitle('Pricing & tax'),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AdminSpace.md),
                       AdminResponsiveGrid(
                         minTileWidth: 130,
-                        spacing: 12,
-                        runSpacing: 12,
+                        spacing: AdminSpace.sm,
+                        runSpacing: AdminSpace.md,
                         children: [
                           AdminEditField(label: 'MRP', controller: _mrp, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
                           AdminEditField(label: 'Selling price', controller: _price, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
@@ -272,10 +269,10 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           AdminEditField(label: 'HSN code', controller: _hsnCode, hint: 'Enter HSN code (e.g. 1101)'),
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AdminSpace.md),
                       Wrap(
-                        spacing: 9,
-                        runSpacing: 9,
+                        spacing: AdminSpace.xs,
+                        runSpacing: AdminSpace.xs,
                         children: [
                           for (final g in _kGstSlabs)
                             AdminPillButton(label: 'GST $g%', selected: _gstSlab == g, onTap: () => setState(() => _gstSlab = g)),
@@ -291,19 +288,19 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Image', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AdminSpace.md),
                       AdminImagePicker(
                         label: 'Main image',
                         imageUrl: _mainImageUrl,
                         onChanged: (url) => setState(() => _mainImageUrl = url),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AdminSpace.md),
                       AdminGalleryPicker(
                         images: _gallery,
                         onChanged: (v) => setState(() => _gallery = v),
@@ -311,21 +308,21 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AdminSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Availability', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 13),
+                      const SizedBox(height: AdminSpace.sm),
                       InkWell(
                         onTap: () => setState(() => _outOfStock = !_outOfStock),
                         child: Row(
                           children: [
                             AdminToggle(on: !_outOfStock, onTap: () => setState(() => _outOfStock = !_outOfStock)),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: AdminSpace.xs),
                             Text(
                               _outOfStock ? 'Out of stock' : 'In stock',
                               style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: AdminColors.ink),
@@ -334,7 +331,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                         ),
                       ),
                       if (_editing == null) ...[
-                        const SizedBox(height: 14),
+                        const SizedBox(height: AdminSpace.md),
                         AdminEditField(
                           label: 'Initial quantity',
                           controller: _initialStock,
@@ -342,14 +339,14 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AdminSpace.xs),
                         Text(
                           'Sets the Inventory on-hand count right away — leave blank to start at 0. '
                           'Later restocks are managed from the Inventory page.',
                           style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
                         ),
                       ] else ...[
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AdminSpace.xs),
                         Text(
                           'Stock levels are managed on the Inventory page.',
                           style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
@@ -359,36 +356,22 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                   ),
                 ),
                 if (_error != null) ...[
-                  const SizedBox(height: 14),
-                  Text(_error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                  const SizedBox(height: AdminSpace.md),
+                  Text(_error!, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error)),
                 ],
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _loading ? null : () => _submit(cubit),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AdminColors.ink,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                    ),
-                    child: _loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFFFFFBF2))),
-                          )
-                        : Text(
-                            _editing == null ? 'Save product' : 'Save changes',
-                            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                          ),
-                  ),
+                const SizedBox(height: AdminSpace.md),
+                AdminButton(
+                  label: _editing == null ? 'Save product' : 'Save changes',
+                  size: AdminButtonSize.large,
+                  expand: true,
+                  loading: _loading,
+                  onPressed: _loading ? null : () => _submit(cubit),
                 ),
               ],
             );
 
             if (narrow) {
-              return Column(children: [left, const SizedBox(height: 14), right]);
+              return Column(children: [left, const SizedBox(height: AdminSpace.section), right]);
             }
             // Plain Row, not `IntrinsicHeight` — `left` contains
             // `AdminResponsiveGrid`, which uses `LayoutBuilder` internally,
@@ -400,7 +383,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(flex: 160, child: left),
-                const SizedBox(width: 14),
+                const SizedBox(width: AdminSpace.section),
                 Expanded(flex: 100, child: right),
               ],
             );

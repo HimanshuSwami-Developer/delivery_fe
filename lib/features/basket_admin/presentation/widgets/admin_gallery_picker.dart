@@ -1,5 +1,6 @@
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,11 +69,10 @@ class _AdminGalleryPickerState extends State<AdminGalleryPicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.muted)),
-        const SizedBox(height: 8),
+        AdminFieldLabel(widget.label),
         Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: AdminSpace.sm,
+          runSpacing: AdminSpace.sm,
           children: [
             for (var i = 0; i < widget.images.length; i++)
               _GalleryThumb(url: widget.images[i].url, onRemove: () => _remove(i)),
@@ -80,10 +80,10 @@ class _AdminGalleryPickerState extends State<AdminGalleryPicker> {
           ],
         ),
         if (_error != null) ...[
-          const SizedBox(height: 8),
-          Text(_error!, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+          const SizedBox(height: AdminSpace.xs),
+          Text(_error!, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: AdminSurface.error)),
         ],
-        const SizedBox(height: 6),
+        const SizedBox(height: AdminSpace.xs),
         Text(
           'Shown as a swipeable gallery on the product detail page, alongside the main image above.',
           style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, height: 1.5, color: AdminColors.faint),
@@ -105,7 +105,7 @@ class _GalleryThumb extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AdminRadius.sm),
           child: Image.network(
             url,
             width: 64,
@@ -115,11 +115,11 @@ class _GalleryThumb extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: -7,
-          right: -7,
+          top: -AdminSpace.xs,
+          right: -AdminSpace.xs,
           child: InkWell(
             onTap: onRemove,
-            borderRadius: BorderRadius.circular(99),
+            borderRadius: BorderRadius.circular(AdminRadius.pill),
             child: Container(
               width: 20,
               height: 20,
@@ -144,13 +144,14 @@ class _AddTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(AdminRadius.sm),
       child: Container(
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          border: Border.all(color: AdminColors.ink.withValues(alpha: 0.24), width: 1.3),
-          borderRadius: BorderRadius.circular(10),
+          color: AdminSurface.card,
+          border: Border.all(color: AdminSurface.borderStrong),
+          borderRadius: BorderRadius.circular(AdminRadius.sm),
         ),
         alignment: Alignment.center,
         child: uploading

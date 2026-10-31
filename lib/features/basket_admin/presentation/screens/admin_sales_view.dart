@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_delivered_sales_section.dart';
@@ -29,13 +30,10 @@ class AdminSalesView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('Couldn\'t load sales reports', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AdminSpace.xs),
                   Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
-                  const SizedBox(height: 14),
-                  OutlinedButton(
-                    onPressed: context.read<BasketAdminCubit>().loadSales,
-                    child: const Text('Retry'),
-                  ),
+                  const SizedBox(height: AdminSpace.md),
+                  AdminButton.secondary(label: 'Retry', onPressed: context.read<BasketAdminCubit>().loadSales),
                 ],
               ),
       );
@@ -65,7 +63,8 @@ class AdminSalesView extends StatelessWidget {
           Row(
             children: [
               const Expanded(child: SizedBox.shrink()),
-              OutlinedButton(
+              AdminButton.secondary(
+                label: '⤓ Export CSV',
                 onPressed: () => downloadAndShareBytes(
                   context,
                   fetch: () => cubit.api.reports.fetchSalesExportCsv(),
@@ -73,35 +72,28 @@ class AdminSalesView extends StatelessWidget {
                   mimeType: 'text/csv',
                   preparingMessage: 'Preparing sales report…',
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: const Color(0xFFFFFBF2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('⤓ Export CSV', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           const AdminDeliveredSalesSection(),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           LayoutBuilder(builder: (context, constraints) {
             final narrow = constraints.maxWidth < 820;
 
             final revenueCard = Container(
-              padding: const EdgeInsets.all(18),
-              decoration: adminGlassCard(),
+              padding: const EdgeInsets.all(AdminSpace.card),
+              decoration: adminCard(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const AdminSectionTitle('Monthly revenue'),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AdminSpace.lg),
                   if (report.monthlyRevenue.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 30),
+                      padding: const EdgeInsets.symmetric(vertical: AdminSpace.xxl),
                       child: Text('No revenue history yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                     )
                   else
@@ -146,18 +138,18 @@ class AdminSalesView extends StatelessWidget {
             );
 
             final topCatsCard = Container(
-              padding: const EdgeInsets.all(18),
-              decoration: adminGlassCard(),
+              padding: const EdgeInsets.all(AdminSpace.card),
+              decoration: adminCard(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const AdminSectionTitle('Top categories'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AdminSpace.md),
                   if (report.topCategories.isEmpty)
                     Text('No category sales yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   for (var i = 0; i < report.topCategories.length; i++)
                     Padding(
-                      padding: EdgeInsets.only(bottom: i == report.topCategories.length - 1 ? 0 : 14),
+                      padding: EdgeInsets.only(bottom: i == report.topCategories.length - 1 ? 0 : AdminSpace.md),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -170,7 +162,7 @@ class AdminSalesView extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(9),
+                            borderRadius: BorderRadius.circular(AdminRadius.sm),
                             child: LinearProgressIndicator(
                               value: catMax == 0 ? 0 : report.topCategories[i].revenue / catMax,
                               minHeight: 7,
@@ -186,14 +178,14 @@ class AdminSalesView extends StatelessWidget {
             );
 
             if (narrow) {
-              return Column(children: [revenueCard, const SizedBox(height: 14), topCatsCard]);
+              return Column(children: [revenueCard, const SizedBox(height: AdminSpace.section), topCatsCard]);
             }
             return IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(flex: 140, child: revenueCard),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: AdminSpace.section),
                   Expanded(flex: 100, child: topCatsCard),
                 ],
               ),

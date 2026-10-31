@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -33,13 +34,9 @@ class AssignPartnerModal extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                color: Color(0xFFFFFBF2).withValues(alpha: 0.96),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [BoxShadow(color: AdminColors.ink.withValues(alpha: 0.3), blurRadius: 60, offset: const Offset(0, 30))],
-              ),
+              margin: const EdgeInsets.all(AdminSpace.lg),
+              padding: const EdgeInsets.all(AdminSpace.xl),
+              decoration: adminCard(radius: AdminRadius.lg, border: false, elevated: true),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +49,7 @@ class AssignPartnerModal extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Assign delivery partner', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: AdminSpace.xxs),
                             Text(
                               '$orderNumber · pickup bay 3',
                               style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted),
@@ -60,17 +57,17 @@ class AssignPartnerModal extends StatelessWidget {
                           ],
                         ),
                       ),
-                      AdminIconActionButton(icon: Icons.close, onTap: cubit.closeModal, size: 30),
+                      AdminIconActionButton(icon: Icons.close, onTap: cubit.closeModal, size: 32),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AdminSpace.lg),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 300),
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
                           for (var i = 0; i < available.length; i++) ...[
-                            if (i > 0) const SizedBox(height: 9),
+                            if (i > 0) const SizedBox(height: AdminSpace.xs),
                             _PartnerRow(
                               name: available[i].name,
                               meta: '${available[i].partnerCode} · ★ ${available[i].rating}',
@@ -84,35 +81,25 @@ class AssignPartnerModal extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AdminSpace.xl),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: AdminButton.secondary(
+                          label: 'Cancel',
+                          size: AdminButtonSize.large,
+                          expand: true,
                           onPressed: cubit.closeModal,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AdminColors.ink, width: 1.5),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                          ),
-                          child: Text('Cancel', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: AdminColors.ink)),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: AdminSpace.sm),
                       Expanded(
                         flex: 2,
-                        child: FilledButton(
+                        child: AdminButton(
+                          label: assign != null ? 'Assign ${assign.name}' : 'Select a partner',
+                          size: AdminButtonSize.large,
+                          expand: true,
                           onPressed: assign != null ? cubit.confirmAssign : null,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AdminColors.ink,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                          ),
-                          child: Text(
-                            assign != null ? 'Assign ${assign.name}' : 'Select a partner',
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
-                          ),
                         ),
                       ),
                     ],
@@ -148,14 +135,10 @@ class _PartnerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AdminRadius.md),
       child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: selected ? AdminColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
-          border: Border.all(color: selected ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.1), width: 1.5),
-          borderRadius: BorderRadius.circular(14),
-        ),
+        padding: const EdgeInsets.all(AdminSpace.sm),
+        decoration: adminCard(selected: selected),
         child: Row(
           children: [
             Container(
@@ -167,13 +150,13 @@ class _PartnerRow extends StatelessWidget {
                 border: Border.all(color: AdminColors.ink, width: 1.5),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AdminSpace.sm),
             const SizedBox(
               width: 38,
               height: 38,
               child: ImageSlot(shape: ImageSlotShape.circle, mini: true),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AdminSpace.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

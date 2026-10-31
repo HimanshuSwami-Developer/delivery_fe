@@ -2,6 +2,7 @@ import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -40,16 +41,17 @@ class AdminGstView extends StatelessWidget {
             children: [
               Expanded(
                 child: Wrap(
-                  spacing: 9,
-                  runSpacing: 9,
+                  spacing: AdminSpace.xs,
+                  runSpacing: AdminSpace.xs,
                   children: [
                     for (final entry in _kGstMonths.entries)
                       AdminPillButton(label: entry.value, selected: month == entry.key, onTap: () => cubit.setMonth(entry.key)),
                   ],
                 ),
               ),
-              const SizedBox(width: 9),
-              OutlinedButton(
+              const SizedBox(width: AdminSpace.xs),
+              AdminButton.secondary(
+                label: '⤓ GSTR-1 (JSON)',
                 onPressed: () => downloadAndShareBytes(
                   context,
                   fetch: () => cubit.api.reports.fetchGstr1Json(month: BasketAdminCubit.gstMonthCodes[month]),
@@ -57,16 +59,10 @@ class AdminGstView extends StatelessWidget {
                   mimeType: 'application/json',
                   preparingMessage: 'Preparing GSTR-1…',
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: Color(0xFFFFFBF2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('⤓ GSTR-1 (JSON)', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
               ),
-              const SizedBox(width: 9),
-              FilledButton(
+              const SizedBox(width: AdminSpace.xs),
+              AdminButton(
+                label: '⤓ GSTR-3B summary',
                 onPressed: () => downloadAndShareBytes(
                   context,
                   fetch: () => cubit.api.reports.fetchGstr3bPdf(month: BasketAdminCubit.gstMonthCodes[month]),
@@ -74,23 +70,17 @@ class AdminGstView extends StatelessWidget {
                   mimeType: 'application/pdf',
                   preparingMessage: 'Preparing GSTR-3B summary…',
                 ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('⤓ GSTR-3B summary', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           _GstSettingsCard(
             settings: storeSettings,
             saving: storeSettingsSaving,
             error: storeSettingsError,
             onSave: cubit.saveStoreSettings,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           if (report == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -101,13 +91,10 @@ class AdminGstView extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('Couldn\'t load the GST report', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: AdminSpace.xs),
                           Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
-                          const SizedBox(height: 14),
-                          OutlinedButton(
-                            onPressed: cubit.loadGst,
-                            child: const Text('Retry'),
-                          ),
+                          const SizedBox(height: AdminSpace.md),
+                          AdminButton.secondary(label: 'Retry', onPressed: cubit.loadGst),
                         ],
                       ),
               ),
@@ -121,10 +108,10 @@ class AdminGstView extends StatelessWidget {
                 AdminStatCard(label: 'Net payable', value: adminMoney(report.netPayable), sub: 'Due 20 $dueMonth'),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AdminSpace.section),
             Container(
-              padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
-              decoration: adminGlassCard(),
+              padding: const EdgeInsets.all(AdminSpace.md),
+              decoration: adminCard(),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
@@ -133,13 +120,13 @@ class AdminGstView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 16, 10, 12),
+                        padding: const EdgeInsets.fromLTRB(AdminSpace.sm, AdminSpace.xxs, AdminSpace.sm, AdminSpace.sm),
                         child: AdminSectionTitle('Tax slab breakdown · $monthLabel'),
                       ),
                       const AdminTableHeader(flex: _kFlex, labels: ['Slab', 'Taxable value', 'CGST', 'SGST', 'Total tax', 'Invoices']),
                       if (report.slabs.isEmpty)
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(vertical: AdminSpace.lg),
                           child: Text('No invoices this month.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                         ),
                       for (final g in report.slabs)
@@ -155,7 +142,7 @@ class AdminGstView extends StatelessWidget {
                           ],
                         ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 14, 10, 4),
+                        padding: const EdgeInsets.fromLTRB(AdminSpace.sm, AdminSpace.md, AdminSpace.sm, 0),
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: Text('Net GST payable · ${adminMoney(report.netPayable)}', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
@@ -237,16 +224,16 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AdminSectionTitle('GST settings'),
-          const SizedBox(height: 4),
+          const SizedBox(height: AdminSpace.xxs),
           Text('Printed on every invoice, GSTR-1 and GSTR-3B export — editing these takes effect immediately.',
               style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
-          const SizedBox(height: 16),
+          const SizedBox(height: AdminSpace.md),
           LayoutBuilder(builder: (context, constraints) {
             final narrow = constraints.maxWidth < 640;
             final fields = [
@@ -255,39 +242,27 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
               _field('Address', _addressCtrl, maxLines: 2),
             ];
             if (narrow) {
-              return Column(children: [for (final f in fields) Padding(padding: const EdgeInsets.only(bottom: 10), child: f)]);
+              return Column(children: [for (final f in fields) Padding(padding: const EdgeInsets.only(bottom: AdminSpace.sm), child: f)]);
             }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(flex: 2, child: fields[0]),
-                const SizedBox(width: 10),
+                const SizedBox(width: AdminSpace.sm),
                 Expanded(child: fields[1]),
-                const SizedBox(width: 10),
+                const SizedBox(width: AdminSpace.sm),
                 Expanded(flex: 2, child: fields[2]),
               ],
             );
           }),
           if (widget.error != null) ...[
-            const SizedBox(height: 10),
-            Text(widget.error!, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: Colors.red)),
+            const SizedBox(height: AdminSpace.sm),
+            Text(widget.error!, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminSurface.error)),
           ],
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.md),
           Align(
             alignment: Alignment.centerRight,
-            child: FilledButton(
-              onPressed: widget.saving ? null : _save,
-              style: FilledButton.styleFrom(
-                backgroundColor: AdminColors.ink,
-                disabledBackgroundColor: AdminColors.ink.withValues(alpha: 0.5),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-              ),
-              child: widget.saving
-                  ? const SizedBox(
-                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFFFBF2)))
-                  : Text('Save GST settings', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-            ),
+            child: AdminButton(label: 'Save GST settings', loading: widget.saving, onPressed: _save),
           ),
         ],
       ),
@@ -295,32 +270,6 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
   }
 
   Widget _field(String label, TextEditingController controller, {int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w600),
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-            filled: true,
-            fillColor: const Color(0xFFFFFBF2),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AdminColors.ink, width: 1.4),
-            ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        ),
-      ],
-    );
+    return AdminEditField(label: label, controller: controller, maxLines: maxLines);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
-import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,53 +61,38 @@ class _AdminImagePickerState extends State<AdminImagePicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.muted)),
-        const SizedBox(height: 8),
+        AdminFieldLabel(widget.label),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AdminRadius.md),
               child: SizedBox(
                 width: 72,
                 height: 72,
                 child: widget.imageUrl.isEmpty
-                    ? const ImageSlot(radius: 12)
+                    ? const ImageSlot(radius: AdminRadius.md)
                     : Image.network(
                         widget.imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const ImageSlot(radius: 12),
+                        errorBuilder: (context, error, stackTrace) => const ImageSlot(radius: AdminRadius.md),
                       ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AdminSpace.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  OutlinedButton(
+                  AdminButton.secondary(
+                    label: widget.imageUrl.isEmpty ? 'Upload photo' : 'Replace photo',
+                    loading: _uploading,
                     onPressed: _uploading ? null : _pickAndUpload,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                      foregroundColor: AdminColors.ink,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                    ),
-                    child: _uploading
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            widget.imageUrl.isEmpty ? 'Upload photo' : 'Replace photo',
-                            style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700),
-                          ),
                   ),
                   if (_error != null) ...[
-                    const SizedBox(height: 6),
-                    Text(_error!, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFFC0392B))),
+                    const SizedBox(height: AdminSpace.xs),
+                    Text(_error!, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: AdminSurface.error)),
                   ],
                 ],
               ),

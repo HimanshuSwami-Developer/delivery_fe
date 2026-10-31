@@ -3,6 +3,7 @@ import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -36,12 +37,13 @@ class AdminOrderDetailView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextButton(
+          AdminButton(
+            label: '← All orders',
+            variant: AdminButtonVariant.text,
+            size: AdminButtonSize.small,
             onPressed: cubit.goOrders,
-            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-            child: Text('← All orders', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.muted)),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.sm),
           LayoutBuilder(builder: (context, constraints) {
             final narrow = constraints.maxWidth < 900;
 
@@ -49,8 +51,8 @@ class AdminOrderDetailView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,24 +64,24 @@ class AdminOrderDetailView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(order.orderNumber, style: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: AdminSpace.xxs),
                                 Text('${_timeOf(order.createdAt)} · ${order.paymentMode.toUpperCase()}',
                                     style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(99)),
+                            padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.xxs),
+                            decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(AdminRadius.pill)),
                             child: Text(orderStatus, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AdminSpace.lg),
                       Row(
                         children: [
                           for (var i = 0; i < steps.length; i++) ...[
-                            if (i > 0) const SizedBox(width: 4),
+                            if (i > 0) const SizedBox(width: AdminSpace.xxs),
                             Expanded(child: _StepTile(index: i, label: steps[i], order: order, cancelled: cancelled, stageIdx: stageIdx)),
                           ],
                         ],
@@ -87,15 +89,15 @@ class AdminOrderDetailView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AdminSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AdminSectionTitle('Items'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AdminSpace.sm),
                       const AdminTableHeader(flex: [2.4, 0.7, 0.8, 0.8], labels: ['Product', 'Qty', 'Rate', 'Amount']),
                       for (final line in order.items)
                         AdminTableRow(
@@ -106,9 +108,9 @@ class AdminOrderDetailView extends StatelessWidget {
                                 const SizedBox(
                                   width: 36,
                                   height: 36,
-                                  child: ImageSlot(shape: ImageSlotShape.rounded, radius: 9, mini: true),
+                                  child: ImageSlot(shape: ImageSlotShape.rounded, radius: AdminRadius.sm, mini: true),
                                 ),
-                                const SizedBox(width: 11),
+                                const SizedBox(width: AdminSpace.sm),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,25 +134,25 @@ class AdminOrderDetailView extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 14),
+                          padding: const EdgeInsets.only(top: AdminSpace.md),
                           child: SizedBox(
                             width: 280,
                             child: Column(
                               children: [
                                 _SummaryLine('Taxable value', adminMoney(order.subtotal)),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: AdminSpace.xs),
                                 _SummaryLine('CGST', adminMoney(order.cgst)),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: AdminSpace.xs),
                                 _SummaryLine('SGST', adminMoney(order.sgst)),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: AdminSpace.xs),
                                 _SummaryLine('Delivery', adminMoney(order.deliveryFee)),
                                 if (order.discount > 0) ...[
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: AdminSpace.xs),
                                   _SummaryLine('Discount${order.couponCode != null ? ' (${order.couponCode})' : ''}', '− ${adminMoney(order.discount)}'),
                                 ],
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 11),
-                                  child: Divider(height: 1, color: AdminColors.ink.withValues(alpha: 0.1)),
+                                  padding: const EdgeInsets.symmetric(vertical: AdminSpace.sm),
+                                  child: const Divider(height: 1, color: AdminSurface.border),
                                 ),
                                 _SummaryLine('Order total', adminMoney(order.total), bold: true),
                               ],
@@ -168,18 +170,18 @@ class AdminOrderDetailView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(AdminSpace.card),
                   decoration: adminDarkCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Delivery partner', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                       if (assign != null) ...[
-                        const SizedBox(height: 14),
+                        const SizedBox(height: AdminSpace.md),
                         Row(
                           children: [
                             const SizedBox(width: 42, height: 42, child: ImageSlot(shape: ImageSlotShape.circle, mini: true)),
-                            const SizedBox(width: 11),
+                            const SizedBox(width: AdminSpace.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,62 +195,38 @@ class AdminOrderDetailView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: cubit.openAssign,
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Color(0xFFFFFBF2).withValues(alpha: 0.35), width: 1.4),
-                              padding: const EdgeInsets.symmetric(vertical: 11),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text('Reassign partner', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-                          ),
-                        ),
+                        const SizedBox(height: AdminSpace.md),
+                        // Secondary (white fill) on this dark ink card — a
+                        // primary ink button would vanish against it.
+                        AdminButton.secondary(label: 'Reassign partner', expand: true, onPressed: cubit.openAssign),
                       ] else ...[
-                        const SizedBox(height: 10),
+                        const SizedBox(height: AdminSpace.xs),
                         Text('No partner assigned yet.',
                             style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.6, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: cubit.openAssign,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Color(0xFFFFFBF2),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text('Assign partner', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800, color: AdminColors.ink)),
-                          ),
-                        ),
+                        const SizedBox(height: AdminSpace.md),
+                        AdminButton.secondary(label: 'Assign partner', expand: true, onPressed: cubit.openAssign),
                       ],
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AdminSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Update status', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 13),
+                      const SizedBox(height: AdminSpace.sm),
                       for (final s in [..._kStatusFlow, 'Cancelled'])
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.only(bottom: AdminSpace.xs),
                           child: InkWell(
                             onTap: () => cubit.setOrderStatus(s),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AdminRadius.md),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-                              decoration: BoxDecoration(
-                                color: orderStatus == s ? AdminColors.ink.withValues(alpha: 0.05) : Color(0xFFFFFBF2),
-                                border: Border.all(color: orderStatus == s ? AdminColors.ink : AdminColors.ink.withValues(alpha: 0.12), width: 1.4),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              padding: const EdgeInsets.all(AdminSpace.sm),
+                              decoration: adminCard(selected: orderStatus == s),
                               child: Row(
                                 children: [
                                   Container(
@@ -260,7 +238,7 @@ class AdminOrderDetailView extends StatelessWidget {
                                       border: Border.all(color: AdminColors.ink, width: 1.5),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: AdminSpace.sm),
                                   Text(s, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
                                 ],
                               ),
@@ -270,69 +248,47 @@ class AdminOrderDetailView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AdminSpace.section),
                 Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: adminGlassCard(),
+                  padding: const EdgeInsets.all(AdminSpace.card),
+                  decoration: adminCard(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Customer', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 11),
+                      const SizedBox(height: AdminSpace.sm),
                       Text(order.customerName ?? order.customerMobile ?? '—', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AdminSpace.xxs),
                       Text(order.address, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.6, color: AdminColors.muted)),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AdminSpace.xs),
                       Text(
                         'GSTIN: ${(order.gstin ?? '').isEmpty ? '—  (B2C supply)' : order.gstin}',
                         style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AdminSpace.md),
                       Row(
                         children: [
                           if (!cancelled)
                             Expanded(
-                              child: FilledButton(
+                              child: AdminButton(
+                                label: 'GST invoice ↓',
+                                expand: true,
                                 onPressed: () => downloadOrderInvoice(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: AdminColors.ink,
-                                  disabledBackgroundColor: AdminColors.ink,
-                                  padding: const EdgeInsets.symmetric(vertical: 11),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                                ),
-                                child: Text('GST invoice ↓', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
                               ),
                             ),
-                          if (!cancelled) const SizedBox(width: 8),
+                          if (!cancelled) const SizedBox(width: AdminSpace.xs),
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: null,
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AdminColors.ink, width: 1.4),
-                                disabledForegroundColor: AdminColors.ink,
-                                padding: const EdgeInsets.symmetric(vertical: 11),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                              ),
-                              child: Text(cancelled ? 'Refund issued ✓' : 'Refund', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-                            ),
+                            child: AdminButton.secondary(label: cancelled ? 'Refund issued ✓' : 'Refund', expand: true, onPressed: null),
                           ),
                         ],
                       ),
                       if (!cancelled) ...[
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
-                            icon: const Icon(Icons.print_outlined, size: 15),
-                            label: Text('Printable receipt (POS) ↓', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700)),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AdminColors.ink, width: 1.4),
-                              foregroundColor: AdminColors.ink,
-                              padding: const EdgeInsets.symmetric(vertical: 11),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                            ),
-                          ),
+                        const SizedBox(height: AdminSpace.xs),
+                        AdminButton.secondary(
+                          label: 'Printable receipt (POS) ↓',
+                          icon: Icons.print_outlined,
+                          expand: true,
+                          onPressed: () => downloadOrderReceipt(context, orders: cubit.api.orders, orderId: order.id, orderNumber: order.orderNumber),
                         ),
                       ],
                     ],
@@ -342,14 +298,14 @@ class AdminOrderDetailView extends StatelessWidget {
             );
 
             if (narrow) {
-              return Column(children: [left, const SizedBox(height: 14), right]);
+              return Column(children: [left, const SizedBox(height: AdminSpace.section), right]);
             }
             return IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(flex: 170, child: left),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: AdminSpace.section),
                   Expanded(flex: 100, child: right),
                 ],
               ),
@@ -412,7 +368,7 @@ class _StepTile extends StatelessWidget {
               Expanded(child: Container(height: 2, color: lineColor)),
             ],
           ),
-          const SizedBox(height: 9),
+          const SizedBox(height: AdminSpace.xs),
           Text(label, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 3),
           Text(time, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),

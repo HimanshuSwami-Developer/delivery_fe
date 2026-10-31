@@ -2,6 +2,7 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -25,21 +26,13 @@ class AdminCouponsView extends StatelessWidget {
           Row(
             children: [
               const Expanded(child: AdminSectionTitle('Active & scheduled campaigns')),
-              FilledButton(
-                onPressed: cubit.openAddCoupon,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('+ New coupon', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-              ),
+              AdminButton(label: '+ New coupon', onPressed: cubit.openAddCoupon),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           if (coupons.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: const EdgeInsets.symmetric(vertical: AdminSpace.xxl),
               child: Text('No coupons yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
           AdminResponsiveGrid(
@@ -74,8 +67,8 @@ class _CouponCard extends StatelessWidget {
     final discountLabel =
         coupon.percentDiscount != null ? '${coupon.percentDiscount}% off' : '${adminMoney(coupon.flatDiscount ?? 0)} off';
     return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -87,7 +80,7 @@ class _CouponCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(coupon.code, style: GoogleFonts.manrope(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 1)),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AdminSpace.xxs),
                     Text(coupon.title, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   ],
                 ),
@@ -97,7 +90,7 @@ class _CouponCard extends StatelessWidget {
                 child: Row(
                   children: [
                     AdminToggle(on: on, onTap: onToggle),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AdminSpace.xs),
                     Text(on ? 'Active' : 'Paused',
                         style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: on ? AdminColors.ink : AdminColors.faint)),
                   ],
@@ -105,7 +98,7 @@ class _CouponCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AdminSpace.md),
           Row(
             children: [
               Expanded(child: AdminMiniStat(label: 'Redeemed', value: '${coupon.usedCount}')),
@@ -113,35 +106,23 @@ class _CouponCard extends StatelessWidget {
               Expanded(child: AdminMiniStat(label: 'Ends', value: coupon.validUntil == null ? 'Ongoing' : _dateLabel(coupon.validUntil!))),
             ],
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: AdminSpace.md),
           Text('Min order ${adminMoney(coupon.minOrderValue)} · $discountLabel${coupon.maxDiscount != null ? ' · max ${adminMoney(coupon.maxDiscount!)}' : ''}',
               style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.muted)),
-          const SizedBox(height: 16),
+          const SizedBox(height: AdminSpace.md),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: onEdit,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                    foregroundColor: AdminColors.ink,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                  ),
-                  child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-                ),
+                child: AdminButton.secondary(label: 'Edit', size: AdminButtonSize.small, expand: true, onPressed: onEdit),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AdminSpace.xs),
               Expanded(
-                child: OutlinedButton(
+                child: AdminButton(
+                  label: 'Delete',
+                  variant: AdminButtonVariant.danger,
+                  size: AdminButtonSize.small,
+                  expand: true,
                   onPressed: onDelete,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
-                    foregroundColor: AdminColors.muted,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                  ),
-                  child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                 ),
               ),
             ],
@@ -164,14 +145,8 @@ Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiCou
         style: GoogleFonts.manrope(fontSize: 13),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
-        ),
+        AdminButton.secondary(label: 'Cancel', onPressed: () => Navigator.of(dialogContext).pop(false)),
+        AdminButton(label: 'Delete', variant: AdminButtonVariant.danger, onPressed: () => Navigator.of(dialogContext).pop(true)),
       ],
     ),
   );

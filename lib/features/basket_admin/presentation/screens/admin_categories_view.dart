@@ -2,6 +2,7 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -27,18 +28,10 @@ class AdminCategoriesView extends StatelessWidget {
           Row(
             children: [
               const Expanded(child: AdminSectionTitle('Categories')),
-              FilledButton(
-                onPressed: cubit.openAddCategory,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('+ Add category', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-              ),
+              AdminButton(label: '+ Add category', onPressed: cubit.openAddCategory),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           if (loading && categories.isEmpty)
             const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator()))
           else if (categories.isEmpty)
@@ -78,8 +71,8 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.md),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,18 +83,18 @@ class _CategoryCard extends StatelessWidget {
                 width: 52,
                 height: 52,
                 child: category.imageUrl.isEmpty
-                    ? const ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true)
+                    ? const ImageSlot(shape: ImageSlotShape.rounded, radius: AdminRadius.md, mini: true)
                     : ClipRRect(
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(AdminRadius.md),
                         child: Image.network(
                           category.imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
-                              const ImageSlot(shape: ImageSlotShape.rounded, radius: 13, mini: true),
+                              const ImageSlot(shape: ImageSlotShape.rounded, radius: AdminRadius.md, mini: true),
                         ),
                       ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AdminSpace.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,56 +110,30 @@ class _CategoryCard extends StatelessWidget {
               const AdminChipBadge('Live'),
             ],
           ),
-          const SizedBox(height: 13),
+          const SizedBox(height: AdminSpace.sm),
           Wrap(
-            spacing: 7,
-            runSpacing: 7,
+            spacing: AdminSpace.xs,
+            runSpacing: AdminSpace.xs,
             children: [
               for (final s in subcategories)
-                GestureDetector(
-                  onTap: () => cubit.openAddSubcategory(category: category, subcategory: s),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                    decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(99)),
-                    child: Text(s.name, style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              GestureDetector(
-                onTap: () => cubit.openAddSubcategory(category: category),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                  decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(99)),
-                  child: Text('+ Add', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-                ),
-              ),
+                AdminPillButton(label: s.name, selected: false, onTap: () => cubit.openAddSubcategory(category: category, subcategory: s)),
+              AdminButton(label: '+ Add', size: AdminButtonSize.small, onPressed: () => cubit.openAddSubcategory(category: category)),
             ],
           ),
-          const SizedBox(height: 13),
+          const SizedBox(height: AdminSpace.sm),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () => cubit.openAddCategory(category: category),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                    foregroundColor: AdminColors.ink,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                  ),
-                  child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-                ),
+                child: AdminButton.secondary(label: 'Edit', size: AdminButtonSize.small, expand: true, onPressed: () => cubit.openAddCategory(category: category)),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AdminSpace.xs),
               Expanded(
-                child: OutlinedButton(
+                child: AdminButton(
+                  label: 'Delete',
+                  variant: AdminButtonVariant.danger,
+                  size: AdminButtonSize.small,
+                  expand: true,
                   onPressed: () => _confirmDelete(context, cubit, category),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.14)),
-                    foregroundColor: AdminColors.muted,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                  ),
-                  child: Text('Delete', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                 ),
               ),
             ],
@@ -189,14 +156,8 @@ Future<void> _confirmDelete(BuildContext context, BasketAdminCubit cubit, ApiCat
         style: GoogleFonts.manrope(fontSize: 13),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
-        ),
+        AdminButton.secondary(label: 'Cancel', onPressed: () => Navigator.of(dialogContext).pop(false)),
+        AdminButton(label: 'Delete', variant: AdminButtonVariant.danger, onPressed: () => Navigator.of(dialogContext).pop(true)),
       ],
     ),
   );

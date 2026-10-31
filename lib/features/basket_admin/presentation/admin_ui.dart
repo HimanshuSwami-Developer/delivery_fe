@@ -188,7 +188,13 @@ class AdminButton extends StatelessWidget {
       style: ButtonStyle(
         minimumSize: WidgetStatePropertyAll(Size(0, _height)),
         fixedSize: WidgetStatePropertyAll(Size.fromHeight(_height)),
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: size == AdminButtonSize.small ? 12 : 16)),
+        // Text links sit flush with the content they belong to; boxed
+        // variants get their normal side padding.
+        padding: WidgetStatePropertyAll(
+          variant == AdminButtonVariant.text
+              ? const EdgeInsets.symmetric(horizontal: 2)
+              : EdgeInsets.symmetric(horizontal: size == AdminButtonSize.small ? 12 : 16),
+        ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius))),
         side: WidgetStateProperty.resolveWith((s) {

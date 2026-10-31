@@ -2,6 +2,7 @@ import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -26,8 +27,8 @@ class AdminCustomersView extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
-        decoration: adminGlassCard(),
+        padding: const EdgeInsets.all(AdminSpace.md),
+        decoration: adminCard(),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: SizedBox(
@@ -37,7 +38,7 @@ class AdminCustomersView extends StatelessWidget {
                 const AdminTableHeader(flex: _kFlex, labels: ['Customer', 'Phone', 'Orders', 'Lifetime value', 'Last order', 'Tier']),
                 if (customers.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: AdminSpace.lg),
                     child: Text('No customers yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   ),
                 for (final c in customers) _CustomerRow(c: c),
@@ -62,7 +63,7 @@ class _CustomerRow extends StatelessWidget {
         Row(
           children: [
             const SizedBox(width: 34, height: 34, child: ImageSlot(shape: ImageSlotShape.circle, mini: true)),
-            const SizedBox(width: 11),
+            const SizedBox(width: AdminSpace.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

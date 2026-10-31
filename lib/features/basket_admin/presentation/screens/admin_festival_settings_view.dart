@@ -1,5 +1,6 @@
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -52,10 +53,10 @@ class AdminFestivalSettingsView extends StatelessWidget {
             'Auto-activates on each festival\'s calendar window unless overridden below.',
             style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           if (settings.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: const EdgeInsets.symmetric(vertical: AdminSpace.xxl),
               child: Text('Loading…', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
             ),
           AdminResponsiveGrid(
@@ -77,8 +78,8 @@ class _FestivalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<BasketAdminCubit>();
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.md),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -94,7 +95,7 @@ class _FestivalCard extends StatelessWidget {
               AdminChipBadge(_kOverrideModeLabels[setting.overrideMode] ?? setting.overrideMode),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AdminSpace.sm),
           Row(
             children: [
               _ColorDot(_swatch(setting.gradientStart)),
@@ -119,7 +120,7 @@ class _FestivalCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.4, color: AdminColors.muted),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AdminSpace.xxs),
           Row(
             children: [
               Icon(setting.popupEnabled ? Icons.chat_bubble_outline_rounded : Icons.speaker_notes_off_outlined, size: 13, color: AdminColors.faint),
@@ -137,19 +138,12 @@ class _FestivalCard extends StatelessWidget {
               style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600, color: AdminColors.faint),
             ),
           ],
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () => cubit.openEditFestivalSetting(setting),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AdminColors.ink, width: 1.3),
-                foregroundColor: AdminColors.ink,
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-              ),
-              child: Text('Edit', style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-            ),
+          const SizedBox(height: AdminSpace.sm),
+          AdminButton.secondary(
+            label: 'Edit',
+            size: AdminButtonSize.small,
+            expand: true,
+            onPressed: () => cubit.openEditFestivalSetting(setting),
           ),
         ],
       ),
@@ -168,7 +162,7 @@ class _ColorDot extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12))),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: AdminSurface.border)),
     );
   }
 }

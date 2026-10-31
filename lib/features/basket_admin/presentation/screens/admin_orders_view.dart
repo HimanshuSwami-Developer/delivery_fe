@@ -1,5 +1,6 @@
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -33,42 +34,23 @@ class AdminOrdersView extends StatelessWidget {
             children: [
               Expanded(
                 child: Wrap(
-                  spacing: 9,
-                  runSpacing: 9,
+                  spacing: AdminSpace.xs,
+                  runSpacing: AdminSpace.xs,
                   children: [
                     for (final s in _kStatusTabs) AdminPillButton(label: s, selected: status == s, onTap: () => cubit.setStatus(s)),
                   ],
                 ),
               ),
-              const SizedBox(width: 9),
-              OutlinedButton(
-                onPressed: null,
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AdminColors.ink.withValues(alpha: 0.12)),
-                  backgroundColor: Color(0xFFFFFBF2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                  disabledForegroundColor: AdminColors.ink,
-                ),
-                child: Text('⤓ Export CSV', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.ink)),
-              ),
-              const SizedBox(width: 9),
-              FilledButton(
-                onPressed: null,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  disabledBackgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: Text('Bulk assign', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFFFBF2))),
-              ),
+              const SizedBox(width: AdminSpace.xs),
+              const AdminButton.secondary(label: '⤓ Export CSV', onPressed: null),
+              const SizedBox(width: AdminSpace.xs),
+              const AdminButton(label: 'Bulk assign', onPressed: null),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           Container(
-            padding: const EdgeInsets.fromLTRB(18, 6, 18, 10),
-            decoration: adminGlassCard(),
+            padding: const EdgeInsets.all(AdminSpace.md),
+            decoration: adminCard(),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(
@@ -105,7 +87,7 @@ class AdminOrdersView extends StatelessWidget {
                         ],
                       ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 14, 10, 6),
+                      padding: const EdgeInsets.fromLTRB(AdminSpace.sm, AdminSpace.md, AdminSpace.sm, 0),
                       child: Text('Showing ${rows.length} order${rows.length == 1 ? '' : 's'}',
                           style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),
                     ),

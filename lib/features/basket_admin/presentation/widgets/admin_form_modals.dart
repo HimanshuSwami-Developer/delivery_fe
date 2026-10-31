@@ -2,6 +2,7 @@ import 'package:fastswipe/core/api/api_exception.dart';
 import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_image_picker.dart';
@@ -151,14 +152,8 @@ class _AddSubcategoryModalState extends State<AddSubcategoryModal> {
         title: Text('Delete "${editing.name}"?', style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
         content: Text('This can\'t be undone.', style: GoogleFonts.manrope(fontSize: 13)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text('Cancel', style: GoogleFonts.manrope(fontWeight: FontWeight.w600, color: AdminColors.muted)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text('Delete', style: GoogleFonts.manrope(fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
-          ),
+          AdminButton.secondary(label: 'Cancel', onPressed: () => Navigator.of(dialogContext).pop(false)),
+          AdminButton(label: 'Delete', variant: AdminButtonVariant.danger, onPressed: () => Navigator.of(dialogContext).pop(true)),
         ],
       ),
     );
@@ -196,14 +191,17 @@ class _AddSubcategoryModalState extends State<AddSubcategoryModal> {
       fields: [
         AdminEditField(label: 'Name', controller: _name, hint: 'Enter subcategory name (e.g. Fresh Vegetables)'),
         AdminImagePicker(imageUrl: _imageUrl, onChanged: (url) => setState(() => _imageUrl = url)),
-        if (_editing != null) ...[
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: _loading ? null : () => _delete(cubit),
-            style: TextButton.styleFrom(padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
-            child: Text('Delete subcategory', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFFC0392B))),
+        if (_editing != null)
+          // Aligned so the ListView's tight width doesn't stretch it full-width.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AdminButton(
+              label: 'Delete subcategory',
+              variant: AdminButtonVariant.danger,
+              size: AdminButtonSize.small,
+              onPressed: _loading ? null : () => _delete(cubit),
+            ),
           ),
-        ],
       ],
     );
   }
@@ -435,9 +433,9 @@ class _AdminColorField extends StatelessWidget {
             inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: AdminSpace.xs),
         Padding(
-          padding: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.only(bottom: AdminSpace.xxs),
           child: AnimatedBuilder(
             animation: controller,
             builder: (context, _) => Container(
@@ -446,7 +444,7 @@ class _AdminColorField extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _hexOrNull(controller.text) ?? AdminColors.faint,
                 shape: BoxShape.circle,
-                border: Border.all(color: AdminColors.ink.withValues(alpha: 0.14)),
+                border: Border.all(color: AdminSurface.borderStrong),
               ),
             ),
           ),
@@ -573,7 +571,7 @@ class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
         Row(
           children: [
             Expanded(child: AdminEditField(label: 'Starts on (yyyy-mm-dd, optional)', controller: _startsOn, hint: 'Enter start date (e.g. 2026-11-06)')),
-            const SizedBox(width: 10),
+            const SizedBox(width: AdminSpace.sm),
             Expanded(child: AdminEditField(label: 'Ends on (yyyy-mm-dd, optional)', controller: _endsOn, hint: 'Enter end date (e.g. 2026-11-10)')),
           ],
         ),
@@ -590,8 +588,8 @@ class _EditFestivalSettingModalState extends State<EditFestivalSettingModal> {
         AdminEditField(label: 'Header greeting badge', controller: _greeting, hint: 'Enter greeting text (e.g. Happy Diwali!)'),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
-          decoration: BoxDecoration(color: Color(0xFFFFFBF2), border: Border.all(color: AdminColors.ink.withValues(alpha: 0.1)), borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.sm),
+          decoration: adminCard(),
           child: Row(
             children: [
               Expanded(child: Text('Show popup on app open', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: AdminColors.ink))),

@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -71,12 +72,12 @@ class AdminDashboardView extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           LayoutBuilder(builder: (context, constraints) {
             final narrow = constraints.maxWidth < 860;
             final chartCard = Container(
-              padding: const EdgeInsets.all(18),
-              decoration: adminGlassCard(),
+              padding: const EdgeInsets.all(AdminSpace.card),
+              decoration: adminCard(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,21 +89,21 @@ class AdminDashboardView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const AdminSectionTitle('Sales · last 14 days'),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: AdminSpace.xxs),
                             Text('Gross merchandise value',
                                 style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                           ],
                         ),
                       ),
                       Wrap(
-                        spacing: 7,
+                        spacing: AdminSpace.xs,
                         children: [
                           for (final r in _kRanges) AdminPillButton(label: r.$2, selected: range == r.$1, onTap: () => cubit.setRange(r.$1)),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AdminSpace.lg),
                   SizedBox(
                     height: 190,
                     child: Row(
@@ -149,36 +150,36 @@ class AdminDashboardView extends StatelessWidget {
             );
 
             final lowStockCard = Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(AdminSpace.card),
               decoration: adminDarkCard(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Low stock alerts', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: AdminSpace.xxs),
                   Text('${report.lowStock.length} SKUs below reorder level',
                       style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.5))),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: AdminSpace.md),
                   if (report.lowStock.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: AdminSpace.xs),
                       child: Text('Nothing below reorder level right now.',
                           style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: Color(0xFFFFFBF2).withValues(alpha: 0.6))),
                     ),
                   for (final l in report.lowStock)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 9),
+                      padding: const EdgeInsets.only(bottom: AdminSpace.xs),
                       child: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(AdminSpace.sm),
                         decoration: BoxDecoration(
                           color: Color(0xFFFFFBF2).withValues(alpha: 0.08),
                           border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.12)),
-                          borderRadius: BorderRadius.circular(13),
+                          borderRadius: BorderRadius.circular(AdminRadius.md),
                         ),
                         child: Row(
                           children: [
-                            const SizedBox(width: 34, height: 34, child: ImageSlot(shape: ImageSlotShape.rounded, radius: 9, mini: true)),
-                            const SizedBox(width: 11),
+                            const SizedBox(width: 34, height: 34, child: ImageSlot(shape: ImageSlotShape.rounded, radius: AdminRadius.sm, mini: true)),
+                            const SizedBox(width: AdminSpace.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,54 +201,47 @@ class AdminDashboardView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: cubit.goInventory,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Color(0xFFFFFBF2),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text('Open inventory', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800, color: AdminColors.ink)),
-                    ),
-                  ),
+                  const SizedBox(height: AdminSpace.xxs),
+                  // Secondary (white fill), not primary — an ink button would
+                  // vanish against this dark ink card.
+                  AdminButton.secondary(label: 'Open inventory', expand: true, onPressed: cubit.goInventory),
                 ],
               ),
             );
 
             return narrow
-                ? Column(children: [chartCard, const SizedBox(height: 14), lowStockCard])
+                ? Column(children: [chartCard, const SizedBox(height: AdminSpace.section), lowStockCard])
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(flex: 165, child: chartCard),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: AdminSpace.section),
                       Expanded(flex: 100, child: lowStockCard),
                     ],
                   );
           }),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.section),
           Container(
-            padding: const EdgeInsets.all(18),
-            decoration: adminGlassCard(),
+            padding: const EdgeInsets.all(AdminSpace.card),
+            decoration: adminCard(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     const Expanded(child: AdminSectionTitle('Recent orders')),
-                    TextButton(
+                    AdminButton(
+                      label: 'View all orders →',
+                      variant: AdminButtonVariant.text,
+                      size: AdminButtonSize.small,
                       onPressed: cubit.goOrders,
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                      child: Text('View all orders →', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AdminSpace.sm),
                 if (report.recentOrders.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: AdminSpace.md),
                     child: Text('No orders yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                   )
                 else

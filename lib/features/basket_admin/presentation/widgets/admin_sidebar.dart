@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +21,11 @@ class AdminSidebar extends StatelessWidget {
     return Container(
       width: 238,
       color: AdminColors.ink,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 22),
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.md, vertical: AdminSpace.xl),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+            padding: const EdgeInsets.fromLTRB(AdminSpace.xs, 0, AdminSpace.xs, AdminSpace.lg),
             child: Row(
               children: [
                 Flexible(
@@ -35,10 +36,10 @@ class AdminSidebar extends StatelessWidget {
                     style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2)),
                   ),
                 ),
-                const SizedBox(width: 9),
+                const SizedBox(width: AdminSpace.xs),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
+                  padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: 3),
+                  decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(AdminRadius.pill)),
                   child: Text(
                     'ADMIN',
                     style: GoogleFonts.manrope(fontSize: 9, fontWeight: FontWeight.w700, color: AdminColors.ink, letterSpacing: 1.4),
@@ -53,7 +54,7 @@ class AdminSidebar extends StatelessWidget {
                 for (final entry in kAdminNav)
                   entry.isHeading
                       ? Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 16, 10, 7),
+                          padding: const EdgeInsets.fromLTRB(AdminSpace.sm, AdminSpace.md, AdminSpace.sm, AdminSpace.xs),
                           child: Text(
                             entry.label.toUpperCase(),
                             style: GoogleFonts.manrope(
@@ -69,7 +70,7 @@ class AdminSidebar extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.fromLTRB(8, 14, 8, 2),
+            padding: const EdgeInsets.fromLTRB(AdminSpace.xs, AdminSpace.md, AdminSpace.xs, 2),
             decoration: BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFFFFBF2).withValues(alpha: 0.1)))),
             child: Row(
               children: [
@@ -78,7 +79,7 @@ class AdminSidebar extends StatelessWidget {
                   height: 32,
                   child: ImageSlot(shape: ImageSlotShape.circle, mini: true),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: AdminSpace.sm),
                 Expanded(
                   child: Builder(builder: (context) {
                     final name = context.select((BasketAdminCubit c) => c.state.adminName);
@@ -125,7 +126,7 @@ class _NavLink extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
         color: active ? Color(0xFFFFFBF2).withValues(alpha: 0.14) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AdminRadius.sm),
         child: InkWell(
           onTap: () {
             onTap();
@@ -139,20 +140,20 @@ class _NavLink extends StatelessWidget {
               scaffold.closeDrawer();
             }
           },
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AdminRadius.sm),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.xs),
             child: Row(
               children: [
                 SizedBox(width: 18, child: Text(entry.icon, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: fg))),
-                const SizedBox(width: 10),
+                const SizedBox(width: AdminSpace.sm),
                 Expanded(
                   child: Text(entry.label, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: fg)),
                 ),
                 if (entry.badge != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(99)),
+                    padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: 2),
+                    decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(AdminRadius.pill)),
                     child: Text(
                       entry.badge!,
                       style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w800, color: AdminColors.ink),

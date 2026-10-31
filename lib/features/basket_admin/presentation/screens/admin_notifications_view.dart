@@ -1,5 +1,6 @@
 import 'package:fastswipe/core/basket_api/models/promotion_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -25,18 +26,18 @@ class AdminNotificationsView extends StatelessWidget {
         final narrow = constraints.maxWidth < 900;
 
         final history = Container(
-          padding: const EdgeInsets.fromLTRB(18, 6, 18, 14),
-          decoration: adminGlassCard(),
+          clipBehavior: Clip.antiAlias,
+          decoration: adminCard(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.fromLTRB(10, 16, 10, 12),
+                padding: EdgeInsets.fromLTRB(AdminSpace.card, AdminSpace.card, AdminSpace.card, AdminSpace.sm),
                 child: AdminSectionTitle('Campaign history'),
               ),
               if (notifications.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.fromLTRB(AdminSpace.card, 0, AdminSpace.card, AdminSpace.card),
                   child: Text('No campaigns sent yet.', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                 ),
               SingleChildScrollView(
@@ -58,7 +59,7 @@ class AdminNotificationsView extends StatelessWidget {
         final compose = _ComposePanel(narrow: narrow);
 
         if (narrow) {
-          return Column(children: [history, const SizedBox(height: 14), compose]);
+          return Column(children: [history, const SizedBox(height: AdminSpace.section), compose]);
         }
         // Plain Row rather than `IntrinsicHeight`: the history card's
         // internal horizontal-scrolling table can under-report its
@@ -69,7 +70,7 @@ class AdminNotificationsView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(flex: 150, child: history),
-            const SizedBox(width: 14),
+            const SizedBox(width: AdminSpace.section),
             Expanded(flex: 100, child: compose),
           ],
         );
@@ -140,31 +141,33 @@ class _ComposePanelState extends State<_ComposePanel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(AdminSpace.card),
           decoration: adminDarkCard(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Compose', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
-              const SizedBox(height: 14),
+              const SizedBox(height: AdminSpace.md),
               _DarkField(label: 'Title', controller: _title),
-              const SizedBox(height: 10),
+              const SizedBox(height: AdminSpace.md),
               _DarkField(label: 'Body', controller: _body, maxLines: 2),
-              const SizedBox(height: 13),
+              const SizedBox(height: AdminSpace.md),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AdminSpace.xs,
+                runSpacing: AdminSpace.xs,
                 children: [
                   for (final a in _kAudiences)
                     InkWell(
                       onTap: () => cubit.setAudience(a),
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(AdminRadius.pill),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        height: 32,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm),
                         decoration: BoxDecoration(
                           color: audience == a ? Color(0xFFFFFBF2) : Colors.transparent,
                           border: Border.all(color: audience == a ? Color(0xFFFFFBF2) : Color(0xFFFFFBF2).withValues(alpha: 0.3)),
-                          borderRadius: BorderRadius.circular(99),
+                          borderRadius: BorderRadius.circular(AdminRadius.pill),
                         ),
                         child: Text(a,
                             style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: audience == a ? AdminColors.ink : Color(0xFFFFFBF2))),
@@ -172,40 +175,29 @@ class _ComposePanelState extends State<_ComposePanel> {
                     ),
                 ],
               ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _sending ? null : () => _send(cubit),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Color(0xFFFFFBF2),
-                    disabledBackgroundColor: Color(0xFFFFFBF2).withValues(alpha: 0.6),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: Text(_sending ? 'Sending…' : 'Send to $audience',
-                      style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800, color: AdminColors.ink)),
-                ),
+              const SizedBox(height: AdminSpace.md),
+              // Secondary (white fill, ink text) — a primary ink button
+              // would vanish against this dark ink panel.
+              AdminButton.secondary(
+                label: _sending ? 'Sending…' : 'Send to $audience',
+                expand: true,
+                onPressed: _sending ? null : () => _send(cubit),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AdminSpace.section),
         Container(
-          padding: const EdgeInsets.all(18),
-          decoration: adminGlassCard(),
+          padding: const EdgeInsets.all(AdminSpace.card),
+          decoration: adminCard(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Preview', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 12),
+              const SizedBox(height: AdminSpace.sm),
               Container(
-                padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  color: AdminColors.card,
-                  border: Border.all(color: AdminColors.ink.withValues(alpha: 0.07)),
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                padding: const EdgeInsets.all(AdminSpace.sm),
+                decoration: adminCard(color: AdminColors.card),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -215,20 +207,20 @@ class _ComposePanelState extends State<_ComposePanel> {
                           width: 30,
                           height: 30,
                           alignment: Alignment.center,
-                          decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: AdminColors.ink, borderRadius: BorderRadius.circular(AdminRadius.sm)),
                           child: Text('b', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFFFFBF2))),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: AdminSpace.xs),
                         Text('basket · now', style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w700, color: AdminColors.muted)),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: AdminSpace.xs),
                     AnimatedBuilder(
                       animation: _title,
                       builder: (context, _) => Text(_title.text.isEmpty ? 'Title' : _title.text,
                           style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: AdminSpace.xxs),
                     AnimatedBuilder(
                       animation: _body,
                       builder: (context, _) => Text(_body.text,
@@ -255,18 +247,18 @@ class _DarkField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.sm, vertical: AdminSpace.sm),
       decoration: BoxDecoration(
         color: Color(0xFFFFFBF2).withValues(alpha: 0.08),
         border: Border.all(color: Color(0xFFFFFBF2).withValues(alpha: 0.14)),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AdminRadius.md),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label.toUpperCase(),
               style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w600, color: Color(0xFFFFFBF2).withValues(alpha: 0.45), letterSpacing: 0.6)),
-          const SizedBox(height: 5),
+          const SizedBox(height: AdminSpace.xxs),
           TextField(
             controller: controller,
             maxLines: maxLines,

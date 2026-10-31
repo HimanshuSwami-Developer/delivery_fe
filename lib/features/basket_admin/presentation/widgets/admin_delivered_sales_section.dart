@@ -2,6 +2,7 @@ import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -37,14 +38,14 @@ class AdminDeliveredSalesSection extends StatelessWidget {
     final shown = report?.period == period ? report : null;
 
     return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Wrap(
-            spacing: 12,
-            runSpacing: 12,
+            spacing: AdminSpace.sm,
+            runSpacing: AdminSpace.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.spaceBetween,
             children: [
@@ -53,7 +54,7 @@ class AdminDeliveredSalesSection extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const AdminSectionTitle('Delivered sales'),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AdminSpace.xxs),
                   Text(
                     shown == null ? 'Successfully delivered orders only' : '${_date(shown.start)} – ${_date(shown.end)} · delivered orders only',
                     style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
@@ -61,8 +62,8 @@ class AdminDeliveredSalesSection extends StatelessWidget {
                 ],
               ),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AdminSpace.xs,
+                runSpacing: AdminSpace.xs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   for (final p in _periods)
@@ -71,7 +72,9 @@ class AdminDeliveredSalesSection extends StatelessWidget {
                       selected: period == p.$1,
                       onTap: () => cubit.loadDeliveredSales(p.$1),
                     ),
-                  FilledButton.icon(
+                  AdminButton(
+                    label: 'Download Excel',
+                    icon: Icons.download_rounded,
                     onPressed: () => downloadAndShareBytes(
                       context,
                       fetch: () => cubit.api.reports.fetchDeliveredSalesExcel(period: period),
@@ -79,19 +82,12 @@ class AdminDeliveredSalesSection extends StatelessWidget {
                       mimeType: _xlsxMime,
                       preparingMessage: 'Preparing Excel report…',
                     ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1D6F42),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                    ),
-                    icon: const Icon(Icons.download_rounded, size: 16),
-                    label: Text('Download Excel', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: AdminSpace.lg),
           if (shown == null)
             SizedBox(
               height: 160,
@@ -102,10 +98,10 @@ class AdminDeliveredSalesSection extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('Couldn\'t load delivered sales', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: AdminSpace.xs),
                           Text(error, style: GoogleFonts.manrope(fontSize: 12, color: AdminColors.muted)),
-                          const SizedBox(height: 12),
-                          OutlinedButton(onPressed: cubit.loadDeliveredSales, child: const Text('Retry')),
+                          const SizedBox(height: AdminSpace.sm),
+                          AdminButton.secondary(label: 'Retry', onPressed: cubit.loadDeliveredSales),
                         ],
                       ),
               ),
@@ -139,9 +135,9 @@ class _ReportBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AdminResponsiveGrid(children: [for (final s in stats) AdminStatCard(label: s.$1, value: s.$2, sub: s.$3)]),
-        const SizedBox(height: 18),
+        const SizedBox(height: AdminSpace.section),
         _RevenueChart(rows: report.rows, period: report.period),
-        const SizedBox(height: 18),
+        const SizedBox(height: AdminSpace.section),
         _PeriodTable(rows: report.rows),
       ],
     );
@@ -158,7 +154,7 @@ class _RevenueChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (rows.every((r) => r.revenue == 0)) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 30),
+        padding: const EdgeInsets.symmetric(vertical: AdminSpace.xxl),
         child: Center(
           child: Text('No delivered sales in this range yet.',
               style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
@@ -244,7 +240,7 @@ class _PeriodTable extends StatelessWidget {
         const AdminTableHeader(flex: _flex, labels: ['Period', 'Orders', 'Items', 'GST', 'Revenue']),
         if (visible.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18),
+            padding: const EdgeInsets.symmetric(vertical: AdminSpace.md),
             child: Text('Nothing delivered in this range.', style: GoogleFonts.manrope(fontSize: 12, color: AdminColors.muted)),
           ),
         for (final r in visible)

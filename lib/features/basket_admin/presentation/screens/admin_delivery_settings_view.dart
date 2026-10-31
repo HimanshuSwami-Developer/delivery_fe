@@ -1,6 +1,7 @@
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
@@ -95,10 +96,10 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('Couldn\'t load delivery charges', style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AdminSpace.xs),
                   Text(error, style: GoogleFonts.manrope(fontSize: 12, color: AdminColors.muted)),
-                  const SizedBox(height: 14),
-                  OutlinedButton(onPressed: cubit.loadDeliverySettings, child: const Text('Retry')),
+                  const SizedBox(height: AdminSpace.md),
+                  AdminButton.secondary(label: 'Retry', onPressed: cubit.loadDeliverySettings),
                 ],
               ),
       );
@@ -108,8 +109,8 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
     final draft = _draft;
     final digits = [FilteringTextInputFormatter.digitsOnly];
     final form = Container(
-      padding: const EdgeInsets.all(18),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -119,7 +120,7 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
             'Applies to the cart and every new order straight away.',
             style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AdminSpace.md),
           AdminEditField(
             label: 'Delivery fee per order (₹)',
             controller: _fee,
@@ -127,11 +128,11 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
             keyboardType: TextInputType.number,
             inputFormatters: digits,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.md),
           Row(
             children: [
               AdminToggle(on: _freeEnabled, onTap: () => setState(() => _freeEnabled = !_freeEnabled)),
-              const SizedBox(width: 10),
+              const SizedBox(width: AdminSpace.xs),
               Expanded(
                 child: Text(
                   'Free delivery above a limit',
@@ -140,7 +141,7 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AdminSpace.md),
           AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: _freeEnabled ? 1 : 0.4,
@@ -154,31 +155,27 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
             ),
           ),
           if (error != null) ...[
-            const SizedBox(height: 12),
-            Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFFB42318))),
+            const SizedBox(height: AdminSpace.sm),
+            Text(error, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminSurface.error)),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: AdminSpace.lg),
           Row(
             children: [
-              FilledButton(
+              AdminButton(
+                label: 'Save changes',
+                size: AdminButtonSize.large,
+                loading: saving,
                 onPressed: !_dirty || saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AdminColors.ink,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-                ),
-                child: saving
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Save changes', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700)),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AdminSpace.sm),
               if (_dirty)
-                TextButton(
+                AdminButton.secondary(
+                  label: 'Discard',
+                  size: AdminButtonSize.large,
                   onPressed: () => setState(() {
                     _loaded = null;
                     _syncFrom(settings);
                   }),
-                  child: const Text('Discard'),
                 ),
             ],
           ),
@@ -187,19 +184,19 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
     );
 
     final preview = Container(
-      padding: const EdgeInsets.all(18),
-      decoration: adminGlassCard(),
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AdminSectionTitle('How customers see it'),
-          const SizedBox(height: 14),
+          const SizedBox(height: AdminSpace.md),
           if (draft == null)
             Text('Enter both amounts to see a preview.', style: GoogleFonts.manrope(fontSize: 12, color: AdminColors.muted))
           else
             for (final example in _examples(draft)) ...[
               _PreviewRow(itemTotal: example, settings: draft),
-              const SizedBox(height: 10),
+              const SizedBox(height: AdminSpace.xs),
             ],
         ],
       ),
@@ -208,13 +205,13 @@ class _AdminDeliverySettingsViewState extends State<AdminDeliverySettingsView> {
     return SingleChildScrollView(
       child: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth < 820) {
-          return Column(children: [form, const SizedBox(height: 14), preview]);
+          return Column(children: [form, const SizedBox(height: AdminSpace.section), preview]);
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(flex: 11, child: form),
-            const SizedBox(width: 14),
+            const SizedBox(width: AdminSpace.section),
             Expanded(flex: 9, child: preview),
           ],
         );
@@ -242,16 +239,16 @@ class _PreviewRow extends StatelessWidget {
     final free = fee == 0;
     final short = settings.freeDeliveryEnabled ? settings.freeDeliveryAbove - itemTotal : 0;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AdminSpace.sm),
       decoration: BoxDecoration(
-        color: free ? const Color(0xFF16A34A).withValues(alpha: 0.08) : const Color(0xFFFFFBF2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: free ? const Color(0xFF16A34A).withValues(alpha: 0.4) : AdminColors.ink.withValues(alpha: 0.1)),
+        color: free ? AdminSurface.success.withValues(alpha: 0.08) : AdminSurface.card,
+        borderRadius: BorderRadius.circular(AdminRadius.md),
+        border: Border.all(color: free ? AdminSurface.success.withValues(alpha: 0.4) : AdminSurface.border),
       ),
       child: Row(
         children: [
           Text(free ? '🎉' : '🛵', style: const TextStyle(fontSize: 18)),
-          const SizedBox(width: 10),
+          const SizedBox(width: AdminSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,7 +271,7 @@ class _PreviewRow extends StatelessWidget {
             style: GoogleFonts.manrope(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: free ? const Color(0xFF16A34A) : AdminColors.ink,
+              color: free ? AdminSurface.success : AdminColors.ink,
             ),
           ),
         ],

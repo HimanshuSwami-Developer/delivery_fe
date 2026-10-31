@@ -1,6 +1,8 @@
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,26 +24,21 @@ class AdminTopBar extends StatelessWidget {
     final title = kAdminTitles[page]!;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: narrow ? 14 : 26, vertical: narrow ? 12 : 18),
+      padding: EdgeInsets.symmetric(horizontal: narrow ? AdminSpace.md : AdminSpace.xl, vertical: narrow ? AdminSpace.sm : AdminSpace.md),
       decoration: BoxDecoration(
         color: Color(0xFFFFFBF2).withValues(alpha: 0.62),
-        border: Border(bottom: BorderSide(color: AdminColors.ink.withValues(alpha: 0.07))),
+        border: const Border(bottom: BorderSide(color: AdminSurface.border)),
       ),
       child: Row(
         children: [
           if (narrow) ...[
-            InkWell(
+            AdminIconActionButton(
+              icon: Icons.menu_rounded,
+              color: AdminColors.ink,
+              size: 36,
               onTap: () => Scaffold.of(context).openDrawer(),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(border: Border.all(color: AdminColors.ink.withValues(alpha: 0.12)), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.menu_rounded, size: 18, color: AdminColors.ink),
-              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AdminSpace.sm),
           ],
           Expanded(
             child: Column(
@@ -55,7 +52,7 @@ class AdminTopBar extends StatelessWidget {
                   style: GoogleFonts.manrope(fontSize: narrow ? 16 : 20, fontWeight: FontWeight.w800, color: AdminColors.ink, letterSpacing: -0.3),
                 ),
                 if (!narrow) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AdminSpace.xxs),
                   Text(title.subtitle, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: AdminColors.muted)),
                 ],
               ],
