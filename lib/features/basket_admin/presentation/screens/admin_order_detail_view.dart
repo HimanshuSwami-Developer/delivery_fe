@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/order_models.dart';
 import 'package:fastswipe/core/invoice/invoice_actions.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
@@ -98,10 +99,10 @@ class AdminOrderDetailView extends StatelessWidget {
                     children: [
                       const AdminSectionTitle('Items'),
                       const SizedBox(height: AdminSpace.sm),
-                      const AdminTableHeader(flex: [2.4, 0.7, 0.8, 0.8], labels: ['Product', 'Qty', 'Rate', 'Amount']),
+                      const AdminTableHeader(flex: [2.4, 0.6, 0.9, 0.9], labels: ['Product', 'Qty', 'Price', 'Amount']),
                       for (final line in order.items)
                         AdminTableRow(
-                          flex: const [2.4, 0.7, 0.8, 0.8],
+                          flex: const [2.4, 0.6, 0.9, 0.9],
                           children: [
                             Row(
                               children: [
@@ -121,14 +122,21 @@ class AdminOrderDetailView extends StatelessWidget {
                                           style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600)),
                                       const SizedBox(height: 2),
                                       Text(line.pack, style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.faint)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        line.unitPrice == null
+                                            ? 'Taxable ${adminMoneyPaise(line.amount)} · GST ${line.gstSlab}%'
+                                            : 'Taxable ${adminMoneyPaise(line.amount)} · CGST ${gstPctLabel(line.cgstPct)}% ${adminMoneyPaise(line.cgst)} · SGST ${gstPctLabel(line.sgstPct)}% ${adminMoneyPaise(line.sgst)}',
+                                        style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.muted),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                             Text('×${line.qty}', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600)),
-                            Text(adminMoney(line.rate), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                            Text(adminMoney(line.amount), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                            Text(adminMoney(line.unitPrice ?? line.rate), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                            Text(adminMoney(line.lineTotal), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
                           ],
                         ),
                       Align(
@@ -139,11 +147,11 @@ class AdminOrderDetailView extends StatelessWidget {
                             width: 280,
                             child: Column(
                               children: [
-                                _SummaryLine('Taxable value', adminMoney(order.subtotal)),
+                                _SummaryLine('Item selling amount', adminMoneyPaise(_taxableValue(order))),
                                 const SizedBox(height: AdminSpace.xs),
-                                _SummaryLine('CGST', adminMoney(order.cgst)),
+                                _SummaryLine('CGST', adminMoneyPaise(order.cgst)),
                                 const SizedBox(height: AdminSpace.xs),
-                                _SummaryLine('SGST', adminMoney(order.sgst)),
+                                _SummaryLine('SGST', adminMoneyPaise(order.sgst)),
                                 const SizedBox(height: AdminSpace.xs),
                                 _SummaryLine('Delivery', adminMoney(order.deliveryFee)),
                                 if (order.discount > 0) ...[
@@ -391,4 +399,12 @@ class _SummaryLine extends StatelessWidget {
         : GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF4A4A52));
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(label, style: style), Text(value, style: style)]);
   }
+}
+
+
+/// Pre-GST value of the items. Stored on new orders; summed from the lines
+/// for orders placed before GST-inclusive pricing.
+double _taxableValue(ApiOrder order) {
+  if (order.taxableValue > 0) return order.taxableValue;
+  return order.items.fold(0.0, (sum, i) => sum + i.amount);
 }

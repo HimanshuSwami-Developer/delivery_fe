@@ -93,11 +93,34 @@ List<BasketProduct> cartProducts(BasketState state) => state.cart.keys
     .whereType<BasketProduct>()
     .toList();
 
+/// Pseudo address id for the device's live GPS location — selected by
+/// default at checkout once [BasketState.gpsDraft] resolves, and swapped
+/// for a real saved-address id when the order is placed.
+const String kGpsAddressId = 'gps';
+
+/// The "Current location" checkout option (same location as the Home
+/// header), or null while GPS hasn't resolved / permission was denied.
+Address? gpsAddressOption(BasketState state) {
+  final line = state.gpsAddress;
+  if (state.gpsDraft == null || line == null || line.isEmpty) return null;
+  return Address(
+    id: kGpsAddressId,
+    label: 'Current location',
+    tag: 'GPS',
+    line: line,
+    eta: 15,
+  );
+}
+
 /// The currently-selected delivery address, resolved from
 /// [BasketState.apiAddresses] — falls back to a placeholder before
 /// addresses have loaded (or if none are saved yet) rather than crashing
 /// the checkout/success screens.
 Address addressForState(BasketState state) {
+  if (state.addressId == kGpsAddressId) {
+    final gps = gpsAddressOption(state);
+    if (gps != null) return gps;
+  }
   final match = state.apiAddresses.where((a) => a.id == state.addressId);
   if (match.isNotEmpty) return Address.fromApi(match.first);
   if (state.apiAddresses.isNotEmpty)
@@ -153,8 +176,8 @@ class BasketTotals {
 
   int get savings => mrpTotal - subtotal + discount + (hasFreeDelivery ? standardDeliveryFee : 0);
 
-  /// Items minus coupon discount plus delivery fee. GST is still charged
-  /// server-side and appears only on the order/invoice afterward.
+  /// Items minus coupon discount plus delivery fee. Item prices already
+  /// include CGST + SGST (`selling_price`), so this matches the order total.
   int get payable => total;
 }
 
@@ -479,7 +502,7 @@ OrderDetail resolveOrderDetail(BasketState state) {
     isClosed: !live,
     returnable: o.status == 'delivered',
     showInvoice: !cancelled,
-    items: o.items.map((i) => (i.productName, i.pack, i.qty, i.rate)).toList(),
+    items: o.items.map((i) => (i.productName, i.pack, i.qty, i.unitPrice ?? i.rate)).toList(),
     subtotalLabel: moneyLabel(o.subtotal),
     discountLabel: cancelled
         ? 'Refunded'

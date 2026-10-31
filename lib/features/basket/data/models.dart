@@ -86,7 +86,7 @@ class BasketProduct {
         id: p.id.toString(),
         name: p.name,
         pack: p.pack,
-        price: p.price,
+        price: p.sellingPrice,
         mrp: p.mrp,
         cat: p.cat,
         sub: p.sub ?? '',

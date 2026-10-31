@@ -1,3 +1,4 @@
+import 'package:fastswipe/core/basket_api/models/catalog_models.dart';
 import 'package:fastswipe/core/basket_api/models/report_models.dart';
 import 'package:fastswipe/core/files/file_download_actions.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
@@ -6,6 +7,7 @@ import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:fastswipe/features/basket_admin/presentation/widgets/admin_common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -74,6 +76,8 @@ class AdminGstView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AdminSpace.section),
+          const _GstRatesCard(),
+          const SizedBox(height: AdminSpace.section),
           _GstSettingsCard(
             settings: storeSettings,
             saving: storeSettingsSaving,
@@ -102,10 +106,10 @@ class AdminGstView extends StatelessWidget {
           else ...[
             AdminResponsiveGrid(
               children: [
-                AdminStatCard(label: 'Taxable turnover', value: adminMoney(report.taxableTurnover), sub: '$monthLabel · B2C + B2B'),
-                AdminStatCard(label: 'Output GST', value: adminMoney(report.outputGst), sub: 'CGST + SGST'),
-                AdminStatCard(label: 'Input credit', value: adminMoney(report.inputCredit), sub: 'On purchases'),
-                AdminStatCard(label: 'Net payable', value: adminMoney(report.netPayable), sub: 'Due 20 $dueMonth'),
+                AdminStatCard(label: 'Taxable turnover', value: adminMoneyPaise(report.taxableTurnover), sub: '$monthLabel · B2C + B2B'),
+                AdminStatCard(label: 'Output GST', value: adminMoneyPaise(report.outputGst), sub: 'CGST + SGST'),
+                AdminStatCard(label: 'Input credit', value: adminMoneyPaise(report.inputCredit), sub: 'On purchases'),
+                AdminStatCard(label: 'Net payable', value: adminMoneyPaise(report.netPayable), sub: 'Due 20 $dueMonth'),
               ],
             ),
             const SizedBox(height: AdminSpace.section),
@@ -134,10 +138,10 @@ class AdminGstView extends StatelessWidget {
                           flex: _kFlex,
                           children: [
                             Text('GST ${g.slab}', style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
-                            Text(adminMoney(g.taxableValue), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                            Text(adminMoney(g.cgst), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                            Text(adminMoney(g.sgst), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-                            Text(adminMoney(g.totalTax), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+                            Text(adminMoneyPaise(g.taxableValue), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                            Text(adminMoneyPaise(g.cgst), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                            Text(adminMoneyPaise(g.sgst), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+                            Text(adminMoneyPaise(g.totalTax), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
                             Text(indianGroup(g.invoices), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
                           ],
                         ),
@@ -145,7 +149,7 @@ class AdminGstView extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(AdminSpace.sm, AdminSpace.md, AdminSpace.sm, 0),
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: Text('Net GST payable · ${adminMoney(report.netPayable)}', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
+                          child: Text('Net GST payable · ${adminMoneyPaise(report.netPayable)}', style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w800)),
                         ),
                       ),
                     ],
@@ -271,5 +275,225 @@ class _GstSettingsCardState extends State<_GstSettingsCard> {
 
   Widget _field(String label, TextEditingController controller, {int maxLines = 1}) {
     return AdminEditField(label: label, controller: controller, maxLines: maxLines);
+  }
+}
+
+
+/// Admin-defined GST rates (CGST % + SGST %). Each product picks one on
+/// the product form; the customer price is base price + CGST + SGST.
+class _GstRatesCard extends StatelessWidget {
+  const _GstRatesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<BasketAdminCubit>();
+    final rates = context.select((BasketAdminCubit c) => c.state.gstRates);
+
+    return Container(
+      padding: const EdgeInsets.all(AdminSpace.card),
+      decoration: adminCard(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: AdminSectionTitle('GST rates')),
+              AdminButton(
+                label: '+ Add GST rate',
+                size: AdminButtonSize.small,
+                onPressed: () => _showGstRateDialog(context, cubit),
+              ),
+            ],
+          ),
+          const SizedBox(height: AdminSpace.xxs),
+          Text('Choose one of these on each product. Customer price = selling price + CGST + SGST.',
+              style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+          const SizedBox(height: AdminSpace.md),
+          if (rates.isEmpty)
+            Text('No GST rates yet — add one to start using it on products.',
+                style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w600, color: AdminColors.muted))
+          else
+            Wrap(
+              spacing: AdminSpace.sm,
+              runSpacing: AdminSpace.sm,
+              children: [
+                for (final r in rates)
+                  Container(
+                    width: 240,
+                    padding: const EdgeInsets.all(AdminSpace.sm),
+                    decoration: BoxDecoration(
+                      color: AdminSurface.subtle,
+                      border: Border.all(color: AdminSurface.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(r.name, style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'CGST ${gstPctLabel(r.cgstPct)}% + SGST ${gstPctLabel(r.sgstPct)}% = ${gstPctLabel(r.totalPct)}%',
+                          style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminColors.muted),
+                        ),
+                        Text(
+                          '${r.productCount} product${r.productCount == 1 ? '' : 's'}',
+                          style: GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w500, color: AdminColors.muted),
+                        ),
+                        const SizedBox(height: AdminSpace.xs),
+                        Row(
+                          children: [
+                            AdminButton(
+                              label: 'Edit',
+                              variant: AdminButtonVariant.tonal,
+                              size: AdminButtonSize.small,
+                              onPressed: () => _showGstRateDialog(context, cubit, rate: r),
+                            ),
+                            const SizedBox(width: AdminSpace.xs),
+                            AdminButton(
+                              label: 'Delete',
+                              variant: AdminButtonVariant.danger,
+                              size: AdminButtonSize.small,
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                final error = await cubit.deleteGstRate(r.id);
+                                messenger.showSnackBar(SnackBar(content: Text(error ?? '${r.name} deleted.')));
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _showGstRateDialog(BuildContext context, BasketAdminCubit cubit, {ApiGstRate? rate}) {
+  return showDialog<void>(
+    context: context,
+    builder: (_) => _GstRateDialog(cubit: cubit, rate: rate),
+  );
+}
+
+class _GstRateDialog extends StatefulWidget {
+  const _GstRateDialog({required this.cubit, this.rate});
+
+  final BasketAdminCubit cubit;
+  final ApiGstRate? rate;
+
+  @override
+  State<_GstRateDialog> createState() => _GstRateDialogState();
+}
+
+class _GstRateDialogState extends State<_GstRateDialog> {
+  late final _name = TextEditingController(text: widget.rate?.name ?? '');
+  late final _cgst = TextEditingController(text: widget.rate == null ? '' : gstPctLabel(widget.rate!.cgstPct));
+  late final _sgst = TextEditingController(text: widget.rate == null ? '' : gstPctLabel(widget.rate!.sgstPct));
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _cgst.dispose();
+    _sgst.dispose();
+    super.dispose();
+  }
+
+  double? get _cgstValue => double.tryParse(_cgst.text.trim());
+  double? get _sgstValue => double.tryParse(_sgst.text.trim());
+
+  Future<void> _save() async {
+    final cgst = _cgstValue;
+    final sgst = _sgstValue;
+    if (cgst == null || sgst == null || cgst < 0 || sgst < 0 || cgst > 50 || sgst > 50) {
+      setState(() => _error = 'Enter CGST and SGST as percentages between 0 and 50.');
+      return;
+    }
+    final name = _name.text.trim().isEmpty ? 'GST ${gstPctLabel(cgst + sgst)}%' : _name.text.trim();
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    final error = await widget.cubit.saveGstRate(id: widget.rate?.id, name: name, cgstPct: cgst, sgstPct: sgst);
+    if (!mounted) return;
+    if (error == null) {
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _saving = false;
+        _error = error;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pctFormatter = [FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}(\.\d{0,2})?'))];
+    final total = (_cgstValue ?? 0) + (_sgstValue ?? 0);
+    return AlertDialog(
+      backgroundColor: AdminSurface.card,
+      title: Text(widget.rate == null ? 'Add GST rate' : 'Edit GST rate',
+          style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
+      content: SizedBox(
+        width: 380,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AdminEditField(label: 'Name', controller: _name, hint: 'e.g. GST 5%'),
+            const SizedBox(height: AdminSpace.sm),
+            Row(
+              children: [
+                Expanded(
+                  child: AdminEditField(
+                    label: 'CGST %',
+                    controller: _cgst,
+                    hint: '2.5',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: pctFormatter,
+                  ),
+                ),
+                const SizedBox(width: AdminSpace.sm),
+                Expanded(
+                  child: AdminEditField(
+                    label: 'SGST %',
+                    controller: _sgst,
+                    hint: '2.5',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: pctFormatter,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AdminSpace.sm),
+            ListenableBuilder(
+              listenable: Listenable.merge([_cgst, _sgst]),
+              builder: (_, _) => Text(
+                'Total GST: ${gstPctLabel((_cgstValue ?? 0) + (_sgstValue ?? 0))}% · ₹100 → ₹${sellingPriceFor(100, (_cgstValue ?? 0) + (_sgstValue ?? 0))}',
+                style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted),
+              ),
+            ),
+            if (widget.rate != null && widget.rate!.productCount > 0 && total >= 0) ...[
+              const SizedBox(height: AdminSpace.xs),
+              Text('Changing this updates the customer price of ${widget.rate!.productCount} product(s). Past orders keep their old tax.',
+                  style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: AdminSpace.sm),
+              Text(_error!, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminSurface.error)),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        AdminButton.secondary(label: 'Cancel', onPressed: _saving ? null : () => Navigator.of(context).pop()),
+        AdminButton(label: 'Save', loading: _saving, onPressed: _saving ? null : _save),
+      ],
+    );
   }
 }

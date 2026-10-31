@@ -71,6 +71,7 @@ class BasketState extends Equatable {
     this.selectedOrderId,
     this.addressId = 'home',
     this.gpsAddress,
+    this.gpsDraft,
     this.deliveryDay = 0,
     this.deliverySlotId = 'exp',
     this.paymentMethodId = 'qr',
@@ -200,6 +201,12 @@ class BasketState extends Equatable {
   /// [BasketCubit.loadGpsLocation] resolves it (or fails/is denied — a
   /// silent, best-effort lookup).
   final String? gpsAddress;
+
+  /// Unsaved address built from the same GPS fix as [gpsAddress] (with
+  /// lat/lng, city, state, pincode). Checkout offers it as the
+  /// "Current location" option (`addressId == kGpsAddressId`); it is only
+  /// POSTed to the backend when an order is actually placed with it.
+  final ApiAddress? gpsDraft;
 
   final int deliveryDay;
   final String deliverySlotId;
@@ -339,6 +346,7 @@ class BasketState extends Equatable {
     bool clearSelectedOrderId = false,
     String? addressId,
     String? gpsAddress,
+    ApiAddress? gpsDraft,
     int? deliveryDay,
     String? deliverySlotId,
     String? paymentMethodId,
@@ -416,6 +424,7 @@ class BasketState extends Equatable {
       selectedOrderId: clearSelectedOrderId ? null : (selectedOrderId ?? this.selectedOrderId),
       addressId: addressId ?? this.addressId,
       gpsAddress: gpsAddress ?? this.gpsAddress,
+      gpsDraft: gpsDraft ?? this.gpsDraft,
       deliveryDay: deliveryDay ?? this.deliveryDay,
       deliverySlotId: deliverySlotId ?? this.deliverySlotId,
       paymentMethodId: paymentMethodId ?? this.paymentMethodId,
@@ -489,6 +498,7 @@ class BasketState extends Equatable {
         selectedOrderId,
         addressId,
         gpsAddress,
+        gpsDraft,
         deliveryDay,
         deliverySlotId,
         paymentMethodId,

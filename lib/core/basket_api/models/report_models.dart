@@ -1,3 +1,6 @@
+import 'package:fastswipe/core/basket_api/json_utils.dart';
+
+
 /// One point of `DashboardReport.chart14d`.
 class ChartPoint {
   const ChartPoint({required this.date, required this.gmv});
@@ -153,18 +156,18 @@ class GstSlabRow {
     required this.invoices,
   });
   final String slab;
-  final int taxableValue;
-  final int cgst;
-  final int sgst;
-  final int totalTax;
+  final double taxableValue;
+  final double cgst;
+  final double sgst;
+  final double totalTax;
   final int invoices;
 
   factory GstSlabRow.fromJson(Map<String, dynamic> json) => GstSlabRow(
         slab: json['slab'] as String,
-        taxableValue: json['taxable_value'] as int,
-        cgst: json['cgst'] as int,
-        sgst: json['sgst'] as int,
-        totalTax: json['total_tax'] as int,
+        taxableValue: asDouble(json['taxable_value']),
+        cgst: asDouble(json['cgst']),
+        sgst: asDouble(json['sgst']),
+        totalTax: asDouble(json['total_tax']),
         invoices: json['invoices'] as int,
       );
 }
@@ -181,18 +184,18 @@ class GstReport {
   });
 
   final String month;
-  final int taxableTurnover;
-  final int outputGst;
-  final int inputCredit;
-  final int netPayable;
+  final double taxableTurnover;
+  final double outputGst;
+  final double inputCredit;
+  final double netPayable;
   final List<GstSlabRow> slabs;
 
   factory GstReport.fromJson(Map<String, dynamic> json) => GstReport(
         month: json['month'] as String,
-        taxableTurnover: json['taxable_turnover'] as int,
-        outputGst: json['output_gst'] as int,
-        inputCredit: json['input_credit'] as int,
-        netPayable: json['net_payable'] as int,
+        taxableTurnover: asDouble(json['taxable_turnover']),
+        outputGst: asDouble(json['output_gst']),
+        inputCredit: asDouble(json['input_credit']),
+        netPayable: asDouble(json['net_payable']),
         slabs: (json['slabs'] as List).map((e) => GstSlabRow.fromJson(e as Map<String, dynamic>)).toList(),
       );
 }
@@ -282,7 +285,7 @@ class DeliveredSalesRow {
         items: json['items'] as int,
         subtotal: json['subtotal'] as int,
         discount: json['discount'] as int,
-        gst: (json['cgst'] as int) + (json['sgst'] as int),
+        gst: (asDouble(json['cgst']) + asDouble(json['sgst'])).round(),
         deliveryFee: json['delivery_fee'] as int,
         revenue: json['revenue'] as int,
         codRevenue: json['cod_revenue'] as int,
@@ -333,7 +336,7 @@ class DeliveredSalesReport {
       avgOrderValue: t['avg_order_value'] as int,
       codRevenue: t['cod_revenue'] as int,
       onlineRevenue: t['online_revenue'] as int,
-      gst: (t['cgst'] as int) + (t['sgst'] as int),
+      gst: (asDouble(t['cgst']) + asDouble(t['sgst'])).round(),
       bestPeriod: json['best_period'] as String?,
       rows: (json['rows'] as List).map((e) => DeliveredSalesRow.fromJson(e as Map<String, dynamic>)).toList(),
     );

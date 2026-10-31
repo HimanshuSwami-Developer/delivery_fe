@@ -1,3 +1,5 @@
+import 'package:fastswipe/core/basket_api/json_utils.dart';
+
 /// Mirrors `orders.serializers.StoreLocationSerializer` — the fixed
 /// pickup point the backend hardcodes in `orders/views.py`.
 class ApiStoreLocation {
@@ -23,16 +25,36 @@ class ApiOrderItem {
     required this.gstSlab,
     required this.qty,
     required this.amount,
-  });
+    this.unitPrice,
+    this.cgstPct = 0,
+    this.sgstPct = 0,
+    this.cgst = 0,
+    this.sgst = 0,
+    int? lineTotal,
+  }) : lineTotal = lineTotal ?? 0;
 
   final int id;
   final int productId;
   final String productName;
   final String pack;
+  /// Base (pre-GST) price per unit.
   final int rate;
   final String gstSlab;
   final int qty;
-  final int amount;
+
+  /// Taxable (pre-GST) value of this line, to the paisa.
+  final double amount;
+
+  /// GST-inclusive price per unit the customer paid; null on orders placed
+  /// before GST-inclusive pricing.
+  final int? unitPrice;
+  final double cgstPct;
+  final double sgstPct;
+  final double cgst;
+  final double sgst;
+
+  /// GST-inclusive amount charged for this line (= amount + cgst + sgst).
+  final int lineTotal;
 
   factory ApiOrderItem.fromJson(Map<String, dynamic> json) => ApiOrderItem(
         id: json['id'] as int,
@@ -42,7 +64,13 @@ class ApiOrderItem {
         rate: json['rate'] as int,
         gstSlab: json['gst_slab'] as String? ?? '5',
         qty: json['qty'] as int,
-        amount: json['amount'] as int,
+        amount: asDouble(json['amount']),
+        unitPrice: json['unit_price'] as int?,
+        cgstPct: asDouble(json['cgst_pct']),
+        sgstPct: asDouble(json['sgst_pct']),
+        cgst: asDouble(json['cgst']),
+        sgst: asDouble(json['sgst']),
+        lineTotal: (json['line_total'] as num?)?.toInt() ?? asDouble(json['amount']).round(),
       );
 }
 
@@ -57,6 +85,7 @@ class ApiOrder {
     required this.itemCount,
     required this.subtotal,
     required this.discount,
+    this.taxableValue = 0,
     required this.cgst,
     required this.sgst,
     required this.deliveryFee,
@@ -96,8 +125,11 @@ class ApiOrder {
   final int itemCount;
   final int subtotal;
   final int discount;
-  final int cgst;
-  final int sgst;
+  /// Pre-GST value of the items; [cgst]/[sgst] are the tax inside the
+  /// GST-inclusive [subtotal] — all to the paisa.
+  final double taxableValue;
+  final double cgst;
+  final double sgst;
   final int deliveryFee;
   final int total;
   final String address;
@@ -146,8 +178,9 @@ class ApiOrder {
         itemCount: json['item_count'] as int? ?? 0,
         subtotal: json['subtotal'] as int,
         discount: json['discount'] as int,
-        cgst: json['cgst'] as int,
-        sgst: json['sgst'] as int,
+        taxableValue: asDouble(json['taxable_value']),
+        cgst: asDouble(json['cgst']),
+        sgst: asDouble(json['sgst']),
         deliveryFee: json['delivery_fee'] as int,
         total: json['total'] as int,
         address: json['address'] as String? ?? '',

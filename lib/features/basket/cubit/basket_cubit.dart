@@ -51,6 +51,10 @@ class BasketCubit extends Cubit<BasketState> {
   StreamSubscription<String>? _tokenRefreshSub;
   bool _hasSession = false;
 
+  /// Set once the customer explicitly picks (or adds) a delivery address,
+  /// so a late-arriving GPS fix or address refresh doesn't override it.
+  bool _addressPickedManually = false;
+
   // Rider app only — live GPS stream feeding `/orders/{id}/rider_location/`
   // while [_sharingOrderId] is out for delivery. See [_syncRiderLocationSharing].
   StreamSubscription<Position>? _riderLocationSub;
@@ -207,7 +211,9 @@ class BasketCubit extends Cubit<BasketState> {
     try {
       final addresses = await api.auth.fetchAddresses();
       String? addressId = state.addressId;
-      if (addresses.isNotEmpty) {
+      final keepCurrent = _addressPickedManually ||
+          (addressId == kGpsAddressId && state.gpsDraft != null);
+      if (addresses.isNotEmpty && !keepCurrent) {
         final defaults = addresses.where((a) => a.isDefault);
         addressId = (defaults.isNotEmpty ? defaults.first : addresses.first).id;
       }
@@ -241,11 +247,91 @@ class BasketCubit extends Cubit<BasketState> {
         LatLng(position.latitude, position.longitude),
       );
       if (result != null && result.displayName.isNotEmpty) {
-        emit(state.copyWith(gpsAddress: result.displayName));
+        final draft = ApiAddress(
+          id: '',
+          addressType: 'other',
+          addressLine1: _gpsStreetLine(result),
+          city: result.city,
+          state: result.state,
+          country: 'India',
+          pincode: result.postcode,
+          isDefault: false,
+          latitude: position.latitude,
+          longitude: position.longitude,
+        );
+        emit(
+          state.copyWith(
+            gpsAddress: result.displayName,
+            gpsDraft: draft,
+            // Default checkout address = live location, unless the
+            // customer already picked one themselves.
+            addressId: _addressPickedManually ? null : kGpsAddressId,
+          ),
+        );
       }
     } catch (_) {
       // Best-effort — the saved-address fallback covers this.
     }
+  }
+
+  /// Street-level part of a Nominatim display name — drops the trailing
+  /// city/state/pincode/country parts, which are stored separately.
+  static String _gpsStreetLine(ReverseGeocodeResult r) {
+    final drop = {r.city, r.state, r.postcode, 'India'}
+        .where((s) => s.isNotEmpty)
+        .map((s) => s.toLowerCase())
+        .toSet();
+    final parts = r.displayName
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty && !drop.contains(s.toLowerCase()))
+        .take(4)
+        .join(', ');
+    final line = parts.isEmpty ? r.displayName : parts;
+    return line.length > 250 ? line.substring(0, 250) : line;
+  }
+
+  /// Turns the selected address into a real backend address id. For the
+  /// "Current location" option, reuses a saved address within ~100 m of
+  /// the GPS fix, otherwise saves the GPS address first.
+  Future<String> _resolveOrderAddressId() async {
+    if (state.addressId != kGpsAddressId) return state.addressId;
+    final draft = state.gpsDraft;
+    if (draft == null) {
+      throw const ApiException('Please choose a delivery address.');
+    }
+    if (draft.latitude != null && draft.longitude != null) {
+      final here = LatLng(draft.latitude!, draft.longitude!);
+      const distance = Distance();
+      for (final a in state.apiAddresses) {
+        if (a.latitude == null || a.longitude == null) continue;
+        if (distance(here, LatLng(a.latitude!, a.longitude!)) <= 100) {
+          emit(state.copyWith(addressId: a.id));
+          return a.id;
+        }
+      }
+    }
+    final saved = await api.auth.addAddress(
+      ApiAddress(
+        id: '',
+        addressType: draft.addressType,
+        addressLine1: draft.addressLine1,
+        city: draft.city,
+        state: draft.state,
+        country: draft.country,
+        pincode: draft.pincode,
+        isDefault: state.apiAddresses.isEmpty,
+        latitude: draft.latitude,
+        longitude: draft.longitude,
+      ),
+    );
+    emit(
+      state.copyWith(
+        apiAddresses: [...state.apiAddresses, saved],
+        addressId: saved.id,
+      ),
+    );
+    return saved.id;
   }
 
   Future<void> loadOrders() async {
@@ -622,6 +708,7 @@ class BasketCubit extends Cubit<BasketState> {
   Future<void> signOut() async {
     _stopRiderLocationSharing();
     _hasSession = false;
+    _addressPickedManually = false;
     await api.auth.logout();
     emit(BasketState(screen: BasketScreen.login, deliverySettings: state.deliverySettings));
   }
@@ -850,8 +937,10 @@ class BasketCubit extends Cubit<BasketState> {
 
   void goCheckout() => go(BasketScreen.addr);
 
-  void selectAddress(String addressId) =>
-      emit(state.copyWith(addressId: addressId));
+  void selectAddress(String addressId) {
+    _addressPickedManually = true;
+    emit(state.copyWith(addressId: addressId));
+  }
 
   void openAddressEdit() {
     emit(state.copyWith(clearAddressFormError: true));
@@ -906,6 +995,7 @@ class BasketCubit extends Cubit<BasketState> {
         ),
       );
       final addresses = [...state.apiAddresses, saved];
+      _addressPickedManually = true;
       emit(
         state.copyWith(
           addressSaving: false,
@@ -1015,8 +1105,9 @@ class BasketCubit extends Cubit<BasketState> {
   }) async {
     final delayFuture = Future<void>.delayed(minDelay);
     try {
+      final addressId = await _resolveOrderAddressId();
       final order = await api.orders.placeOrder(
-        addressId: state.addressId,
+        addressId: addressId,
         paymentMode: state.paymentMethodId,
         paymentScreenshotBytes: screenshotBytes,
         paymentScreenshotFilename: screenshotFilename,

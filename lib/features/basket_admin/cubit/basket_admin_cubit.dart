@@ -151,6 +151,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         loadDeliveredSales();
       case AdminPage.gst:
         loadGst();
+        loadGstRates();
         if (state.storeSettings == null) loadStoreSettings();
       case AdminPage.orderDet:
       case AdminPage.productNew:
@@ -170,6 +171,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       currentProduct: product,
       clearCurrentProduct: product == null,
     ));
+    loadGstRates();
   }
 
   void goCategories() => go(AdminPage.categories);
@@ -699,6 +701,46 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       emit(state.copyWith(gstReport: report, clearGstError: true));
     } on ApiException catch (e) {
       emit(state.copyWith(gstError: e.message));
+    }
+  }
+
+  // ── GST rates (CGST + SGST) ─────────────────────────────────────────
+
+  Future<void> loadGstRates() async {
+    try {
+      final rates = await api.catalog.fetchGstRates();
+      emit(state.copyWith(gstRates: rates));
+    } on ApiException catch (_) {
+      // Best-effort — the product form falls back to its current value.
+    }
+  }
+
+  /// Creates ([id] null) or updates a GST rate. Returns an error message,
+  /// or null on success.
+  Future<String?> saveGstRate({int? id, required String name, required double cgstPct, required double sgstPct}) async {
+    final data = {'name': name, 'cgst_pct': cgstPct.toStringAsFixed(2), 'sgst_pct': sgstPct.toStringAsFixed(2)};
+    try {
+      if (id == null) {
+        await api.catalog.createGstRate(data);
+      } else {
+        await api.catalog.updateGstRate(id, data);
+      }
+      await loadGstRates();
+      // Products on an edited rate now have a different customer price.
+      if (id != null) loadProducts();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<String?> deleteGstRate(int id) async {
+    try {
+      await api.catalog.deleteGstRate(id);
+      await loadGstRates();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
     }
   }
 

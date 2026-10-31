@@ -11,8 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _kGstSlabs = ['0', '5', '12', '18'];
-
 /// Add/edit product — [BasketAdminState.currentProduct] (set by
 /// `goProductNew`, read once at `initState`) says which mode: null seeds a
 /// blank draft and calls `createProduct`, non-null seeds every field from
@@ -47,7 +45,9 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   bool _categoryInitialized = false;
   int? _subcategoryId;
   bool _subcategoryInitialized = false;
-  late String _gstSlab = _editing?.gstSlab ?? '5';
+  /// Selected admin-defined GST rate (see the GST reports screen).
+  late int? _gstRateId = _editing?.gstRateId;
+  bool _gstRateInitialized = false;
   late bool _outOfStock = _editing?.isOutOfStock ?? false;
 
   bool _loading = false;
@@ -100,6 +100,10 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
       setState(() => _error = 'Name, category, pack, SKU, MRP and price are all required.');
       return;
     }
+    if (_gstRateId == null) {
+      setState(() => _error = 'Pick a GST rate (create one under GST reports if none exist).');
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -117,7 +121,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'mrp': mrp,
         'price': price,
         'cost_price': int.tryParse(_costPrice.text.trim()),
-        'gst_slab': _gstSlab,
+        'gst_rate': _gstRateId,
         'is_out_of_stock': _outOfStock,
         'main_image_url': _mainImageUrl,
         // Only meaningful at creation — the backend ignores it on update,
@@ -151,6 +155,21 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
     final cubit = context.read<BasketAdminCubit>();
     final categories = context.select((BasketAdminCubit c) => c.state.apiCategories);
     final subcategories = context.select((BasketAdminCubit c) => c.state.apiSubcategories);
+    final gstRates = context.select((BasketAdminCubit c) => c.state.gstRates);
+
+    // New products default to the 5% rate (or the first one); an existing
+    // product keeps its own rate.
+    if (!_gstRateInitialized && gstRates.isNotEmpty) {
+      if (_gstRateId == null || !gstRates.any((r) => r.id == _gstRateId)) {
+        final five = gstRates.where((r) => (r.totalPct - 5).abs() < 0.001);
+        _gstRateId = (five.isNotEmpty ? five.first : gstRates.first).id;
+      }
+      _gstRateInitialized = true;
+    }
+    ApiGstRate? selectedRate;
+    for (final r in gstRates) {
+      if (r.id == _gstRateId) selectedRate = r;
+    }
 
     if (!_categoryInitialized && categories.isNotEmpty) {
       _categoryId = _editing?.categoryId ?? categories.first.id;
@@ -264,19 +283,34 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                         runSpacing: AdminSpace.md,
                         children: [
                           AdminEditField(label: 'MRP', controller: _mrp, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
-                          AdminEditField(label: 'Selling price', controller: _price, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
+                          AdminEditField(label: 'Selling price (before GST)', controller: _price, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
                           AdminEditField(label: 'Cost price (opt.)', controller: _costPrice, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
                           AdminEditField(label: 'HSN code', controller: _hsnCode, hint: 'Enter HSN code (e.g. 1101)'),
                         ],
                       ),
                       const SizedBox(height: AdminSpace.md),
-                      Wrap(
-                        spacing: AdminSpace.xs,
-                        runSpacing: AdminSpace.xs,
-                        children: [
-                          for (final g in _kGstSlabs)
-                            AdminPillButton(label: 'GST $g%', selected: _gstSlab == g, onTap: () => setState(() => _gstSlab = g)),
-                        ],
+                      Text('GST rate', style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w700)),
+                      const SizedBox(height: AdminSpace.xs),
+                      if (gstRates.isEmpty)
+                        Text('No GST rates yet — create one under GST reports.',
+                            style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted))
+                      else
+                        Wrap(
+                          spacing: AdminSpace.xs,
+                          runSpacing: AdminSpace.xs,
+                          children: [
+                            for (final r in gstRates)
+                              AdminPillButton(
+                                label: '${r.name} (${gstPctLabel(r.cgstPct)}+${gstPctLabel(r.sgstPct)})',
+                                selected: _gstRateId == r.id,
+                                onTap: () => setState(() => _gstRateId = r.id),
+                              ),
+                          ],
+                        ),
+                      const SizedBox(height: AdminSpace.md),
+                      ListenableBuilder(
+                        listenable: _price,
+                        builder: (_, _) => _PriceBreakdown(price: int.tryParse(_price.text.trim()), rate: selectedRate),
                       ),
                     ],
                   ),
@@ -388,6 +422,57 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
               ],
             );
           }),
+        ],
+      ),
+    );
+  }
+}
+
+
+/// Live "selling price + CGST + SGST = customer price" preview, mirroring
+/// the server's `Product.selling_price` so the admin sees exactly what the
+/// app will show.
+class _PriceBreakdown extends StatelessWidget {
+  const _PriceBreakdown({required this.price, required this.rate});
+
+  final int? price;
+  final ApiGstRate? rate;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = price;
+    final r = rate;
+    if (p == null || r == null) {
+      return Text('Enter a selling price and pick a GST rate to see the customer price.',
+          style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w500, color: AdminColors.muted));
+    }
+    final cgst = p * r.cgstPct / 100;
+    final sgst = p * r.sgstPct / 100;
+    final customer = sellingPriceFor(p, r.totalPct);
+    TextStyle style([FontWeight w = FontWeight.w600]) => GoogleFonts.manrope(fontSize: 12.5, fontWeight: w);
+    Widget line(String label, String value, {bool bold = false}) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              Expanded(child: Text(label, style: style(bold ? FontWeight.w800 : FontWeight.w600))),
+              Text(value, style: style(bold ? FontWeight.w800 : FontWeight.w600)),
+            ],
+          ),
+        );
+    return Container(
+      padding: const EdgeInsets.all(AdminSpace.sm),
+      decoration: BoxDecoration(
+        color: AdminSurface.subtle,
+        border: Border.all(color: AdminSurface.border),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          line('Selling price', '₹$p.00'),
+          line('CGST ${gstPctLabel(r.cgstPct)}%', '₹${cgst.toStringAsFixed(2)}'),
+          line('SGST ${gstPctLabel(r.sgstPct)}%', '₹${sgst.toStringAsFixed(2)}'),
+          const Divider(height: 12),
+          line('Price shown in app', '₹$customer', bold: true),
         ],
       ),
     );

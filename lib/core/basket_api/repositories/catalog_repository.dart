@@ -100,6 +100,45 @@ class CatalogRepository {
 
   /// [category]/[subcategory] are the string keys/names the Flutter state
   /// already uses (not numeric ids) — matches `ProductFilter` server-side.
+  // ── GST rates ────────────────────────────────────────────────────────
+
+  Future<List<ApiGstRate>> fetchGstRates() async {
+    try {
+      final response = await _client.dio.get('/gst-rates/');
+      final data = response.data;
+      final list = data is Map ? (data['results'] as List? ?? []) : data as List;
+      return list.map((e) => ApiGstRate.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiGstRate> createGstRate(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.post('/gst-rates/', data: data);
+      return ApiGstRate.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<ApiGstRate> updateGstRate(int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.dio.patch('/gst-rates/$id/', data: data);
+      return ApiGstRate.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
+  Future<void> deleteGstRate(int id) async {
+    try {
+      await _client.dio.delete('/gst-rates/$id/');
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   Future<List<ApiProduct>> fetchProducts({
     String? category,
     String? subcategory,

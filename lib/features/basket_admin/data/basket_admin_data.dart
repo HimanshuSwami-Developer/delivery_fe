@@ -128,3 +128,14 @@ String indianGroup(int n) {
 }
 
 String adminMoney(num n) => '₹${indianGroup(n.round())}';
+
+/// Rupees with paise, e.g. `1234.5` -> `"₹1,234.50"` — for GST amounts,
+/// which are tracked to the paisa.
+String adminMoneyPaise(num n) {
+  final paise = (n * 100).round();
+  final neg = paise < 0;
+  final abs = paise.abs();
+  final rupees = indianGroup(abs ~/ 100);
+  final frac = (abs % 100).toString().padLeft(2, '0');
+  return '${neg ? '-' : ''}₹$rupees.$frac';
+}

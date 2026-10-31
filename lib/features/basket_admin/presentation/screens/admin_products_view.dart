@@ -139,7 +139,14 @@ class _ProductRow extends StatelessWidget {
         Text(categoryName, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text(p.sku, style: GoogleFonts.manrope(fontSize: 11.5, fontWeight: FontWeight.w600, color: AdminColors.muted)),
         Text(adminMoney(p.mrp), style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: AdminColors.muted)),
-        Text(adminMoney(p.price), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(adminMoney(p.sellingPrice), style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w800)),
+            Text('${adminMoney(p.price)} + GST', style: GoogleFonts.manrope(fontSize: 10.5, fontWeight: FontWeight.w500, color: AdminColors.muted)),
+          ],
+        ),
         InkWell(
           onTap: onToggleActive,
           // Fills the whole cell (both axes) — with `boundHeight` on the

@@ -117,6 +117,7 @@ class ApiProduct {
     required this.sku,
     required this.mrp,
     required this.price,
+    int? sellingPrice,
     required this.discountPct,
     required this.rating,
     required this.ratingsCount,
@@ -126,9 +127,13 @@ class ApiProduct {
     this.description,
     this.hsnCode,
     this.gstSlab,
+    this.gstRateId,
+    this.gstRateName,
+    this.cgstPct = 0,
+    this.sgstPct = 0,
     this.images = const [],
     this.reviews = const [],
-  });
+  }) : sellingPrice = sellingPrice ?? price;
 
   final int id;
   final String name;
@@ -140,7 +145,12 @@ class ApiProduct {
   final String pack;
   final String sku;
   final int mrp;
+  /// Admin-entered base price, before GST.
   final int price;
+
+  /// What the customer sees and pays: [price] + CGST + SGST, in whole
+  /// rupees (computed server-side as `selling_price`).
+  final int sellingPrice;
   final int discountPct;
   final double rating;
   final int ratingsCount;
@@ -152,6 +162,10 @@ class ApiProduct {
   final String? description;
   final String? hsnCode;
   final String? gstSlab;
+  final int? gstRateId;
+  final String? gstRateName;
+  final double cgstPct;
+  final double sgstPct;
   final List<ApiProductImage> images;
 
   /// Only present on the detail fetch (`ProductDetailSerializer` nests
@@ -170,6 +184,7 @@ class ApiProduct {
         sku: json['sku'] as String,
         mrp: json['mrp'] as int,
         price: json['price'] as int,
+        sellingPrice: json['selling_price'] as int?,
         discountPct: json['discount_pct'] as int? ?? 0,
         rating: asDouble(json['rating']),
         ratingsCount: json['ratings_count'] as int? ?? 0,
@@ -179,6 +194,10 @@ class ApiProduct {
         description: json['description'] as String?,
         hsnCode: json['hsn_code'] as String?,
         gstSlab: json['gst_slab'] as String?,
+        gstRateId: json['gst_rate'] as int?,
+        gstRateName: json['gst_rate_name'] as String?,
+        cgstPct: asDouble(json['cgst_pct']),
+        sgstPct: asDouble(json['sgst_pct']),
         images: (json['images'] as List? ?? [])
             .map((e) => ApiProductImage.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -256,3 +275,42 @@ class StockSummary {
         onHandTotal: json['on_hand_total'] as int,
       );
 }
+
+
+/// Mirrors `catalog.serializers.GstRateSerializer` — an admin-defined
+/// CGST + SGST rate picked per product.
+class ApiGstRate {
+  const ApiGstRate({
+    required this.id,
+    required this.name,
+    required this.cgstPct,
+    required this.sgstPct,
+    this.productCount = 0,
+  });
+
+  final int id;
+  final String name;
+  final double cgstPct;
+  final double sgstPct;
+  final int productCount;
+
+  double get totalPct => cgstPct + sgstPct;
+
+  factory ApiGstRate.fromJson(Map<String, dynamic> json) => ApiGstRate(
+        id: json['id'] as int,
+        name: json['name'] as String? ?? '',
+        cgstPct: asDouble(json['cgst_pct']),
+        sgstPct: asDouble(json['sgst_pct']),
+        productCount: json['product_count'] as int? ?? 0,
+      );
+}
+
+/// Formats a GST percentage without trailing zeros: 2.5 -> "2.5", 9.0 -> "9".
+String gstPctLabel(double pct) {
+  final s = pct.toStringAsFixed(2);
+  return s.replaceFirst(RegExp(r'\.?0+$'), '');
+}
+
+/// Customer price for a base [price] under [rate] — mirrors the server's
+/// `Product.selling_price` (round half up to whole rupees).
+int sellingPriceFor(int price, double totalPct) => (price * (100 + totalPct) / 100 + 1e-9).round();

@@ -1,4 +1,5 @@
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
+import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/data/models.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
@@ -16,6 +17,7 @@ class AddressListView extends StatelessWidget {
     final cubit = context.read<BasketCubit>();
     final selected = context.select((BasketCubit c) => c.state.addressId);
     final addresses = context.select((BasketCubit c) => c.state.apiAddresses.map(Address.fromApi).toList());
+    final gps = context.select((BasketCubit c) => gpsAddressOption(c.state));
 
     return Column(
       children: [
@@ -63,6 +65,16 @@ class AddressListView extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(BasketSpace.gutter, BasketSpace.md, BasketSpace.gutter, BasketSpace.lg),
             children: [
+              if (gps != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: BasketSpace.section),
+                  child: _AddressCard(
+                    address: gps,
+                    selected: selected == kGpsAddressId,
+                    onTap: () => cubit.selectAddress(kGpsAddressId),
+                    icon: Icons.my_location,
+                  ),
+                ),
               for (final a in addresses)
                 Padding(
                   padding: const EdgeInsets.only(bottom: BasketSpace.section),
@@ -85,11 +97,12 @@ class AddressListView extends StatelessWidget {
 }
 
 class _AddressCard extends StatelessWidget {
-  const _AddressCard({required this.address, required this.selected, required this.onTap});
+  const _AddressCard({required this.address, required this.selected, required this.onTap, this.icon});
 
   final Address address;
   final bool selected;
   final VoidCallback onTap;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +131,10 @@ class _AddressCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
+                      if (icon != null) ...[
+                        Icon(icon, size: 14, color: BasketColors.primary),
+                        const SizedBox(width: 4),
+                      ],
                       Text(address.label, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
                       const SizedBox(width: BasketSpace.xs),
                       Container(

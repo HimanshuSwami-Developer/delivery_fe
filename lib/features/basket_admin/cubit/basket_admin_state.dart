@@ -74,6 +74,7 @@ class BasketAdminState extends Equatable {
     this.deliveredSalesError,
     this.gstReport,
     this.gstError,
+    this.gstRates = const [],
     this.storeSettings,
     this.deliverySettings,
     this.deliverySettingsSaving = false,
@@ -240,6 +241,10 @@ class BasketAdminState extends Equatable {
   final GstReport? gstReport;
   final String? gstError;
 
+  /// Admin-defined CGST/SGST rates — managed on the GST screen, picked on
+  /// the product form. See [BasketAdminCubit.loadGstRates].
+  final List<ApiGstRate> gstRates;
+
   /// The seller's own GST profile (business name/address/GSTIN), edited on
   /// the GST screen's settings panel — see [BasketAdminCubit.loadStoreSettings]
   /// / [BasketAdminCubit.saveStoreSettings].
@@ -327,6 +332,7 @@ class BasketAdminState extends Equatable {
     GstReport? gstReport,
     String? gstError,
     bool clearGstError = false,
+    List<ApiGstRate>? gstRates,
     StoreGstSettings? storeSettings,
     ApiDeliverySettings? deliverySettings,
     bool? deliverySettingsSaving,
@@ -397,6 +403,7 @@ class BasketAdminState extends Equatable {
       deliveredSalesError: clearDeliveredSalesError ? null : (deliveredSalesError ?? this.deliveredSalesError),
       gstReport: gstReport ?? this.gstReport,
       gstError: clearGstError ? null : (gstError ?? this.gstError),
+      gstRates: gstRates ?? this.gstRates,
       storeSettings: storeSettings ?? this.storeSettings,
       deliverySettings: deliverySettings ?? this.deliverySettings,
       deliverySettingsSaving: deliverySettingsSaving ?? this.deliverySettingsSaving,
@@ -468,6 +475,7 @@ class BasketAdminState extends Equatable {
         deliveredSalesError,
         gstReport,
         gstError,
+        gstRates,
         storeSettings,
         deliverySettings,
         deliverySettingsSaving,
