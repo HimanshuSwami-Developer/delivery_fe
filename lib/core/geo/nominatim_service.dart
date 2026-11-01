@@ -33,6 +33,9 @@ class NominatimService {
           'format': 'jsonv2',
           'lat': point.latitude,
           'lon': point.longitude,
+          // Building-level detail (house no. / road) for the exact pin.
+          'zoom': 18,
+          'addressdetails': 1,
         },
         options: Options(headers: {'User-Agent': 'fastswipe-app/1.0'}),
       );

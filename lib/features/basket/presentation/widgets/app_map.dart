@@ -18,6 +18,7 @@ class AppMap extends StatelessWidget {
     this.mapController,
     this.interactive = true,
     this.onPositionChanged,
+    this.gestureMovesOnly = false,
     this.cameraFit,
     this.markers = const [],
     this.polylines = const [],
@@ -31,6 +32,10 @@ class AppMap extends StatelessWidget {
   /// Fires whenever the visible center changes — used to know what to
   /// reverse-geocode.
   final void Function(LatLng center)? onPositionChanged;
+
+  /// When true, [onPositionChanged] only fires for user drags/pinches —
+  /// not for programmatic camera moves or the initial layout.
+  final bool gestureMovesOnly;
 
   /// When set, overrides [center]/[zoom] to frame a set of points (e.g. the
   /// store and the delivery point) instead of a single fixed camera.
@@ -52,7 +57,10 @@ class AppMap extends StatelessWidget {
         ),
         onPositionChanged: onPositionChanged == null
             ? null
-            : (position, hasGesture) => onPositionChanged!(position.center),
+            : (position, hasGesture) {
+                if (gestureMovesOnly && !hasGesture) return;
+                onPositionChanged!(position.center);
+              },
       ),
       children: [
         TileLayer(

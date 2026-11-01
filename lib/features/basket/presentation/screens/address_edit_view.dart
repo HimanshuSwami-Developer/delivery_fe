@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fastswipe/core/geo/nominatim_service.dart';
 import 'package:fastswipe/features/basket/cubit/basket_cubit.dart';
+import 'package:fastswipe/features/basket/cubit/basket_selectors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_colors.dart';
 import 'package:fastswipe/features/basket/presentation/basket_ui.dart';
 import 'package:fastswipe/features/basket/presentation/widgets/labeled_field.dart';
@@ -40,6 +41,64 @@ class _AddressEditViewState extends State<AddressEditView> {
   String _resolvedAddress = 'Move the pin to your delivery location';
   bool _locating = false;
 
+  /// Mirrors [BasketState.editingAddressId] at the time the form opened.
+  String? _editingId;
+
+  bool get _isEditingSaved => _editingId != null && _editingId != kGpsAddressId;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = context.read<BasketCubit>().state;
+    _editingId = s.editingAddressId;
+    final draft = s.gpsDraft;
+    final gpsPoint = draft?.latitude != null && draft?.longitude != null
+        ? LatLng(draft!.latitude!, draft.longitude!)
+        : null;
+
+    if (_isEditingSaved) {
+      final a = s.apiAddresses.where((a) => a.id == _editingId).firstOrNull;
+      if (a != null) {
+        _houseNoController.text = a.addressLine1;
+        _landmarkController.text = a.addressLine2 ?? '';
+        _cityController.text = a.city;
+        _stateController.text = a.state;
+        _pincodeController.text = a.pincode;
+        _resolvedAddress = [a.addressLine1, a.addressLine2 ?? '', a.city, a.state, a.pincode]
+            .where((p) => p.isNotEmpty)
+            .join(', ');
+        if (a.latitude != null && a.longitude != null) {
+          _pinLocation = LatLng(a.latitude!, a.longitude!);
+        } else if (gpsPoint != null) {
+          _pinLocation = gpsPoint;
+        }
+      }
+      return;
+    }
+
+    if (_editingId == kGpsAddressId && draft != null && gpsPoint != null) {
+      // Saving the live location: pin sits on the exact GPS fix and the
+      // geocoded street goes in Landmark — the customer adds flat no.
+      _pinLocation = gpsPoint;
+      _landmarkController.text = draft.addressLine1;
+      _cityController.text = draft.city;
+      _stateController.text = draft.state;
+      _pincodeController.text = draft.pincode;
+      _resolvedAddress = s.gpsAddress ?? draft.addressLine1;
+      return;
+    }
+
+    // Brand-new address: start at the device's exact location.
+    if (gpsPoint != null) {
+      _pinLocation = gpsPoint;
+      _resolveAddress(gpsPoint);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _useMyLocation();
+      });
+    }
+  }
+
   @override
   void dispose() {
     _houseNoController.dispose();
@@ -73,24 +132,35 @@ class _AddressEditViewState extends State<AddressEditView> {
   Future<void> _useMyLocation() async {
     setState(() => _locating = true);
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) return;
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        _toast('Turn on location services to use your current location.');
+        return;
+      }
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
       if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        _toast('Location permission is needed to fetch your exact location.');
         return;
       }
-      final position = await Geolocator.getCurrentPosition();
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 15)),
+      );
       final here = LatLng(position.latitude, position.longitude);
-      await _mapController.move(here, 16);
+      await _mapController.move(here, 17);
       setState(() => _pinLocation = here);
       await _resolveAddress(here);
     } catch (_) {
-      // Best-effort — the user can still drag the pin manually.
+      _toast('Could not get your location — drag the pin instead.');
     } finally {
       if (mounted) setState(() => _locating = false);
     }
+  }
+
+  void _toast(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -112,7 +182,9 @@ class _AddressEditViewState extends State<AddressEditView> {
               Positioned.fill(
                 child: AppMap(
                   center: _pinLocation,
+                  zoom: 17,
                   mapController: _mapController,
+                  gestureMovesOnly: true,
                   onPositionChanged: _onMapMoved,
                 ),
               ),
@@ -180,7 +252,7 @@ class _AddressEditViewState extends State<AddressEditView> {
               ),
               child: ListView(
                 children: [
-                  Text('Add address details', style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+                  Text(_isEditingSaved ? 'Edit address' : 'Add address details', style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                   const SizedBox(height: BasketSpace.xxs),
                   Text(_resolvedAddress, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w500, color: BasketColors.muted)),
                   const SizedBox(height: BasketSpace.md),
@@ -251,7 +323,7 @@ class _AddressEditViewState extends State<AddressEditView> {
         ),
         BasketBottomBar(
           child: BasketButton(
-            label: 'Save address',
+            label: _isEditingSaved ? 'Update address' : 'Save address',
             loading: saving,
             onPressed: saving
                 ? null

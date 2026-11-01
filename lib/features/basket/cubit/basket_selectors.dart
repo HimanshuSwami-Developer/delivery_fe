@@ -102,7 +102,7 @@ const String kGpsAddressId = 'gps';
 /// header), or null while GPS hasn't resolved / permission was denied.
 Address? gpsAddressOption(BasketState state) {
   final line = state.gpsAddress;
-  if (state.gpsDraft == null || line == null || line.isEmpty) return null;
+  if (state.gpsHidden || state.gpsDraft == null || line == null || line.isEmpty) return null;
   return Address(
     id: kGpsAddressId,
     label: 'Current location',

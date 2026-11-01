@@ -18,6 +18,7 @@ class AddressListView extends StatelessWidget {
     final selected = context.select((BasketCubit c) => c.state.addressId);
     final addresses = context.select((BasketCubit c) => c.state.apiAddresses.map(Address.fromApi).toList());
     final gps = context.select((BasketCubit c) => gpsAddressOption(c.state));
+    final gpsHidden = context.select((BasketCubit c) => c.state.gpsHidden);
 
     return Column(
       children: [
@@ -72,13 +73,30 @@ class AddressListView extends StatelessWidget {
                     address: gps,
                     selected: selected == kGpsAddressId,
                     onTap: () => cubit.selectAddress(kGpsAddressId),
+                    onEdit: () => cubit.openEditAddress(kGpsAddressId),
+                    onDelete: () => _confirmDelete(context, gps),
                     icon: Icons.my_location,
+                  ),
+                ),
+              if (gps == null && gpsHidden)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: BasketSpace.section),
+                  child: BasketButton.secondary(
+                    label: '◎ Use my current location',
+                    size: BasketButtonSize.medium,
+                    onPressed: cubit.refreshGpsLocation,
                   ),
                 ),
               for (final a in addresses)
                 Padding(
                   padding: const EdgeInsets.only(bottom: BasketSpace.section),
-                  child: _AddressCard(address: a, selected: a.id == selected, onTap: () => cubit.selectAddress(a.id)),
+                  child: _AddressCard(
+                    address: a,
+                    selected: a.id == selected,
+                    onTap: () => cubit.selectAddress(a.id),
+                    onEdit: () => cubit.openEditAddress(a.id),
+                    onDelete: () => _confirmDelete(context, a),
+                  ),
                 ),
               BasketButton.secondary(
                 label: '+ Add a new address',
@@ -96,12 +114,50 @@ class AddressListView extends StatelessWidget {
   }
 }
 
+Future<void> _confirmDelete(BuildContext context, Address address) async {
+  final cubit = context.read<BasketCubit>();
+  final isGps = address.id == kGpsAddressId;
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(isGps ? 'Remove current location?' : 'Delete address?'),
+      content: Text(
+        isGps
+            ? 'It will be hidden from this list. You can fetch it again any time.'
+            : '${address.label}: ${address.line}',
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          style: TextButton.styleFrom(foregroundColor: const Color(0xFFC0392B)),
+          child: Text(isGps ? 'Remove' : 'Delete'),
+        ),
+      ],
+    ),
+  );
+  if (ok != true) return;
+  final error = await cubit.deleteAddress(address.id);
+  if (error != null && context.mounted) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(error)));
+  }
+}
+
 class _AddressCard extends StatelessWidget {
-  const _AddressCard({required this.address, required this.selected, required this.onTap, this.icon});
+  const _AddressCard({
+    required this.address,
+    required this.selected,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+    this.icon,
+  });
 
   final Address address;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
   final IconData? icon;
 
   @override
@@ -135,7 +191,13 @@ class _AddressCard extends StatelessWidget {
                         Icon(icon, size: 14, color: BasketColors.primary),
                         const SizedBox(width: 4),
                       ],
-                      Text(address.label, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
+                      Flexible(
+                        child: Text(
+                          address.label,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800),
+                        ),
+                      ),
                       const SizedBox(width: BasketSpace.xs),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: BasketSpace.xs, vertical: 2),
@@ -154,7 +216,39 @@ class _AddressCard extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(width: BasketSpace.xs),
+            Column(
+              children: [
+                _CardAction(icon: Icons.edit_outlined, tooltip: 'Edit', onTap: onEdit),
+                const SizedBox(height: BasketSpace.xxs),
+                _CardAction(icon: Icons.delete_outline, tooltip: 'Delete', onTap: onDelete, color: const Color(0xFFC0392B)),
+              ],
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CardAction extends StatelessWidget {
+  const _CardAction({required this.icon, required this.tooltip, required this.onTap, this.color});
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(BasketRadius.pill),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Icon(icon, size: 18, color: color ?? BasketColors.ink),
         ),
       ),
     );

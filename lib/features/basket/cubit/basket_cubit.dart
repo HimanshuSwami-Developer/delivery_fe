@@ -238,11 +238,20 @@ class BasketCubit extends Cubit<BasketState> {
           permission == LocationPermission.deniedForever) {
         return;
       }
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          timeLimit: Duration(seconds: 8),
-        ),
-      );
+      Position position;
+      try {
+        // Ask for the precise (GPS-grade) fix, not a coarse network one.
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+            timeLimit: Duration(seconds: 12),
+          ),
+        );
+      } on TimeoutException {
+        final last = await Geolocator.getLastKnownPosition();
+        if (last == null) return;
+        position = last;
+      }
       final result = await NominatimService().reverseGeocode(
         LatLng(position.latitude, position.longitude),
       );
@@ -942,9 +951,75 @@ class BasketCubit extends Cubit<BasketState> {
     emit(state.copyWith(addressId: addressId));
   }
 
+  /// Opens the address form for a brand-new address.
   void openAddressEdit() {
-    emit(state.copyWith(clearAddressFormError: true));
+    emit(
+      state.copyWith(
+        clearAddressFormError: true,
+        clearEditingAddressId: true,
+        newAddressTag: 'Home',
+      ),
+    );
     go(BasketScreen.addrEdit);
+  }
+
+  /// Opens the address form pre-filled with an existing saved address, or
+  /// — for [kGpsAddressId] — with the live GPS location so the customer
+  /// can add a flat no. / fine-tune the pin and save it.
+  void openEditAddress(String addressId) {
+    var tag = 'Other';
+    if (addressId != kGpsAddressId) {
+      final match = state.apiAddresses.where((a) => a.id == addressId);
+      if (match.isEmpty) return;
+      final type = match.first.addressType.isEmpty ? 'other' : match.first.addressType;
+      tag = type[0].toUpperCase() + type.substring(1);
+    }
+    emit(
+      state.copyWith(
+        clearAddressFormError: true,
+        editingAddressId: addressId,
+        newAddressTag: tag,
+      ),
+    );
+    go(BasketScreen.addrEdit);
+  }
+
+  /// Removes an address from the checkout list. Saved addresses are
+  /// deleted on the backend; the GPS option is just hidden until the
+  /// customer re-fetches their location. Returns an error message, or
+  /// null on success.
+  Future<String?> deleteAddress(String addressId) async {
+    List<ApiAddress> remaining = state.apiAddresses;
+    if (addressId == kGpsAddressId) {
+      emit(state.copyWith(gpsHidden: true));
+    } else {
+      try {
+        await api.auth.deleteAddress(addressId);
+      } on ApiException catch (e) {
+        return e.message;
+      } catch (_) {
+        return 'Could not delete address. Try again.';
+      }
+      remaining = state.apiAddresses.where((a) => a.id != addressId).toList();
+      emit(state.copyWith(apiAddresses: remaining));
+    }
+    if (state.addressId == addressId) {
+      final defaults = remaining.where((a) => a.isDefault);
+      final next = defaults.isNotEmpty
+          ? defaults.first.id
+          : remaining.isNotEmpty
+              ? remaining.first.id
+              : (gpsAddressOption(state) != null ? kGpsAddressId : 'home');
+      emit(state.copyWith(addressId: next));
+    }
+    return null;
+  }
+
+  /// Re-reads the device location and shows the "Current location" option
+  /// again (after the customer removed it).
+  Future<void> refreshGpsLocation() async {
+    emit(state.copyWith(gpsHidden: false));
+    await loadGpsLocation();
   }
 
   void setNewAddressTag(String tag) => emit(state.copyWith(newAddressTag: tag));
@@ -978,7 +1053,40 @@ class BasketCubit extends Cubit<BasketState> {
     }
 
     emit(state.copyWith(addressSaving: true, clearAddressFormError: true));
+    final editingId = state.editingAddressId;
+    final existing = editingId == null || editingId == kGpsAddressId
+        ? null
+        : state.apiAddresses.where((a) => a.id == editingId).firstOrNull;
     try {
+      if (existing != null) {
+        final updated = await api.auth.updateAddress(
+          existing.id,
+          ApiAddress(
+            id: existing.id,
+            addressType: state.newAddressTag.toLowerCase(),
+            addressLine1: houseNo.trim(),
+            addressLine2: landmark.trim().isEmpty ? null : landmark.trim(),
+            city: city.trim(),
+            state: stateName.trim(),
+            country: existing.country,
+            pincode: pincode.trim(),
+            isDefault: existing.isDefault,
+            latitude: latitude ?? existing.latitude,
+            longitude: longitude ?? existing.longitude,
+          ),
+        );
+        emit(
+          state.copyWith(
+            addressSaving: false,
+            apiAddresses: [
+              for (final a in state.apiAddresses) a.id == updated.id ? updated : a,
+            ],
+            clearEditingAddressId: true,
+          ),
+        );
+        back();
+        return;
+      }
       final saved = await api.auth.addAddress(
         ApiAddress(
           id: '',
@@ -1001,6 +1109,7 @@ class BasketCubit extends Cubit<BasketState> {
           addressSaving: false,
           apiAddresses: addresses,
           addressId: saved.id,
+          clearEditingAddressId: true,
           screen: BasketScreen.addr,
           history: const [BasketScreen.home, BasketScreen.cart],
         ),

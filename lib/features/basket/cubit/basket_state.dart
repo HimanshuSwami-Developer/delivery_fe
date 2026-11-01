@@ -72,6 +72,8 @@ class BasketState extends Equatable {
     this.addressId = 'home',
     this.gpsAddress,
     this.gpsDraft,
+    this.gpsHidden = false,
+    this.editingAddressId,
     this.deliveryDay = 0,
     this.deliverySlotId = 'exp',
     this.paymentMethodId = 'qr',
@@ -207,6 +209,15 @@ class BasketState extends Equatable {
   /// "Current location" option (`addressId == kGpsAddressId`); it is only
   /// POSTed to the backend when an order is actually placed with it.
   final ApiAddress? gpsDraft;
+
+  /// True once the customer removes the "Current location" option from the
+  /// checkout address list; cleared again when they re-fetch GPS.
+  final bool gpsHidden;
+
+  /// Which address the address form is editing: null = a brand-new address,
+  /// a saved address id = edit that one in place, [kGpsAddressId] = save the
+  /// live GPS location (pre-filled, pinned at the exact fix) as an address.
+  final String? editingAddressId;
 
   final int deliveryDay;
   final String deliverySlotId;
@@ -347,6 +358,9 @@ class BasketState extends Equatable {
     String? addressId,
     String? gpsAddress,
     ApiAddress? gpsDraft,
+    bool? gpsHidden,
+    String? editingAddressId,
+    bool clearEditingAddressId = false,
     int? deliveryDay,
     String? deliverySlotId,
     String? paymentMethodId,
@@ -425,6 +439,8 @@ class BasketState extends Equatable {
       addressId: addressId ?? this.addressId,
       gpsAddress: gpsAddress ?? this.gpsAddress,
       gpsDraft: gpsDraft ?? this.gpsDraft,
+      gpsHidden: gpsHidden ?? this.gpsHidden,
+      editingAddressId: clearEditingAddressId ? null : (editingAddressId ?? this.editingAddressId),
       deliveryDay: deliveryDay ?? this.deliveryDay,
       deliverySlotId: deliverySlotId ?? this.deliverySlotId,
       paymentMethodId: paymentMethodId ?? this.paymentMethodId,
@@ -499,6 +515,8 @@ class BasketState extends Equatable {
         addressId,
         gpsAddress,
         gpsDraft,
+        gpsHidden,
+        editingAddressId,
         deliveryDay,
         deliverySlotId,
         paymentMethodId,
