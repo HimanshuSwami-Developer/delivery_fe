@@ -157,6 +157,8 @@ class ProductDetailView extends StatelessWidget {
                           const Expanded(child: _InfoTile(title: 'Easy returns', sub: 'On the doorstep')),
                         ],
                       ),
+                      const SizedBox(height: BasketSpace.md),
+                      _ProductDetailsCard(product: p),
                       const SizedBox(height: BasketSpace.lg),
                       Container(
                         decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: BasketSurface.border))),
@@ -287,7 +289,93 @@ class ProductDetailView extends StatelessWidget {
     if (tab == PdpTab.nutrition) {
       return 'Per 100 ml — Energy 58 kcal · Protein 3.1 g · Fat 3.0 g · Carbohydrate 4.7 g · Calcium 120 mg. Values are indicative and may vary between batches.';
     }
-    return '${p.name} — ${p.pack}. Sourced daily and cold-chain handled from the dark store to your door. Best consumed within 2 days of delivery; keep refrigerated below 5°C.';
+    return '${p.name} — ${p.pack}. Sourced daily and cold-chain handled from the dark store to your door.';
+  }
+}
+
+const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+String _dateLabel(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
+
+/// "Product details" key/value card under the price — unit, shelf life,
+/// expiry and brand, each row only when the admin filled it in. Expiry
+/// turns red with "(Expired)" once the date has passed, and amber when it
+/// falls within the next 7 days.
+class _ProductDetailsCard extends StatelessWidget {
+  const _ProductDetailsCard({required this.product});
+
+  final BasketProduct product;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = product;
+    final expiry = p.expiryDate;
+    Color? expiryColor;
+    var expiryText = '';
+    if (expiry != null) {
+      final daysLeft = DateUtils.dateOnly(expiry).difference(DateUtils.dateOnly(DateTime.now())).inDays;
+      expiryText = _dateLabel(expiry);
+      if (daysLeft < 0) {
+        expiryText += ' (Expired)';
+        expiryColor = BasketColors.error;
+      } else if (daysLeft <= 7) {
+        expiryText += daysLeft == 0 ? ' (Expires today)' : ' ($daysLeft ${daysLeft == 1 ? 'day' : 'days'} left)';
+        expiryColor = const Color(0xFFB26A00);
+      }
+    }
+    final rows = <(IconData, String, String, Color?)>[
+      if (p.pack.isNotEmpty) (Icons.scale_outlined, 'Unit', p.pack, null),
+      if (p.bestBefore.isNotEmpty) (Icons.hourglass_bottom_rounded, 'Shelf life', p.bestBefore, null),
+      if (expiry != null) (Icons.event_outlined, 'Expiry date', expiryText, expiryColor),
+      if (p.brand.isNotEmpty) (Icons.verified_outlined, 'Brand', p.brand, null),
+    ];
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: BasketSurface.card,
+        border: Border.all(color: BasketSurface.border),
+        borderRadius: BasketRadius.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(BasketSpace.md, BasketSpace.sm, BasketSpace.md, BasketSpace.xs),
+            child: Text('Product details', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+          ),
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const Divider(height: 1, thickness: 1, indent: BasketSpace.md, endIndent: BasketSpace.md, color: BasketSurface.border),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: BasketSpace.md, vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(rows[i].$1, size: 16, color: BasketColors.muted),
+                  const SizedBox(width: BasketSpace.xs),
+                  SizedBox(
+                    width: 92,
+                    child: Text(rows[i].$2, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: BasketColors.muted)),
+                  ),
+                  Expanded(
+                    child: Text(
+                      rows[i].$3,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: rows[i].$4 ?? BasketColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: BasketSpace.xxs),
+        ],
+      ),
+    );
   }
 }
 

@@ -34,6 +34,9 @@ class BasketAdminState extends Equatable {
     this.audience = 'All users',
     this.apiOrders = const [],
     this.ordersLoading = false,
+    this.newOrdersCount = 0,
+    this.newOrderAlertSeq = 0,
+    this.newOrderAlertCount = 0,
     this.currentOrder,
     this.apiCategories = const [],
     this.categoriesLoading = false,
@@ -137,6 +140,17 @@ class BasketAdminState extends Equatable {
 
   final List<ApiOrder> apiOrders;
   final bool ordersLoading;
+
+  /// Orders still in `new` status (not packed yet) — drives the red badge
+  /// on the sidebar's Orders link and the top-bar bell. Polled every 30 s
+  /// by `BasketAdminCubit`.
+  final int newOrdersCount;
+
+  /// Bumped each time polling sees [newOrdersCount] go up, so the shell can
+  /// show a one-off "new order" snackbar; [newOrderAlertCount] is how many
+  /// arrived since the previous poll.
+  final int newOrderAlertSeq;
+  final int newOrderAlertCount;
 
   /// Full detail (with line items) for [sel], fetched by `openOrder`.
   final ApiOrder? currentOrder;
@@ -280,6 +294,9 @@ class BasketAdminState extends Equatable {
     String? audience,
     List<ApiOrder>? apiOrders,
     bool? ordersLoading,
+    int? newOrdersCount,
+    int? newOrderAlertSeq,
+    int? newOrderAlertCount,
     ApiOrder? currentOrder,
     List<ApiCategory>? apiCategories,
     bool? categoriesLoading,
@@ -363,6 +380,9 @@ class BasketAdminState extends Equatable {
       audience: audience ?? this.audience,
       apiOrders: apiOrders ?? this.apiOrders,
       ordersLoading: ordersLoading ?? this.ordersLoading,
+      newOrdersCount: newOrdersCount ?? this.newOrdersCount,
+      newOrderAlertSeq: newOrderAlertSeq ?? this.newOrderAlertSeq,
+      newOrderAlertCount: newOrderAlertCount ?? this.newOrderAlertCount,
       currentOrder: currentOrder ?? this.currentOrder,
       apiCategories: apiCategories ?? this.apiCategories,
       categoriesLoading: categoriesLoading ?? this.categoriesLoading,
@@ -435,6 +455,9 @@ class BasketAdminState extends Equatable {
         audience,
         apiOrders,
         ordersLoading,
+        newOrdersCount,
+        newOrderAlertSeq,
+        newOrderAlertCount,
         currentOrder,
         apiCategories,
         categoriesLoading,

@@ -43,6 +43,8 @@ class BasketProduct {
     this.imageUrl = '',
     this.images = const [],
     this.reviews = const [],
+    this.bestBefore = '',
+    this.expiryDate,
   });
 
   final String id;
@@ -76,6 +78,13 @@ class BasketProduct {
   /// Only populated once the full product detail has loaded — see [images].
   final List<ApiProductReview> reviews;
 
+  /// Shelf life as printed on the pack ("6 months from packaging"); empty
+  /// when the admin hasn't set one.
+  final String bestBefore;
+
+  /// Expiry of the batch currently in stock, if the admin set one.
+  final DateTime? expiryDate;
+
   int get discountPct => (100 * (1 - price / mrp)).round();
 
   /// [id] is the numeric Django pk stringified — every place in this app
@@ -97,6 +106,8 @@ class BasketProduct {
         imageUrl: p.mainImageUrl,
         images: [for (final img in p.images) img.imageUrl],
         reviews: p.reviews,
+        bestBefore: p.bestBefore,
+        expiryDate: p.expiryDate,
       );
 }
 

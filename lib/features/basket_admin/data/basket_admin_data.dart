@@ -53,7 +53,7 @@ const List<AdminNavEntry> kAdminNav = [
   AdminNavEntry.heading('Overview'),
   AdminNavEntry.link('Dashboard', '▤', AdminPage.dash),
   AdminNavEntry.heading('Commerce'),
-  AdminNavEntry.link('Orders', '⬒', AdminPage.orders, badge: '18'),
+  AdminNavEntry.link('Orders', '⬒', AdminPage.orders),
   AdminNavEntry.link('Products', '▦', AdminPage.products),
   AdminNavEntry.link('Categories', '◈', AdminPage.categories),
   AdminNavEntry.link('Inventory', '◧', AdminPage.inventory, badge: '7'),
@@ -69,6 +69,8 @@ const List<AdminNavEntry> kAdminNav = [
   AdminNavEntry.heading('Reports'),
   AdminNavEntry.link('Sales reports', '◐', AdminPage.sales),
   AdminNavEntry.link('GST reports', '₹', AdminPage.gst),
+  AdminNavEntry.heading('Settings'),
+  AdminNavEntry.link('App updates', '⟳', AdminPage.appUpdate),
 ];
 
 /// The nav entry (if any) that should show as "active" for [page] — folds
@@ -103,6 +105,7 @@ const Map<AdminPage, AdminTitle> kAdminTitles = {
   AdminPage.notifs: AdminTitle('Notification management', 'Push campaigns and audiences'),
   AdminPage.sales: AdminTitle('Sales reports', 'Revenue, orders and category mix'),
   AdminPage.gst: AdminTitle('GST reports', 'Slab-wise tax liability and filings'),
+  AdminPage.appUpdate: AdminTitle('App updates', 'Optional and force update prompts in the customer app'),
 };
 
 /// Formats an integer with Indian-style digit grouping, e.g. `1240` ->

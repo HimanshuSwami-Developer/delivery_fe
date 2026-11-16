@@ -25,6 +25,22 @@ class OrdersRepository {
     }
   }
 
+  /// Total number of orders matching [status], read from DRF's `count`
+  /// with a 1-row page so it's cheap enough to poll.
+  Future<int> countOrders({String? status}) async {
+    try {
+      final response = await _client.dio.get('/orders/', queryParameters: {
+        'status': ?status,
+        'page_size': 1,
+      });
+      final data = response.data;
+      if (data is Map && data['count'] is int) return data['count'] as int;
+      return extractResults(data).length;
+    } catch (e) {
+      throw ApiException.from(e);
+    }
+  }
+
   /// The store/warehouse pickup point — hardcoded on the backend
   /// (`OrderViewSet.store_location`), not in this app.
   Future<ApiStoreLocation> fetchStoreLocation() async {

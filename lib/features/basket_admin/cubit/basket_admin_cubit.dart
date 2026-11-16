@@ -100,6 +100,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   }
 
   Future<void> signOut() async {
+    _stopNewOrdersPolling();
     await api.auth.logout();
     emit(const BasketAdminState());
   }
@@ -108,6 +109,61 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
 
   void _loadShellData() {
     loadDashboard();
+    _startNewOrdersPolling();
+  }
+
+  // ── New-order badge ───────────────────────────────────────────────────
+
+  static const _newOrdersPollInterval = Duration(seconds: 30);
+  Timer? _newOrdersPoll;
+
+  /// Whether [refreshNewOrdersCount] has a real baseline yet — the first
+  /// fetch after sign-in only sets the count, it never fires the
+  /// "new order" alert for orders that were already waiting.
+  bool _newOrdersBaselineSet = false;
+
+  void _startNewOrdersPolling() {
+    _stopNewOrdersPolling();
+    refreshNewOrdersCount();
+    _newOrdersPoll = Timer.periodic(_newOrdersPollInterval, (_) => refreshNewOrdersCount());
+  }
+
+  void _stopNewOrdersPolling() {
+    _newOrdersPoll?.cancel();
+    _newOrdersPoll = null;
+    _newOrdersBaselineSet = false;
+  }
+
+  /// Re-reads how many orders are still `new`. If that went up since the
+  /// last check, bumps [BasketAdminState.newOrderAlertSeq] (the shell shows
+  /// a snackbar for it) and refreshes the Orders table if it's open.
+  Future<void> refreshNewOrdersCount() async {
+    if (state.screen != AdminScreen.app) return;
+    try {
+      final count = await api.orders.countOrders(status: kOrderStatusToCode['New']);
+      if (isClosed || state.screen != AdminScreen.app) return;
+      final arrived = count - state.newOrdersCount;
+      if (_newOrdersBaselineSet && arrived > 0) {
+        emit(state.copyWith(
+          newOrdersCount: count,
+          newOrderAlertSeq: state.newOrderAlertSeq + 1,
+          newOrderAlertCount: arrived,
+        ));
+        if (state.page == AdminPage.orders) loadOrders();
+        if (state.page == AdminPage.dash) loadDashboard();
+      } else {
+        emit(state.copyWith(newOrdersCount: count));
+      }
+      _newOrdersBaselineSet = true;
+    } catch (_) {
+      // Network blip — keep the last known count, try again next tick.
+    }
+  }
+
+  /// Bell / snackbar "View": the Orders page filtered to just `New`.
+  void goNewOrders() {
+    emit(state.copyWith(status: 'New'));
+    go(AdminPage.orders);
   }
 
   // ── Navigation ────────────────────────────────────────────────────────
@@ -155,6 +211,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         if (state.storeSettings == null) loadStoreSettings();
       case AdminPage.orderDet:
       case AdminPage.productNew:
+      case AdminPage.appUpdate:
         break;
     }
   }
@@ -235,6 +292,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
       final order = await api.orders.setStatus(orderId, code);
       emit(state.copyWith(currentOrder: order));
       loadOrders();
+      refreshNewOrdersCount();
     } on ApiException catch (_) {}
   }
 
@@ -309,6 +367,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
         orderStatus: kOrderStatusFromCode[order.status] ?? order.status,
       ));
       loadOrders();
+      refreshNewOrdersCount();
     } on ApiException catch (_) {
       emit(state.copyWith(modal: AdminModal.none));
     }
@@ -497,6 +556,7 @@ class BasketAdminCubit extends Cubit<BasketAdminState> {
   @override
   Future<void> close() {
     _stockSearchDebounce?.cancel();
+    _newOrdersPoll?.cancel();
     return super.close();
   }
 

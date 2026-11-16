@@ -1,6 +1,7 @@
 import 'package:fastswipe/features/basket/presentation/widgets/image_slot.dart';
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_data.dart';
+import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
 import 'package:fastswipe/features/basket_admin/presentation/admin_ui.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +151,9 @@ class _NavLink extends StatelessWidget {
                 Expanded(
                   child: Text(entry.label, style: GoogleFonts.manrope(fontSize: 12.5, fontWeight: FontWeight.w700, color: fg)),
                 ),
-                if (entry.badge != null)
+                if (entry.page == AdminPage.orders)
+                  const _NewOrdersBadge()
+                else if (entry.badge != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: 2),
                     decoration: BoxDecoration(color: Color(0xFFFFFBF2), borderRadius: BorderRadius.circular(AdminRadius.pill)),
@@ -163,6 +166,26 @@ class _NavLink extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Live count of orders still in `New` status, in red so it reads as a
+/// notification; hidden entirely when there are none.
+class _NewOrdersBadge extends StatelessWidget {
+  const _NewOrdersBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = context.select((BasketAdminCubit c) => c.state.newOrdersCount);
+    if (count <= 0) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AdminSpace.xs, vertical: 2),
+      decoration: BoxDecoration(color: AdminSurface.error, borderRadius: BorderRadius.circular(AdminRadius.pill)),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: GoogleFonts.manrope(fontSize: 9.5, fontWeight: FontWeight.w800, color: const Color(0xFFFFFBF2)),
       ),
     );
   }

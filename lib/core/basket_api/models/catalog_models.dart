@@ -131,6 +131,9 @@ class ApiProduct {
     this.gstRateName,
     this.cgstPct = 0,
     this.sgstPct = 0,
+    this.bestBefore = '',
+    this.expiryDate,
+    this.isExpired = false,
     this.images = const [],
     this.reviews = const [],
   }) : sellingPrice = sellingPrice ?? price;
@@ -166,6 +169,16 @@ class ApiProduct {
   final String? gstRateName;
   final double cgstPct;
   final double sgstPct;
+
+  /// Shelf life as printed on the pack, e.g. "6 months from packaging".
+  /// Empty when the admin hasn't set one.
+  final String bestBefore;
+
+  /// Expiry date of the batch currently in stock (date only, no time).
+  final DateTime? expiryDate;
+
+  /// Server-computed: [expiryDate] is before today.
+  final bool isExpired;
   final List<ApiProductImage> images;
 
   /// Only present on the detail fetch (`ProductDetailSerializer` nests
@@ -198,6 +211,9 @@ class ApiProduct {
         gstRateName: json['gst_rate_name'] as String?,
         cgstPct: asDouble(json['cgst_pct']),
         sgstPct: asDouble(json['sgst_pct']),
+        bestBefore: json['best_before'] as String? ?? '',
+        expiryDate: json['expiry_date'] == null ? null : DateTime.parse(json['expiry_date'] as String),
+        isExpired: json['is_expired'] as bool? ?? false,
         images: (json['images'] as List? ?? [])
             .map((e) => ApiProductImage.fromJson(e as Map<String, dynamic>))
             .toList(),

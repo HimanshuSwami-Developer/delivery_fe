@@ -35,6 +35,8 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   late final _sku = TextEditingController(text: _editing?.sku ?? '');
   late final _hsnCode = TextEditingController(text: _editing?.hsnCode ?? '');
   late final _description = TextEditingController(text: _editing?.description ?? '');
+  late final _bestBefore = TextEditingController(text: _editing?.bestBefore ?? '');
+  late DateTime? _expiryDate = _editing?.expiryDate;
   late final _mrp = TextEditingController(text: _editing == null ? '' : '${_editing.mrp}');
   late final _price = TextEditingController(text: _editing == null ? '' : '${_editing.price}');
   late final _costPrice = TextEditingController();
@@ -83,6 +85,7 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
     _sku.dispose();
     _hsnCode.dispose();
     _description.dispose();
+    _bestBefore.dispose();
     _mrp.dispose();
     _price.dispose();
     _costPrice.dispose();
@@ -124,6 +127,8 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
         'gst_rate': _gstRateId,
         'is_out_of_stock': _outOfStock,
         'main_image_url': _mainImageUrl,
+        'best_before': _bestBefore.text.trim(),
+        'expiry_date': _expiryDate == null ? null : _isoDate(_expiryDate!),
         // Only meaningful at creation — the backend ignores it on update,
         // since editing stock afterward goes through the Inventory screen.
         if (_editing == null) 'initial_stock': int.tryParse(_initialStock.text.trim()) ?? 0,
@@ -256,6 +261,26 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
                           Expanded(child: AdminEditField(label: 'Pack size', controller: _pack, hint: 'Enter pack size (e.g. 5 kg)')),
                           const SizedBox(width: AdminSpace.sm),
                           Expanded(child: AdminEditField(label: 'SKU code', controller: _sku, hint: 'Enter SKU code (e.g. SKU-1042)')),
+                        ],
+                      ),
+                      const SizedBox(height: AdminSpace.md),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AdminEditField(
+                              label: 'Best before (opt.)',
+                              controller: _bestBefore,
+                              hint: 'e.g. 6 months from packaging',
+                            ),
+                          ),
+                          const SizedBox(width: AdminSpace.sm),
+                          Expanded(
+                            child: _ExpiryDateField(
+                              value: _expiryDate,
+                              onChanged: (d) => setState(() => _expiryDate = d),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: AdminSpace.md),
@@ -428,6 +453,66 @@ class _AdminProductNewViewState extends State<AdminProductNewView> {
   }
 }
 
+String _isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+/// Tap-to-pick expiry date in the same shape as [AdminEditField], with a
+/// clear button so an expiry can be removed again. Shows "Expired" in red
+/// once the picked date is in the past.
+class _ExpiryDateField extends StatelessWidget {
+  const _ExpiryDateField({required this.value, required this.onChanged});
+
+  final DateTime? value;
+  final ValueChanged<DateTime?> onChanged;
+
+  Future<void> _pick(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: value ?? now,
+      firstDate: DateTime(now.year - 2),
+      lastDate: DateTime(now.year + 10),
+      helpText: 'Expiry date',
+    );
+    if (picked != null) onChanged(picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final v = value;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final expired = v != null && DateUtils.dateOnly(v).isBefore(today);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const AdminFieldLabel('Expiry date (opt.)'),
+        InkWell(
+          onTap: () => _pick(context),
+          borderRadius: BorderRadius.circular(AdminRadius.md),
+          child: InputDecorator(
+            decoration: adminInputDecoration(hintText: 'Pick a date').copyWith(
+              suffixIcon: v == null
+                  ? const Icon(Icons.calendar_today_outlined, size: 18)
+                  : IconButton(
+                      tooltip: 'Clear expiry date',
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => onChanged(null),
+                    ),
+            ),
+            isEmpty: v == null,
+            child: v == null
+                ? null
+                : Text(
+                    expired ? '${_isoDate(v)} · Expired' : _isoDate(v),
+                    style: adminInputText().copyWith(color: expired ? AdminSurface.error : AdminColors.ink),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 /// Live "selling price + CGST + SGST = customer price" preview, mirroring
 /// the server's `Product.selling_price` so the admin sees exactly what the

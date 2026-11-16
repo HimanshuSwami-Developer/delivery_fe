@@ -35,8 +35,16 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
   String _title = 'Update available';
   String _message = '';
   String _packageName = '';
-  bool _optionalDismissed = false;
+  /// The `latest_version_code` the user tapped "Later" on — the optional
+  /// prompt stays hidden for that release only, and comes back as soon as
+  /// the admin publishes a newer one.
+  int? _dismissedLatestCode;
+  int _latestCode = 0;
   bool _busy = false;
+  bool _checking = false;
+  DateTime? _lastCheck;
+
+  bool get _optionalDismissed => _dismissedLatestCode == _latestCode;
 
   bool get _supported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
@@ -56,12 +64,22 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Coming back from the Play Store without having updated — re-check so
-    // a forced block can't be escaped by backgrounding the app.
-    if (state == AppLifecycleState.resumed && _mode == _UpdateMode.force) _check();
+    if (state != AppLifecycleState.resumed) return;
+    // Re-check every time the app comes back to the foreground, not only on
+    // a cold start — most people never kill the app, so an update the admin
+    // publishes later would otherwise never reach them. Force mode always
+    // re-checks (coming back from the Play Store without updating must not
+    // escape the block); otherwise at most once a minute.
+    final last = _lastCheck;
+    if (_mode == _UpdateMode.force || last == null || DateTime.now().difference(last) > const Duration(minutes: 1)) {
+      _check();
+    }
   }
 
   Future<void> _check() async {
+    if (_checking) return;
+    _checking = true;
+    _lastCheck = DateTime.now();
     try {
       final info = await PackageInfo.fromPlatform();
       _packageName = info.packageName;
@@ -80,6 +98,7 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
       if (!mounted) return;
       setState(() {
         _mode = mode;
+        _latestCode = latestCode;
         _title = (data['title'] as String?)?.trim().isNotEmpty == true ? data['title'] as String : 'Update available';
         _message = (data['message'] as String?) ?? '';
       });
@@ -88,8 +107,12 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
       debugPrint('App update check failed: ${e.message}');
     } catch (e) {
       debugPrint('App update check failed: $e');
+    } finally {
+      _checking = false;
     }
   }
+
+  void _dismissOptional() => setState(() => _dismissedLatestCode = _latestCode);
 
   /// Tries Play's in-app update flow first (immediate for force, flexible
   /// for optional); falls back to opening the Play Store listing when Play
@@ -107,7 +130,7 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
         final result = await InAppUpdate.performImmediateUpdate();
         if (result == AppUpdateResult.success) return;
       } else if (available && _mode == _UpdateMode.optional && info.flexibleUpdateAllowed) {
-        if (mounted) setState(() => _optionalDismissed = true);
+        if (mounted) _dismissOptional();
         final result = await InAppUpdate.startFlexibleUpdate();
         if (result == AppUpdateResult.success) await InAppUpdate.completeFlexibleUpdate();
         return;
@@ -221,7 +244,7 @@ class _AppUpdateGateState extends State<AppUpdateGate> with WidgetsBindingObserv
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => setState(() => _optionalDismissed = true),
+                    onPressed: _dismissOptional,
                     child: const Text('Later', style: TextStyle(color: AppColors.onSurfaceVariant)),
                   ),
                   const SizedBox(width: 8),

@@ -1,7 +1,9 @@
 import 'package:fastswipe/features/basket_admin/cubit/basket_admin_cubit.dart';
+import 'package:fastswipe/features/basket_admin/cubit/basket_admin_state.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_api.dart';
 import 'package:fastswipe/features/basket_admin/data/basket_admin_enums.dart';
 import 'package:fastswipe/features/basket_admin/presentation/basket_admin_style.dart';
+import 'package:fastswipe/features/basket_admin/presentation/screens/admin_app_update_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_delivery_settings_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_banners_view.dart';
 import 'package:fastswipe/features/basket_admin/presentation/screens/admin_categories_view.dart';
@@ -66,10 +68,25 @@ class _AdminRoot extends StatelessWidget {
     // button in `AdminTopBar`) instead of pinned inline, same threshold
     // `AdminLoginView` already uses for its own narrow/wide split.
     final narrow = MediaQuery.sizeOf(context).width < 900;
-    return Scaffold(
-      backgroundColor: AdminColors.backdrop,
-      drawer: narrow && screen == AdminScreen.app ? const Drawer(width: 238, child: SafeArea(child: AdminSidebar())) : null,
-      body: screen == AdminScreen.login ? const AdminLoginView() : _AdminShell(narrow: narrow),
+    return BlocListener<BasketAdminCubit, BasketAdminState>(
+      listenWhen: (a, b) => b.newOrderAlertSeq != a.newOrderAlertSeq && b.screen == AdminScreen.app,
+      listener: (context, state) {
+        final n = state.newOrderAlertCount;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            behavior: SnackBarBehavior.floating,
+            width: narrow ? null : 420,
+            duration: const Duration(seconds: 6),
+            content: Text(n == 1 ? '🛒 New order received' : '🛒 $n new orders received'),
+            action: SnackBarAction(label: 'View', onPressed: context.read<BasketAdminCubit>().goNewOrders),
+          ));
+      },
+      child: Scaffold(
+        backgroundColor: AdminColors.backdrop,
+        drawer: narrow && screen == AdminScreen.app ? const Drawer(width: 238, child: SafeArea(child: AdminSidebar())) : null,
+        body: screen == AdminScreen.login ? const AdminLoginView() : _AdminShell(narrow: narrow),
+      ),
     );
   }
 }
@@ -137,6 +154,7 @@ class _AdminPage extends StatelessWidget {
       AdminPage.categories => const AdminCategoriesView(),
       AdminPage.inventory => const AdminInventoryView(),
       AdminPage.delivery => const AdminDeliverySettingsView(),
+      AdminPage.appUpdate => const AdminAppUpdateView(),
       AdminPage.customers => const AdminCustomersView(),
       AdminPage.partners => const AdminPartnersView(),
       AdminPage.coupons => const AdminCouponsView(),

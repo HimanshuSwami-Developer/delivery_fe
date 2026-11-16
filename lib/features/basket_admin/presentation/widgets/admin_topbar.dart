@@ -58,7 +58,62 @@ class AdminTopBar extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: AdminSpace.sm),
+          const _NewOrdersBell(),
         ],
+      ),
+    );
+  }
+}
+
+/// Bell with a red count of orders still in `New` status — visible on
+/// every page (including narrow screens, where the sidebar's badge is
+/// tucked away in the drawer). Tapping it opens Orders filtered to New.
+class _NewOrdersBell extends StatelessWidget {
+  const _NewOrdersBell();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = context.select((BasketAdminCubit c) => c.state.newOrdersCount);
+    return Tooltip(
+      message: count == 0 ? 'No new orders' : '$count new ${count == 1 ? 'order' : 'orders'}',
+      child: InkWell(
+        onTap: context.read<BasketAdminCubit>().goNewOrders,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                count > 0 ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                size: 22,
+                color: AdminColors.ink,
+              ),
+              if (count > 0)
+                Positioned(
+                  top: 2,
+                  right: 0,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: AdminSurface.error,
+                      borderRadius: BorderRadius.circular(AdminRadius.pill),
+                      border: Border.all(color: const Color(0xFFFFFBF2), width: 1.5),
+                    ),
+                    child: Text(
+                      count > 99 ? '99+' : '$count',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.manrope(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFFFFFBF2)),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

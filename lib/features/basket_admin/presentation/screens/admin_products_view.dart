@@ -129,6 +129,10 @@ class _ProductRow extends StatelessWidget {
                         const SizedBox(width: AdminSpace.xs),
                         AdminChipBadge('Out of stock'),
                       ],
+                      if (p.isExpired) ...[
+                        const SizedBox(width: AdminSpace.xs),
+                        AdminChipBadge('Expired'),
+                      ],
                     ],
                   ),
                 ],

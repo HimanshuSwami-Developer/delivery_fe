@@ -22,6 +22,7 @@ enum AdminPage {
   notifs,
   sales,
   gst,
+  appUpdate,
 }
 
 /// Every modal the console can show: the delivery-partner assignment sheet
